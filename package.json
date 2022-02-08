@@ -1,0 +1,33 @@
+{
+  "scripts": {
+    "css": "tailwindcss -i ./src/index.css -o ./serve/index.css --watch",
+    "bundle": "esbuild ./src/index.tsx --bundle --loader:.png=file",
+    "build": "npm run bundle -- --target=es2016 --minify",
+    "serve": "node serve.js",
+    "build-dev": "npm run bundle -- --outdir=./serve --sourcemap=inline --watch",
+    "start": "concurrently 'npm:serve' 'npm:css' 'npm:build-dev'"
+  },
+  "dependencies": {
+    "ethers": "^5.5.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "three": "^0.136.0"
+  },
+  "devDependencies": {
+    "@deanc/esbuild-plugin-postcss": "^1.0.2",
+    "@snowpack/plugin-postcss": "^1.4.3",
+    "@snowpack/plugin-react-refresh": "^2.5.0",
+    "@snowpack/plugin-typescript": "^1.2.1",
+    "@types/react": "^17.0.4",
+    "@types/react-dom": "^17.0.3",
+    "@types/snowpack-env": "^2.3.3",
+    "@types/three": "^0.136.1",
+    "esbuild": "^0.14.13",
+    "esbuild-dev-server": "^0.3.0",
+    "live-server": "^1.2.1",
+    "postcss": "^8.4.5",
+    "snowpack": "^3.3.7",
+    "tailwindcss": "^3.0.13",
+    "typescript": "^4.2.4"
+  }
+}

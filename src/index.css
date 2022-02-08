@@ -1,0 +1,40 @@
+@tailwind base;
+/* @tailwind components; */
+@tailwind utilities;
+
+html {
+  font-family: 'VT323', monospace;
+  letter-spacing: 0.8px;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-pink-500;
+}
+
+::-moz-selection {
+  color: white;
+  @apply bg-pink-400;
+}
+::selection {
+  color: white;
+  @apply bg-pink-400;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0px 0px 0px 6px rgb(236 72 153 / 40%);
+  }
+  to {
+    box-shadow: 0px 0px 0px 20px rgb(236 72 153 / 40%);
+  }
+}
+
+.glow-shadow {
+  animation: 1.4s ease-in-out 0s infinite alternate glow;
+}
