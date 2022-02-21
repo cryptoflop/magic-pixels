@@ -1,2 +1,2 @@
 # magic-pixels
-MagicPixels
+MagicPixels app
