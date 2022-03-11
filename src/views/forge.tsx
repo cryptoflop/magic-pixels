@@ -53,7 +53,7 @@ function Forge({}) {
           </div>
         ))}
       </div>
-      <div className="border-2 border-pink-500 grid">
+      <div className="border-2 border-pink-500 grid m-auto aspect-square h-full cursor-pointer">
         <div className="col-[1] row-[1] grid">
           <Plate pixels={pixels} />
         </div>
