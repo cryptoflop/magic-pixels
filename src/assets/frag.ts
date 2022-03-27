@@ -108,7 +108,7 @@ vec3 glow(Ray ray)
 	float minDist = length(ray.org - ray.dir * dot(ray.dir, ray.org)) - 3.;
 	float inten = max(0.1, 1.-pow(foreStarDist()*.3, 0.8));
 	float noi = sin(time*2. + sin(time*2.2)*2.) + 1.;
-	return vec3(0.8, 0.2, 0.5)/pow(minDist, 2.) * (inten+noi/15.) * 0.8;
+	return vec3(0.8, 0.2, 0.5)/pow(minDist, 1.) * (inten+noi/15.) * 0.1;
 }
 
 float foreIntensity(vec3 pos)
@@ -129,7 +129,7 @@ float backIntensity(vec3 pos, vec3 center, float speed, float spacing)
     pos.z -= speed*time;
     pos.z += spacing/2.;
     pos.z = mod(pos.z, spacing);
-    pos.z -= spacing/2.;
+    pos.z -= spacing/1.6;
     vec3 stretch = pos.z > 0. ? vec3(1.) : vec3(1.,1.,.05);
     float dist = length(pos*stretch);
     return max(0., 2.-dist*2.);
@@ -139,23 +139,21 @@ VolData shootingStars(Ray ray)
 {
     float dist = 0.;
     vec3 p;
-    float fIntensity = 0.;
     float bIntensity = 0.;
     float a = 0.8;
     for (float i = 0.; i < 50.; i+=1.)
     {
         p = ray.org + ray.dir * dist * i;
         dist += 0.01;
-        fIntensity += foreIntensity(p);
         p.yz *= mat2(cos(a), sin(a), -sin(a), cos(a));
-        bIntensity += backIntensity(p, vec3(-8., -1., 0.), 20., 50.);
-        bIntensity += backIntensity(p, vec3(-4., 9., 0.), 20., 60.);
-        bIntensity += backIntensity(p, vec3(-13., 5., 0.), 40., 80.);
+        bIntensity += backIntensity(p, vec3(-8., -1., 0.), 14., 170.);
+        bIntensity += backIntensity(p, vec3(-9., 12., 0.), 14., 160.);
+        bIntensity += backIntensity(p, vec3(-13., 20., 0.), 20., 180.);
+        bIntensity += backIntensity(p, vec3(-13., 5., 0.), 30., 190.);
     }
     VolData v;
-    v.fgCol = vec3(.9,.1,.5) * fIntensity;
     v.bgCol = vec3(.8,.1,.4) * bIntensity*0.6;
-    v.bgCol += vec3(.8,.1,.5) * pow(hash(ray.dir.yz), 50.);
+    v.bgCol += vec3(.8,.1,.5) * pow(hash(ray.dir.zy), 60.);
    
     return v;
 }

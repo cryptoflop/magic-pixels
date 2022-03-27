@@ -5,7 +5,7 @@ import { rndBtwn } from './utils';
 export const BLACK = 221;
 export const WHITE = 0;
 
-export function rndColorIdx(fromIdx?: number) {
+export function rndColorIdx() {
   return rndBtwn(1, 220);
 }
 

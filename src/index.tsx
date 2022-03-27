@@ -1,10 +1,8 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
+/* @refresh reload */
+import './index.css';
+import { render } from 'solid-js/web';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+import Routing from './Routing';
+import { Router } from 'solid-app-router';
+
+render(() => <Router><Routing /></Router>, document.getElementById('root') as HTMLElement);

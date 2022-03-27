@@ -1,24 +1,26 @@
-import React, { useEffect, useRef } from 'react';
-import { colorInfo } from 'src/helpers/color-utils';
+import { createEffect, JSX, splitProps } from 'solid-js';
+import { colorInfo } from '../helpers/color-utils';
 import { rndBtwn } from '../helpers/utils';
 
-function Pixel(props: { colors: number[]; className?: string }) {
-  const div = useRef<HTMLDivElement>(null);
+export type PixelData = number[];
 
-  useEffect(() => {
-    const stops = props.colors.map((color) => colorInfo(color)[0]);
-    if (stops.length < 2) {
-      div.current!.style.background = stops[0];
+export default function Pixel(props: JSX.HTMLAttributes<HTMLDivElement> & { colors: PixelData; }) {
+  const [local, elProps] = splitProps(props, ['colors']);
+
+  let div: HTMLDivElement;
+
+  createEffect(() => {
+    if (typeof local.colors === 'number') {
+      div!.style.background = colorInfo(local.colors)[0];
     } else {
-      div.current!.animate(stops.map((s) => ({ background: s })).concat([{ background: stops[0] }]), {
+      const stops = local.colors.map((color) => colorInfo(color)[0]);
+      div!.animate(stops.map((s) => ({ backgroundColor: s })).concat([{ backgroundColor: stops[0] }]), {
         duration: stops.length * 1000,
         iterations: Infinity
         // easing: 'ease-in-out'
       }).currentTime = rndBtwn(0, 900);
     }
-  }, [props.colors]);
+  }, [local.colors]);
 
-  return <div className={props.className} ref={div}></div>;
+  return <div ref={r => div = r} {...elProps} />;
 }
-
-export default Pixel;

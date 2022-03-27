@@ -1,25 +1,19 @@
 {
-  "include": [
-    "src",
-    "types"
-  ],
   "compilerOptions": {
-    "module": "esnext",
-    "target": "esnext",
+    "target": "ESNext",
+    "module": "ESNext",
     "moduleResolution": "node",
-    "jsx": "preserve",
-    "baseUrl": "./",
-    /* paths - import rewriting/resolving */
-    "paths": {
-      // "https://cdn.skypack.dev/three": ["node_modules/@types/three"]
-    },
-    "noEmit": true,
-    /* Additional Options */
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "importsNotUsedAsValues": "error"
+    "esModuleInterop": true,
+    "inlineSourceMap": true,
+    "resolveJsonModule": true,
+    "jsx": "preserve",
+    "strict": true,
+    "jsxImportSource": "solid-js",
+    "types": [
+      "vite/client"
+    ],
+    "noEmit": true,
+    "isolatedModules": true
   }
 }

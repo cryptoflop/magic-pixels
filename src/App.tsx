@@ -1,21 +1,18 @@
-import React, { useMemo, useState } from 'react';
-import Menu from './elements/menu';
-import Auctionhouse from './views/auctionhouse';
-import Forge from './views/forge';
-import Nether from './views/nether';
-import Treasury from './views/treasury';
+import { Outlet } from 'solid-app-router';
+import type { Component } from 'solid-js';
+import Menu from './elements/Menu';
+import NetherBack from './elements/NetherBack';
 
-function App({}) {
-  const [view, setView] = useState(3);
-  const routes = useMemo(() => [<Nether />, <Auctionhouse />, <Forge />, <Treasury />], []);
-  return (
-    <div className="w-screen h-screen grid grid-rows-[max-content,1fr] grid-cols-1 gap-4 p-4 bg-sate-50 dark:bg-[#141a1e] text-pink-500 text-xl">
-      <div>
-        <Menu view={view} setView={setView} />
+const App: Component = () => {
+  return <>
+    <NetherBack />
+    <div className='absolute h-[100vh] w-[100vw] grid grid-rows-[1fr,min-content]'>
+      <div className='grid'>
+        <Outlet />
       </div>
-      <div className="border-pink-500 relative">{routes[view]}</div>
+      <Menu />
     </div>
-  );
-}
+  </>;
+};
 
 export default App;
