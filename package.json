@@ -1,13 +1,26 @@
 {
   "name": "magic-pixels",
-  "version": "0.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Get lost in a nether full of magic pixels",
+  "info": "Web3 app where you can gamble to get pixels which can be used to create NFT's",
+  "homepage": "https://www.magic-pixels.xyz",
+  "contributors": [
+    {
+      "name": "Max David",
+      "email": "wow.max.david@gmail.com",
+      "url": "https://github.com/maxdavidwow"
+    }
+  ],
+  "keywords": [
+    "solidhack",
+    "best_app"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview"
   },
-  "license": "MIT",
   "devDependencies": {
     "@types/three": "^0.138.0",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
