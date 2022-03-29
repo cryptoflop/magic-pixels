@@ -45,7 +45,7 @@ const NetherBack: Component = () => {
       }
       requestAnimationFrame(animate);
     };
-    // animate(0);
+    animate(0);
 
     const resizeCanvasToDisplaySize = () => {
       renderer.setSize(resizeContainer.clientWidth, resizeContainer.clientHeight, true);
