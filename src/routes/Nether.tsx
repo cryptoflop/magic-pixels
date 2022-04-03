@@ -1,4 +1,4 @@
-import { Component, Index, onCleanup, onMount } from 'solid-js';
+import { Component, Index, onCleanup } from 'solid-js';
 import Button from '../elements/Button';
 
 import * as THREE from 'three';
@@ -51,7 +51,7 @@ const Nether: Component = () => {
     mounted = false;
   });
 
-  return <div className='bg-pink-500/70 flex flex-col p-8 pb-4 space-y-4 m-auto'>
+  return <div className='bg-pink-500/70 flex flex-col p-8 pb-4 space-y-4 m-auto select-none'>
     <div className='bg-black/70 flex-grow flex p-4 space-x-4'>
       <Index each={slotRefs}>
         {(_, i) => <div ref={r => slotRefs[i].container = r}

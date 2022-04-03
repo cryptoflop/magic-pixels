@@ -2,6 +2,7 @@ import { Outlet } from 'solid-app-router';
 import type { Component } from 'solid-js';
 import Menu from './elements/Menu';
 import NetherBack from './elements/NetherBack';
+import Wallet from './elements/Wallet';
 
 const App: Component = () => {
   return <>
@@ -11,6 +12,9 @@ const App: Component = () => {
         <Outlet />
       </div>
       <Menu />
+    </div>
+    <div className='absolute right-2 top-2'>
+      <Wallet />
     </div>
   </>;
 };
