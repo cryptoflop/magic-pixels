@@ -48,6 +48,11 @@ const Forge: Component = () => {
     setPixels(s);
   };
 
+  const mint = () => {
+    const stored = JSON.parse(localStorage.getItem('plates') || '[]');
+    localStorage.setItem('plates', JSON.stringify([...stored].concat([[...pixels()]])));
+  };
+
   return <div className='flex flex-col-reverse sm:flex-row-reverse text-white'>
     {/* Pixels */}
     {/* TODO: rework this with grid */}
@@ -77,7 +82,7 @@ const Forge: Component = () => {
     </Portal>
 
     {/* Plate */}
-    <div className='bg-pink-500/70 p-2 aspect-square m-auto mr-0 grow grid
+    <div className='bg-pink-500/70 p-2 aspect-square m-auto mr-0 grow grid relative
                     max-h-[100vw] max-w-[100vw] sm:max-h-[80vh] sm:max-w-[80vh]'>
       <div className='bg-white grid'
         style={{
@@ -88,6 +93,7 @@ const Forge: Component = () => {
           {(p, i) => <Pixel className='hover:opacity-40' colors={p()} onMouseUp={[drop, i]} />}
         </Index>
       </div>
+      <Button className='absolute -bottom-9' onClick={mint}>Mint</Button>
     </div>
   </div>;
 };
