@@ -9,14 +9,26 @@ export function rndColorIdx() {
   return rndBtwn(1, 220);
 }
 
-export function colorInfo(idx: number) {
+export function pixelName(idx: number) {
   if (idx === WHITE) {
-    return ['#ffffff', 'White'];
+    return 'White';
   }
   if (idx === BLACK) {
-    return ['#000000', 'Black'];
+    return 'Black';
   }
   const groupIdx = Math.ceil(idx / 10) - 1;
   const palletIdx = (idx - 1) % 10;
-  return [colorPallet[groupIdx][palletIdx], colorPalletNames[groupIdx] + '-' + palletIdx];
+  return colorPalletNames[groupIdx] + '-' + palletIdx;
+}
+
+export function pixelColor(idx: number) {
+  if (idx === WHITE) {
+    return '#ffffff';
+  }
+  if (idx === BLACK) {
+    return '#000000';
+  }
+  const groupIdx = Math.ceil(idx / 10) - 1;
+  const palletIdx = (idx - 1) % 10;
+  return colorPallet[groupIdx][palletIdx];
 }

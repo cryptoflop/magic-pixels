@@ -14,6 +14,7 @@ const clickAudio = new Audio(click);
 clickAudio.volume = 0.3;
 
 import win from '../assets/win.mp3';
+import { rndBtwn } from '../helpers/utils';
 const winAudio = new Audio(win);
 winAudio.volume = 0.3;
 
@@ -64,7 +65,9 @@ const Nether: Component = () => {
     const rndPxls = Array(9).fill(1)
       .map(() => {
       // this will happen in the smart contract
-        return [rndColorIdx(), rndColorIdx()];
+      // the randomness is just for demo cases
+        return Array(rndBtwn(1, 4)).fill(1)
+          .map(() => rndColorIdx());
       });
 
     const stored = JSON.parse(localStorage.getItem('pixels') || '[]');

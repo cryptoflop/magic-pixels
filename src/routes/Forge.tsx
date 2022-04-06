@@ -3,12 +3,10 @@ import { Portal } from 'solid-js/web';
 import Button from '../elements/Button';
 import Pixel, { PixelData } from '../elements/Pixel';
 import { DIMENSION } from '../elements/plate';
-import { BLACK, rndColorIdx } from '../helpers/color-utils';
+import { BLACK } from '../helpers/color-utils';
 
 const Forge: Component = () => {
-  const [availablePixels, setAvailablePixels] = createSignal<PixelData[]>(Array(DIMENSION * 2)
-    .fill(1)
-    .map(() => [rndColorIdx(), rndColorIdx(), rndColorIdx(), rndColorIdx()]));
+  const [availablePixels, setAvailablePixels] = createSignal<PixelData[]>(JSON.parse(localStorage.getItem('pixels') || '[]'));
 
   const [pixels, setPixels] = createSignal<PixelData[]>(Array(DIMENSION ** 2).fill(1)
     .map(() => [BLACK]));
@@ -49,8 +47,13 @@ const Forge: Component = () => {
   };
 
   const mint = () => {
-    const stored = JSON.parse(localStorage.getItem('plates') || '[]');
-    localStorage.setItem('plates', JSON.stringify([...stored].concat([[...pixels()]])));
+    const storedPlates = JSON.parse(localStorage.getItem('plates') || '[]');
+    localStorage.setItem('plates', JSON.stringify([...storedPlates].concat([[...pixels()]])));
+
+    localStorage.setItem('pixels', JSON.stringify(availablePixels()));
+
+    setPixels(Array(DIMENSION ** 2).fill(1)
+      .map(() => [BLACK]));
   };
 
   return <div className='flex flex-col-reverse sm:flex-row-reverse text-white'>
@@ -59,7 +62,7 @@ const Forge: Component = () => {
     <div className='m-auto sm:ml-8 overflow-x-scroll sm:overflow-y-scroll sm:overflow-x-hidden
                     min-w-[100vw] sm:min-h-[80vh] max-h-[80vh] sm:min-w-0 max-w-[100vw]
       p-2 bg-pink-500/70 flex sm:flex-col'>
-      <Button className='sticky -left-2 sm:-top-2 text-sm'>Filter</Button>
+      {/* <Button className='sticky -left-2 sm:-top-2 text-sm'>Filter</Button> */}
       <div className='bg-black/70'>
         <div className='bg-pink-500/20 p-2'>
           <div className='grid grid-flow-col sm:grid-flow-row select-none space-x-2 sm:space-x-0 sm:space-y-2'>
