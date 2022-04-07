@@ -31,6 +31,7 @@ const Treasury: Component = () => {
             <Index each={pixels}>
               {p => <Pixel colors={p()} className="h-12 w-12" />}
             </Index>
+            { !pixels.length && 'Empty' }
           </div>
         </div>
       </div>
@@ -43,6 +44,7 @@ const Treasury: Component = () => {
           <Index each={plates}>
             {p => <img className='max-h-64 w-64' src={'data:image/svg+xml;utf8,' + encodeURIComponent(plateToSvg(p()))} />}
           </Index>
+          { !plates.length && 'Empty' }
         </div>
       </div>
     </div>

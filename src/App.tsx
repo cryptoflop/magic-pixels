@@ -13,7 +13,7 @@ const App: Component = () => {
       </div>
       <Menu />
     </div>
-    <div className='absolute right-2 top-2'>
+    <div className='absolute right-0 top-0'>
       <Wallet />
     </div>
   </>;

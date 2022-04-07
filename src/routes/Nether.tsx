@@ -11,7 +11,7 @@ coinAudio.volume = 0.2;
 
 import click from '../assets/click.mp3';
 const clickAudio = new Audio(click);
-clickAudio.volume = 0.3;
+clickAudio.volume = 0.2;
 
 import win from '../assets/win.mp3';
 import { rndBtwn } from '../helpers/utils';

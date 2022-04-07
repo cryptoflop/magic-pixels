@@ -11,6 +11,7 @@ const NetherBack: Component = () => {
   let container: HTMLDivElement;
 
   onMount(() => {
+    // currently this is done with THREE but could be omptimized with using solely WebGL
     const scene = new THREE.Scene();
     // const camera = new THREE.PerspectiveCamera(45, aspect, 1, 10000);
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
