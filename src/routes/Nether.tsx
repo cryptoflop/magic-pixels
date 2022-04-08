@@ -2,6 +2,7 @@ import { Component, createSignal, For, Index, onCleanup } from 'solid-js';
 import Button from '../elements/Button';
 import Pixel, { PixelData } from '../elements/Pixel';
 import { rndColorIdx } from '../helpers/color-utils';
+import Container, { ContainerInner } from '../elements/Container';
 
 import * as THREE from 'three';
 
@@ -27,21 +28,42 @@ const Nether: Component = () => {
   const [conjured, setConjured] = createSignal<(PixelData | undefined)[][]>(empty);
 
   let active = false;
+  let stopping = false;
 
   const spinContainer = (ref: HTMLDivElement) => {
     const clock = new THREE.Clock();
     const interval = 1 / 30;
-    const acc = 1;
-    const topSpeed = 26;
-    let speed = 0;
+    const maxVelocity = 26;
+    let acc = 1;
+    let velocity = 0;
     let delta = 0;
+    let shouldStop = false;
+    const stop = () => {
+      stopping = false;
+      win();
+    };
     const scroll = () => {
       delta += clock.getDelta();
       if (delta > interval) {
         delta = delta % interval;
-        ref.scrollTop -= speed;
-        if (speed < topSpeed) {
-          speed += acc;
+        if (stopping) {
+          if (ref.scrollTop === 104) {
+            shouldStop = true;
+            acc = 0.1;
+          }
+          if (shouldStop) {
+            velocity -= acc;
+            if (velocity <= 0) {
+              stop();
+              return;
+            }
+          }
+          ref.scrollTop -= velocity;
+        } else {
+          ref.scrollTop -= velocity;
+          if (velocity < maxVelocity) {
+            velocity += acc;
+          }
         }
         if (ref.scrollTop <= 0) {
           ref.scrollTop = 104;
@@ -90,32 +112,36 @@ const Nether: Component = () => {
     }
 
     setTimeout(() => {
-      win();
-    }, 3500);
+      stopping = true;
+    }, 2000);
   };
 
   onCleanup(() => {
     active = false;
   });
 
-  return <div className='bg-pink-500/70 flex flex-col p-8 pb-4 space-y-4 m-auto select-none'>
-    <div className='bg-black/70 flex-grow flex p-4 space-x-4'>
+  return <Container className="space-y-4 m-auto pb-4 flex-col">
+    <ContainerInner classNameInner='space-x-2 select-none flex'>
       <Index each={slotRefs}>
         {(_, i) => <div ref={r => slotRefs[i] = r}
-          className='flex-grow bg-pink-500/20 text-white space-y-2 p-2 m-auto max-h-[176px] md:max-h-[320px] overflow-hidden'>
+          className='flex-grow text-white space-y-2 max-h-[160px] md:max-h-[304px] overflow-hidden'>
           <For each={conjured()[i]}>
-            {p => p ? <Pixel className='w-12 h-12 md:w-24 md:h-24' colors={p} /> :
-              <div className='text-5xl md:text-8xl bg-pink-500 m-auto w-12 h-12 md:w-24 md:h-24 justify-center items-center flex'>?</div>}
+            {p => p ? <Pixel className='w-12 h-12 md:w-24 md:h-24 border-default' colors={p} /> :
+              <div className='text-5xl md:text-8xl bg-pink-500 m-auto w-12 h-12 md:w-24 md:h-24
+                              justify-center items-center flex stripeback border-default'>
+                ?
+              </div>}
           </For>
         </div>}
       </Index>
-    </div>
+    </ContainerInner>
+
     <Button
       className='text-xl'
       onClick={startSlotSpin}>
       Conjure pixels
     </Button>
-  </div>;
+  </Container>;
 };
 
 export default Nether;

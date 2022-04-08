@@ -7,7 +7,7 @@ import Wallet from './elements/Wallet';
 const App: Component = () => {
   return <>
     <NetherBack />
-    <div className='absolute h-[100vh] w-[100vw] grid grid-rows-[1fr,min-content]'>
+    <div className='absolute h-[100vh] w-[100vw] grid grid-rows-[1fr,min-content] stripeback'>
       <div className='grid'>
         <Outlet />
       </div>

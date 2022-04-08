@@ -7,6 +7,16 @@ html {
 	letter-spacing: 0.8px;
 }
 
+.stripeback {
+	background-image: url('./assets/stripes.png');
+	background-repeat: repeat;
+}
+
+.border-default {
+	@apply border-4;
+	@apply border-black/40;
+}
+
 ::-webkit-scrollbar {
 	width: 8px;
 	height: 8px;

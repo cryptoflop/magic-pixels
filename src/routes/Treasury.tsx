@@ -1,5 +1,6 @@
 import { Component, Index } from 'solid-js';
-import Pixel, { PixelData } from '../elements/Pixel';
+import Container, { ContainerInner } from '../elements/Container';
+import { PixelData } from '../elements/Pixel';
 import { DIMENSION } from '../elements/plate';
 import { pixelColor } from '../helpers/color-utils';
 import { rndBtwn } from '../helpers/utils';
@@ -19,36 +20,18 @@ const plateToSvg = (plate: PixelData[]) => {
 };
 
 const Treasury: Component = () => {
-  const pixels: PixelData[] = JSON.parse(localStorage.getItem('pixels') || '[]');
   const plates: PixelData[][] = JSON.parse(localStorage.getItem('plates') || '[]');
 
-  return <div className='grid grid-cols-[min-content,1fr] text-white m-auto'>
-    <div className='bg-pink-500/70 p-4 pt-2 mr-12'>
-      <div className='pb-2'>Pixels</div>
-      <div className='bg-black/70'>
-        <div className='bg-pink-500/20 p-2 max-h-[80vh] overflow-auto flex space-x-2'>
-          <div className='space-y-2'>
-            <Index each={pixels}>
-              {p => <Pixel colors={p()} className="h-12 w-12" />}
-            </Index>
-            { !pixels.length && 'Empty' }
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div className='bg-pink-500/70 p-4 pt-2 m-auto'>
-      <div className='pb-2'>Plates</div>
-      <div className='bg-black/70'>
-        <div className='bg-pink-500/20 p-2 space-y-2 max-h-[80vh] overflow-auto'>
-          <Index each={plates}>
-            {p => <img className='max-h-64 w-64' src={'data:image/svg+xml;utf8,' + encodeURIComponent(plateToSvg(p()))} />}
-          </Index>
-          { !plates.length && 'Empty' }
-        </div>
-      </div>
-    </div>
-
+  return <div className='grid text-white m-auto'>
+    <Container className='flex-col'>
+      <div className='pb-2 -mt-2'>Plates</div>
+      <ContainerInner className='grow' classNameInner='h-[80vh] min-w-[12rem] sm:min-w-[16rem] overflow-auto grow'>
+        <Index each={plates}>
+          {p => <img className='max-h-64 w-64' src={'data:image/svg+xml;utf8,' + encodeURIComponent(plateToSvg(p()))} />}
+        </Index>
+        { !plates.length && 'Empty' }
+      </ContainerInner>
+    </Container>
   </div>;
 };
 
