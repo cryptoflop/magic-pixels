@@ -49,7 +49,7 @@ const Nether: Component = () => {
         if (stopping) {
           if (ref.scrollTop === 104) {
             shouldStop = true;
-            acc = 0.1;
+            acc = 0.15;
           }
           if (shouldStop) {
             velocity -= acc;

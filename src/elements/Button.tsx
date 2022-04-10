@@ -1,10 +1,11 @@
 import { Component } from 'solid-js';
 
-const Button: Component<{ title?: string, className?: string, onClick?: () => void }> = (props) => {
+const Button: Component<{ title?: string, className?: string, disabled?: boolean; onClick?: () => void }> = (props) => {
   return <button
     onClick={props.onClick}
     title={props.title}
-    className={`text-xl px-2 py-1 bg-pink-500 text-white border-default
+    disabled={props.disabled}
+    className={`text-xl px-2 py-1 bg-pink-500 text-white border-default ${props.disabled && 'pointer-events-none opacity-75'}
               hover:bg-pink-600 active:bg-pink-700 select-none ${props.className}`}>
     {props.children}
   </button>;

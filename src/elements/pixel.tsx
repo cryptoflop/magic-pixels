@@ -1,5 +1,5 @@
-import { createEffect, JSX, splitProps } from 'solid-js';
-import { pixelColor } from '../helpers/color-utils';
+import { createEffect, createMemo, JSX, splitProps } from 'solid-js';
+import { pixelColor, pixelName } from '../helpers/color-utils';
 import { rndBtwn } from '../helpers/utils';
 
 export type PixelData = number[];
@@ -10,6 +10,7 @@ export default function Pixel(props: JSX.HTMLAttributes<HTMLDivElement> & { colo
   let div: HTMLDivElement;
 
   createEffect(() => {
+    // set backgroundColor and animate if multiple colors
     if (typeof local.colors === 'number') {
       div!.style.background = pixelColor(local.colors);
     } else {
@@ -22,5 +23,13 @@ export default function Pixel(props: JSX.HTMLAttributes<HTMLDivElement> & { colo
     }
   }, [local.colors]);
 
-  return <div ref={r => div = r} {...elProps} />;
+  const info = createMemo(() => {
+    if (typeof local.colors === 'number') {
+      return pixelName(local.colors);
+    } else {
+      return local.colors.map((color) => pixelName(color)).join(' > ');
+    }
+  }, [local.colors]);
+
+  return <div title={info()} ref={r => div = r} {...elProps} />;
 }

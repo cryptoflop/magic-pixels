@@ -22,12 +22,12 @@ const plateToSvg = (plate: PixelData[]) => {
 const Treasury: Component = () => {
   const plates: PixelData[][] = JSON.parse(localStorage.getItem('plates') || '[]');
 
-  return <div className='grid text-white m-auto'>
+  return <div className='grid text-white m-auto h-[75vh] w-[20rem]'>
     <Container className='flex-col'>
       <div className='pb-2 -mt-2'>Plates</div>
-      <ContainerInner className='grow' classNameInner='h-[80vh] min-w-[12rem] sm:min-w-[16rem] overflow-auto grow'>
+      <ContainerInner className='grow' classNameInner='overflow-auto grow'>
         <Index each={plates}>
-          {p => <img className='max-h-64 w-64' src={'data:image/svg+xml;utf8,' + encodeURIComponent(plateToSvg(p()))} />}
+          {p => <img className='max-h-80 w-80' src={'data:image/svg+xml;utf8,' + encodeURIComponent(plateToSvg(p()))} />}
         </Index>
         { !plates.length && 'Empty' }
       </ContainerInner>
