@@ -13,7 +13,7 @@ html {
 }
 
 .border-default {
-	@apply border-4;
+	/* @apply border-4; */
 	@apply border-black/40;
 }
 
