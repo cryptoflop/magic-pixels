@@ -7,8 +7,6 @@ export default defineConfig({
   ],
   build: {
     target: 'esnext',
-    sourcemap: 'inline',
-    outDir: '../dist'
-  },
-  root: 'src'
+    sourcemap: 'inline'
+  }
 });
