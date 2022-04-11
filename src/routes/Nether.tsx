@@ -6,15 +6,15 @@ import Container, { ContainerInner } from '../elements/Container';
 
 import * as THREE from 'three';
 
-import coin from '../assets/coin.mp3';
+import coin from '../assets/sounds/coin.mp3';
 const coinAudio = new Audio(coin);
 coinAudio.volume = 0.2;
 
-import click from '../assets/click.mp3';
+import click from '../assets/sounds/click.mp3';
 const clickAudio = new Audio(click);
 clickAudio.volume = 0.2;
 
-import win from '../assets/win.mp3';
+import win from '../assets/sounds/win.mp3';
 import { rndBtwn } from '../helpers/utils';
 const winAudio = new Audio(win);
 winAudio.volume = 0.3;
@@ -120,8 +120,8 @@ const Nether: Component = () => {
     active = false;
   });
 
-  return <Container className="space-y-4 m-auto pb-4 flex-col">
-    <ContainerInner classNameInner='space-x-2 select-none flex'>
+  return <Container className="space-y-4 m-auto flex-col p-8">
+    <ContainerInner classNameInner='space-x-2 select-none flex p-4'>
       <Index each={slotRefs}>
         {(_, i) => <div ref={r => slotRefs[i] = r}
           className='flex-grow text-white space-y-2 max-h-[160px] md:max-h-[304px] overflow-hidden'>
