@@ -41,6 +41,6 @@ export default function Pixel(props: JSX.HTMLAttributes<HTMLDivElement> & { colo
   }
 
   return props.tooltip !== false ?
-    <div use:tooltip={info} ref={r => div = r} {...elProps} />:
+    <div use:tooltip={info!()} ref={r => div = r} {...elProps} />:
     <div ref={r => div = r} {...elProps} />;
 }

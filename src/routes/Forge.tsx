@@ -6,6 +6,10 @@ import Pixel, { PixelData } from '../elements/Pixel';
 import { DIMENSION } from '../elements/plate';
 import { EMPTY } from '../helpers/color-utils';
 
+import tooltipR from '../helpers/tooltip';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const tooltip = tooltipR;
+
 const Forge: Component = () => {
   const [availablePixels, setAvailablePixels] = createSignal<PixelData[]>(JSON.parse(localStorage.getItem('pixels') || '[]'));
 
@@ -80,8 +84,10 @@ const Forge: Component = () => {
             </ContainerInner>
           </div>
           {/* Menu */}
-          <div className='mb-2 sm:mt-2 sm:mb-auto' title={!canMint() ? 'Fill up the whole canvas to mint.' : undefined}>
-            <Button className='text-sm px-3' onClick={mint} disabled={!canMint()} >Mint</Button>
+          <div className='mb-2 sm:mt-2 sm:mb-auto flex'>
+            <div className='mr-auto' use:tooltip={!canMint() ? 'Fill up the whole canvas to mint' : undefined}>
+              <Button className='text-sm px-3' onClick={mint} disabled={!canMint()}>Mint</Button>
+            </div>
           </div>
         </div>
 
