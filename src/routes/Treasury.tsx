@@ -1,33 +1,17 @@
 import { Component, Index } from 'solid-js';
 import Container, { ContainerInner } from '../elements/Container';
 import { PixelData } from '../elements/Pixel';
-import { DIMENSION } from '../elements/plate';
-import { pixelColor } from '../helpers/color-utils';
-import { rndBtwn } from '../helpers/utils';
-
-const plateToSvg = (plate: PixelData[]) => {
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-                shape-rendering="optimizeSpeed" viewBox="0 0 16 16">`;
-  for (let i = 0; i < plate.length; i++) {
-    svg += `<rect width="1" height="1" x="${i % DIMENSION}" y="${Math.ceil((i + 1) / DIMENSION) - 1}" fill="${pixelColor(plate[i][0])}">
-      <animate attributeName="fill" dur="3s" repeatCount="indefinite" begin="${rndBtwn(1, 1000) / 1000}s"
-      values="${plate[i].concat([plate[i][0]]).map(p => pixelColor(p))
-    .join(';')}" />
-    </rect>`;
-  }
-  svg += '</svg>';
-  return svg;
-};
+import { pixelsToSvg } from '../helpers/color-utils';
 
 const Treasury: Component = () => {
   const plates: PixelData[][] = JSON.parse(localStorage.getItem('plates') || '[]');
 
   return <div className='grid text-white m-auto h-[75vh] w-[20rem]'>
-    <Container className='flex-col'>
+    <Container className='flex-col overflow-y-hidden'>
       <div className='pb-2 -mt-2'>Plates</div>
-      <ContainerInner className='grow' classNameInner='overflow-auto grow'>
+      <ContainerInner className='grow overflow-y-hidden' classNameInner='overflow-auto grow overflow-y-auto space-y-2'>
         <Index each={plates}>
-          {p => <img className='max-h-80 w-80' src={'data:image/svg+xml;utf8,' + encodeURIComponent(plateToSvg(p()))} />}
+          {p => <img className='max-h-80 w-80' src={pixelsToSvg(p())} />}
         </Index>
         { !plates.length && 'Empty' }
       </ContainerInner>

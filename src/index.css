@@ -5,6 +5,7 @@
 html {
 	font-family: 'VT323', monospace;
 	letter-spacing: 0.8px;
+	overflow: hidden;
 }
 
 .stripeback {

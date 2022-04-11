@@ -72,7 +72,8 @@ const Forge: Component = () => {
                 style={{ 'grid-template-rows': `repeat(${DIMENSION}, 1fr)`, 'grid-template-columns': `repeat(${DIMENSION}, 1fr)` }}>
                 <Index each={pixels()}>
                   {(p, i) =>
-                    <Pixel className={`${p()[0] === EMPTY ? 'bg-black/20' : 'cursor-pointer'}`} colors={p()} onMouseUp={[drop, i]} />
+                    <Pixel className={`${p()[0] === EMPTY ? '' : 'cursor-pointer'}`} colors={p()}
+                      onMouseUp={[drop, i]} tooltip={false} />
                   }
                 </Index>
               </div>
@@ -92,7 +93,7 @@ const Forge: Component = () => {
           </div>
           {/* TODO: don't use static h and w */}
           <ContainerInner className='grid overflow-hidden h-4.5 sm:h-auto sm:w-[4.5rem] grow'
-            classNameInner='overflow-auto'>
+            classNameInner='overflow-y-auto'>
             <div className='grid grid-flow-col sm:grid-flow-row space-x-1.5 sm:space-x-0 sm:space-y-1.5'>
               <Index each={availablePixels()}>
                 {(p, i) =>
@@ -111,7 +112,8 @@ const Forge: Component = () => {
     <Portal mount={document.getElementById('root')!}>
       <Pixel ref={r => draggablePixel = r}
         className={`h-12 w-12 z-10 absolute pointer-events-none  ${draggingPixel() ? '' : 'hidden'}`}
-        colors={draggingPixel()?.pixel || [EMPTY]} />
+        colors={draggingPixel()?.pixel || [EMPTY]}
+        tooltip={false} />
     </Portal>
   </>;
 };

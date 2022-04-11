@@ -120,8 +120,8 @@ const Nether: Component = () => {
     active = false;
   });
 
-  return <Container className="space-y-4 m-auto flex-col p-8">
-    <ContainerInner classNameInner='space-x-2 select-none flex p-4'>
+  return <Container className="space-y-4 m-auto flex-col p-8 pb-4">
+    <ContainerInner classNameInner='space-x-2 select-none flex'>
       <Index each={slotRefs}>
         {(_, i) => <div ref={r => slotRefs[i] = r}
           className='flex-grow text-white space-y-2 max-h-[160px] md:max-h-[304px] overflow-hidden'>
@@ -137,7 +137,7 @@ const Nether: Component = () => {
     </ContainerInner>
 
     <Button
-      className='text-xl'
+      className='text-xl -mb-2'
       onClick={startSlotSpin}>
       Conjure pixels
     </Button>

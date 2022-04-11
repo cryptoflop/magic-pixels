@@ -3,8 +3,8 @@ import { Component, onMount } from 'solid-js';
 import * as THREE from 'three';
 import { IUniform } from 'three';
 
-import frag from '../assets/frag';
-import vert from '../assets/vert';
+import frag from '../assets/shader/frag';
+import vert from '../assets/shader/vert';
 
 const NetherBack: Component = () => {
   let resizeContainer: HTMLDivElement;
@@ -23,7 +23,7 @@ const NetherBack: Component = () => {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         time: { type: 'float', value: 0 } as IUniform<unknown>,
-        aspect: { type: 'float', value: 1.5 } as IUniform<unknown>
+        aspect: { type: 'float', value: container.clientWidth / container.clientHeight } as IUniform<unknown>
       },
       fragmentShader: frag,
       vertexShader: vert,
