@@ -9,5 +9,6 @@ export default defineConfig({
     target: 'esnext',
     polyfillDynamicImport: false,
     sourcemap: 'inline'
-  }
+  },
+  root: 'src'
 });
