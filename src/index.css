@@ -12,18 +12,18 @@ html {
 	position: absolute;
 	@apply text-white;
 	@apply bg-pink-500;
-	@apply px-0.5;
+	@apply px-1;
 	@apply pointer-events-none;
 }
 
 .stripeback {
-	background-image: url('./assets/stripes.png');
-	background-repeat: repeat;
+	/* background-image: url('./assets/stripes.png'); */
+	/* background-repeat: repeat; */
 }
 
 .border-default {
-	/* @apply border-4; */
-	@apply border-black/40;
+	@apply border-2;
+	@apply border-pink-500;
 }
 
 ::-webkit-scrollbar {

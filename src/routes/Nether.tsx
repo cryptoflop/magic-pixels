@@ -126,7 +126,7 @@ const Nether: Component = () => {
         {(_, i) => <div ref={r => slotRefs[i] = r}
           className='flex-grow text-white space-y-2 max-h-[160px] md:max-h-[304px] overflow-hidden'>
           <For each={conjured()[i]}>
-            {p => p ? <Pixel className='w-12 h-12 md:w-24 md:h-24 border-default' colors={p} /> :
+            {p => p ? <Pixel className='w-12 h-12 md:w-24 md:h-24' colors={p} /> :
               <div className='text-5xl md:text-8xl bg-pink-500 m-auto w-12 h-12 md:w-24 md:h-24
                               justify-center items-center flex stripeback border-default'>
                 ?

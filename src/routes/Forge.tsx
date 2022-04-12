@@ -1,10 +1,12 @@
-import { Component, createMemo, createSignal, Index } from 'solid-js';
+import { Component, createMemo, createSignal, For, Index } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import Button from '../elements/Button';
 import Container, { ContainerInner } from '../elements/Container';
 import Pixel, { PixelData } from '../elements/Pixel';
 import { DIMENSION } from '../elements/plate';
-import { EMPTY } from '../helpers/color-utils';
+import { EMPTY, pixelColor, pixelName } from '../helpers/color-utils';
+
+import colorPallet from '../assets/pixel-colors.json';
 
 import tooltipR from '../helpers/tooltip';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -66,8 +68,24 @@ const Forge: Component = () => {
   };
 
   return <>
-    <Container className='m-auto max-w-[100vw] sm:h-[70vh] sm:w-[75vh] lg:h-[80vh] lg:w-[85vh] text-white select-none'>
-      <div className='grow grid grid-rows-[1fr,min-content] sm:grid-rows-none sm:grid-cols-[1fr,min-content] gap-2'>
+    <Container className='m-auto max-w-[100vw] sm:h-[70vh] sm:w-[75vh] lg:h-[80vh] lg:w-[85vh] text-white select-none relative'>
+      <div className='border-default bg-pink-500/90 absolute grid overflow-hidden
+                      -bottom-[2px] top-[20%] sm:bottom-[20%] sm:-top-[2px] -left-[2px] -right-[2px] '>
+        <div className='bg-black/60 flex flex-col overflow-hidden'>
+          <div className='w-full border-b-2 border-pink-500'>
+            <label><input type='checkbox' className=''></input>Exact order</label>
+          </div>
+          <div className='grow overflow-y-auto'>
+            <Index each={Array(22).fill(1)}>
+              {(_, pi) => <div className='flex justify-center'><Index each={Array(10).fill(1)}>
+                {(_, ti) => <Pixel className='w-10 h-10 cursor-pointer' colors={[((pi) * 10) + ti + 1]} />}
+              </Index></div>}
+            </Index>
+          </div>
+        </div>
+      </div>
+
+      <div className='grow grid grid-rows-[1fr,min-content] sm:grid-rows-none sm:grid-cols-[1fr,min-content] gap-4'>
         <div className='flex flex-col-reverse sm:flex-col'>
           {/* Plate */}
           <div className='aspect-square grid'>
@@ -98,7 +116,7 @@ const Forge: Component = () => {
             <Button className='text-sm grow'>Filter</Button>
           </div>
           {/* TODO: don't use static h and w */}
-          <ContainerInner className='grid overflow-hidden h-4.5 sm:h-auto sm:w-[4.5rem] grow'
+          <ContainerInner className='grid overflow-hidden h-4.75 sm:h-auto sm:w-[4.75rem] grow'
             classNameInner='overflow-y-auto'>
             <div className='grid grid-flow-col sm:grid-flow-row space-x-1.5 sm:space-x-0 sm:space-y-1.5'>
               <Index each={availablePixels()}>

@@ -2,7 +2,7 @@ import { Component, JSX } from 'solid-js';
 
 export const ContainerInner: Component<{ className?: string, classNameInner?: string; }> = (props) => {
   return <div className={'bg-black/70 flex ' + props.className}>
-    <div className={'bg-pink-500/20 p-2 ' + props.classNameInner}>
+    <div className={'bg-pink-500/20 p-2 border-default ' + props.classNameInner}>
       {props.children}
     </div>
   </div>;
