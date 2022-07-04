@@ -9,18 +9,18 @@ false && tooltip;
 
 const App: Component = () => {
   return <>
-    <NetherBack />
-    <div use:tooltip={'Test test test'} className="absolute h-12 w-12 bg-green-200" />
-    {/*
-    <div className='absolute h-[100vh] w-[100vw] grid grid-rows-[1fr,min-content]'>
-      <div className='grid'>
+    {/* <NetherBack /> */}
+    {/* <div use:tooltip={'Test test test'} class="absolute h-12 w-12 bg-green-200" /> */}
+
+    <div class='absolute h-[100vh] w-[100vw] grid grid-rows-[1fr,min-content]'>
+      <div class='grid'>
         <Outlet />
       </div>
       <Menu />
     </div>
-    <div className='absolute right-0 top-0'>
+    <div class='absolute right-0 top-0'>
       <Wallet />
-    </div> */}
+    </div>
   </>;
 };
 

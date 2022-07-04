@@ -5,7 +5,7 @@ export const DIMENSION = 16;
 
 function Plate(props: { pixels: number[][] }) {
   return <div
-    className="grid"
+    class="grid"
     style={{
       gridTemplateRows: `repeat(${DIMENSION}, 1fr)`,
       gridTemplateColumns: `repeat(${DIMENSION}, 1fr)`

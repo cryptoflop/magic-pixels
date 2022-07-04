@@ -120,14 +120,14 @@ const Nether: Component = () => {
     active = false;
   });
 
-  return <Container className="space-y-4 m-auto flex-col p-8 pb-4">
+  return <Container class="space-y-4 m-auto flex-col p-8 pb-4">
     <ContainerInner classNameInner='space-x-2 select-none flex'>
       <Index each={slotRefs}>
         {(_, i) => <div ref={r => slotRefs[i] = r}
-          className='flex-grow text-white space-y-2 max-h-[160px] md:max-h-[304px] overflow-hidden'>
+          class='flex-grow text-white space-y-2 max-h-[160px] md:max-h-[304px] overflow-hidden'>
           <For each={conjured()[i]}>
-            {p => p ? <Pixel className='w-12 h-12 md:w-24 md:h-24' colors={p} /> :
-              <div className='text-5xl md:text-8xl bg-pink-500 m-auto w-12 h-12 md:w-24 md:h-24
+            {p => p ? <Pixel class='w-12 h-12 md:w-24 md:h-24' colors={p} /> :
+              <div class='text-5xl md:text-8xl bg-pink-500 m-auto w-12 h-12 md:w-24 md:h-24
                               justify-center items-center flex stripeback border-default'>
                 ?
               </div>}
@@ -137,7 +137,7 @@ const Nether: Component = () => {
     </ContainerInner>
 
     <Button
-      className='text-xl -mb-2'
+      class='text-xl -mb-2'
       onClick={startSlotSpin}>
       Conjure pixels
     </Button>

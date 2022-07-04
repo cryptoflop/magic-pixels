@@ -60,8 +60,8 @@ const NetherBack: Component = () => {
   });
 
   return <>
-    <div className='absolute h-[100vh] w-[100vw]' ref={resizeContainer!}></div>
-    <div className='absolute h-[100vh] w-[100vw]' ref={container!} />
+    <div class='absolute h-[100vh] w-[100vw]' ref={resizeContainer!}></div>
+    <div class='absolute h-[100vh] w-[100vw]' ref={container!} />
   </>;
 };
 
