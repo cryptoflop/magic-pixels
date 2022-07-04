@@ -2,8 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+	font-family: Greycliffcf;
+	src: url('Greycliffcf-regular.otf');
+}
+
 html {
-	font-family: 'VT323', monospace;
+	font-family: Greycliffcf;
 	letter-spacing: 0.8px;
 	overflow: hidden;
 }
@@ -14,16 +19,6 @@ html {
 	@apply bg-pink-500;
 	@apply px-1;
 	@apply pointer-events-none;
-}
-
-.stripeback {
-	/* background-image: url('./assets/stripes.png'); */
-	/* background-repeat: repeat; */
-}
-
-.border-default {
-	@apply border-2;
-	@apply border-pink-500;
 }
 
 ::-webkit-scrollbar {

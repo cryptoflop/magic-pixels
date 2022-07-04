@@ -2,7 +2,7 @@ import { Accessor, createEffect, createMemo, JSX, splitProps } from 'solid-js';
 import { pixelColor, pixelName } from '../helpers/color-utils';
 import { rndBtwn } from '../helpers/utils';
 
-import tooltip from '../helpers/tooltip';
+import tooltip from '../directives/tooltip';
 false && tooltip;
 
 export type PixelData = number[];
