@@ -22,22 +22,20 @@
     "serve": "vite preview"
   },
   "devDependencies": {
-    "@types/three": "^0.138.0",
-    "@typescript-eslint/eslint-plugin": "^5.16.0",
-    "@typescript-eslint/parser": "^5.16.0",
-    "autoprefixer": "^10.4.2",
-    "eslint": "^8.11.0",
-    "postcss": "^8.4.8",
-    "tailwindcss": "^3.0.23",
-    "typescript": "^4.6.2",
-    "vite": "^2.8.6",
+    "@typescript-eslint/eslint-plugin": "^5.30.5",
+    "@typescript-eslint/parser": "^5.30.5",
+    "autoprefixer": "^10.4.7",
+    "eslint": "^8.19.0",
+    "postcss": "^8.4.14",
+    "tailwindcss": "^3.1.4",
+    "typescript": "^4.7.4",
+    "vite": "^2.9.13",
     "vite-plugin-solid": "^2.2.6"
   },
   "dependencies": {
     "@metamask/providers": "^8.1.1",
-    "ethers": "^5.6.2",
+    "ethers": "^5.6.9",
     "solid-app-router": "^0.4.1",
-    "solid-js": "^1.4.6",
-    "three": "^0.138.3"
+    "solid-js": "^1.4.6"
   }
 }
