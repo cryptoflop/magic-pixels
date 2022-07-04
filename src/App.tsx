@@ -4,9 +4,14 @@ import Menu from './elements/Menu';
 import NetherBack from './elements/NetherBack';
 import Wallet from './elements/Wallet';
 
+import tooltip from './helpers/tooltip';
+false && tooltip;
+
 const App: Component = () => {
   return <>
     <NetherBack />
+    <div use:tooltip={'Test test test'} className="absolute h-12 w-12 bg-green-200" />
+    {/*
     <div className='absolute h-[100vh] w-[100vw] grid grid-rows-[1fr,min-content]'>
       <div className='grid'>
         <Outlet />
@@ -15,7 +20,7 @@ const App: Component = () => {
     </div>
     <div className='absolute right-0 top-0'>
       <Wallet />
-    </div>
+    </div> */}
   </>;
 };
 

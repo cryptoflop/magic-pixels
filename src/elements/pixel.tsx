@@ -2,9 +2,8 @@ import { Accessor, createEffect, createMemo, JSX, splitProps } from 'solid-js';
 import { pixelColor, pixelName } from '../helpers/color-utils';
 import { rndBtwn } from '../helpers/utils';
 
-import tooltipR from '../helpers/tooltip';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const tooltip = tooltipR;
+import tooltip from '../helpers/tooltip';
+false && tooltip;
 
 export type PixelData = number[];
 

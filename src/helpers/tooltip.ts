@@ -1,11 +1,11 @@
 import { Accessor, onCleanup } from 'solid-js';
 
-export default function tooltip(el: HTMLElement, tooltip:Accessor<string>) {
+export default function tooltip(el: HTMLElement, tooltip: Accessor<string>) {
   if (!tooltip()) return;
 
   let tt: HTMLElement;
   const move = (e: MouseEvent) => {
-    tt.style.cssText = `top: ${e.y - tt.clientHeight - 12}px; left: ${e.x}px;`;
+    tt.style.cssText = `top: ${e.y - tt.clientHeight - 1}px; left: ${e.x}px;`;
   };
 
   const leave = () => {
