@@ -1,5 +1,5 @@
 import { For } from 'solid-js';
-import Pixel from './pixel';
+import Pixel from './Pixel';
 
 export const DIMENSION = 16;
 

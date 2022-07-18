@@ -2,15 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-	font-family: Greycliffcf;
-	src: url('Greycliffcf-regular.otf');
-}
-
 html {
-	font-family: Greycliffcf;
+	font-family: 'Radio Canada', sans-serif;
 	letter-spacing: 0.8px;
 	overflow: hidden;
+}
+
+#root {
+	height: 100vh;
+	width: 100vw;
+	display: grid;
 }
 
 .tooltip {
