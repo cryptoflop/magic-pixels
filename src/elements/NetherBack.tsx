@@ -1,12 +1,14 @@
 import { Component, createEffect } from 'solid-js';
 
-import cloud from '../assets/cloud1.png';
+import cloudF from '../assets/cloud_fore.png';
+import cloudM from '../assets/cloud_mid.png';
+import cloudB from '../assets/cloud_back.png';
 
 const NetherBack: Component = () => {
   let back: HTMLDivElement;
 
   createEffect(() => {
-    setTimeout(() => {
+    const createBg = (cloud: string, ms: number) => {
       const i = document.createElement('div');
       i.className = 'absolute bg-contain bg-repeat-x';
       i.style.imageRendering = 'pixelated';
@@ -21,9 +23,15 @@ const NetherBack: Component = () => {
         { transform: 'translate(0vw, 0)' },
         { transform: 'translate(-' + width + 'px,  0)' }
       ], {
-        duration: 33300,
+        duration: ms,
         iterations: Infinity
       });
+    };
+
+    setTimeout(() => {
+      createBg(cloudB, 80000);
+      createBg(cloudM, 60000);
+      createBg(cloudF, 40000);
     }, 100);
   });
 

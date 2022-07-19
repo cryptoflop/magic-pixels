@@ -4,9 +4,17 @@ module.exports = {
     './index.html',
     './src/**/*.{js,ts,jsx,tsx,css,md,mdx,html,json,scss}'
   ],
-  darkMode: 'class',
   theme: {
-    extend: {}
+    extend: {
+      animation: {
+        'pulsate': 'pulsate 4s ease-in-out infinite'
+      },
+      keyframes: {
+        pulsate: {
+          '75%, 100%': { transform: 'scale(1.2)', opacity: 0 }
+        }
+      }
+    }
   },
   plugins: []
 };
