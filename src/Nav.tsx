@@ -22,16 +22,15 @@ const routes = [{
 }];
 
 export function Nav() {
-  return <nav class='bg-black/50 grid grid-rows-4'>
+  return <nav class='bg-black/50 mb-auto grid'>
     { routes.map(r => {
       const route = r.name.toLowerCase();
       const active = useMatch(() => route);
-      return <NavLink
-        href={route}
-        class={`grid place-items-center cursor-pointer w-full ${active() ? 'bg-pink-500/50' : 'hover:bg-pink-500/30'}`}>
-        <div class='grid place-items-center space-y-2'>
-          <img src={r.icon} class={`mx-2 min-w-[2rem] ${active() && 'drop-shadow-[0_0_3px_white]'}`} />
-          <div style={{ 'writing-mode': 'vertical-rl' }}>{r.name}</div>
+      return <NavLink href={route} title={r.name}
+        class={`grid place-items-center cursor-pointer ${active() ? 'bg-pink-500' : 'bg-pink-900/70 hover:bg-pink-500/30'}`}>
+        <div class='grid place-items-center'>
+          <img src={r.icon} class={`m-1 min-w-[2rem] ${active() ? 'drop-shadow-[0_0_3px_white]' : 'drop-shadow-[0_0_5px_#ff88c3]'}`} />
+          {/* <div style={{ 'writing-mode': 'vertical-rl' }}>{r.name}</div> */}
         </div>
       </NavLink>;
     }) }
