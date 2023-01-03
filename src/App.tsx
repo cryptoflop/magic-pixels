@@ -8,7 +8,7 @@ const App: Component = () => {
     <NetherBack />
     <div class='text-black dark:text-white grid grid-cols-[min-content,1fr]'>
       <Nav />
-      <Outlet />
+      {/* <Outlet /> */}
     </div>
   </>;
 };

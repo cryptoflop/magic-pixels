@@ -5,7 +5,7 @@ false && tooltip;
 
 const Forge: Component = () => {
   return <>
-
+    Forge
   </>;
 };
 

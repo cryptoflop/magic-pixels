@@ -3,8 +3,7 @@
 @tailwind utilities;
 
 html {
-	font-family: 'Radio Canada', sans-serif;
-	letter-spacing: 0.8px;
+	font-family: 'Outfit', sans-serif;
 	overflow: hidden;
 }
 
