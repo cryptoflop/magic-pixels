@@ -1,20 +1,34 @@
-import { PixelData } from '../elements/Pixel';
-import { pixelColor } from './color-utils';
-import { rndBtwn } from './utils';
+import { PixelData } from '../elements/Pixel'
+import { pixelColor } from './color-utils'
+import { rndBtwn } from './utils'
 
-export function createSvg(width: number, height: number, generator: (i: number, x: number, y: number) => string, asDataUri = true) {
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-                  shape-rendering="optimizeSpeed" viewBox="0 0 ${width} ${height}">`;
-  for (let i = 0; i < (height * width); i++) {
-    const x = i % width;
-    const y = Math.ceil((i + 1) / width) - 1;
-    svg += generator(i, x, y);
+type URIType = 'base64' | 'encoded'
+
+export function svgToDataURI(svg: string, type: URIType) {
+  switch (type) {
+  case 'base64':
+    return 'data:image/svg+xml;base64,' + btoa(svg)
+  case 'encoded':
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg)
   }
-  svg += '</svg>';
+}
+
+export function createSvg(
+  width: number, height: number,
+  generator: (i: number, x: number, y: number) => string, asDataUri: URIType = 'base64'
+) {
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                  shape-rendering="optimizeSpeed" viewBox="0 0 ${width} ${height}">`
+  for (let i = 0; i < (height * width); i++) {
+    const x = i % width
+    const y = Math.ceil((i + 1) / width) - 1
+    svg += generator(i, x, y)
+  }
+  svg += '</svg>'
   if (asDataUri) {
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    return svgToDataURI(svg, asDataUri)
   } else {
-    return svg;
+    return svg
   }
 }
 
@@ -29,20 +43,20 @@ export function createSvgPixel(
   </rect>`
 }
 
-export function pixelsToSvg(pixels: PixelData[], asDataUri = true) {
-  const dimension = Math.sqrt(pixels.length);
+export function pixelsToSvg(pixels: PixelData[], asDataUri: URIType = 'base64') {
+  const dimension = Math.sqrt(pixels.length)
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-                  shape-rendering="optimizeSpeed" viewBox="0 0 16 16">`;
+                  shape-rendering="optimizeSpeed" viewBox="0 0 16 16">`
   for (let i = 0; i < pixels.length; i++) {
     svg += `<rect width="1" height="1" x="${i % dimension}" y="${Math.ceil((i + 1) / dimension) - 1}" fill="${pixelColor(pixels[i][0])}">
         <animate attributeName="fill" dur="3s" repeatCount="indefinite" begin="${rndBtwn(1, 1000) / 1000}s"
         values="${pixels[i].concat([pixels[i][0]]).map(p => pixelColor(p)).join(';')}" />
-      </rect>`;
+      </rect>`
   }
-  svg += '</svg>';
+  svg += '</svg>'
   if (asDataUri) {
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    return svgToDataURI(svg, asDataUri)
   } else {
-    return svg;
+    return svg
   }
 }
