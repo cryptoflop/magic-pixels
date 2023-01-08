@@ -46,6 +46,9 @@
         "allowTemplateLiterals": true
       }
     ],
-    "semi": "off"
+    "semi": [
+      "warn",
+      "never"
+    ]
   }
 }
