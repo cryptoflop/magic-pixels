@@ -5,6 +5,7 @@
 html {
 	font-family: 'Outfit', sans-serif;
 	overflow: hidden;
+	@apply text-white;
 }
 
 #root {

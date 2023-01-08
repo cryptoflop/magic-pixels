@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      opacity: {
+        '8': '.08'
+      },
       animation: {
         'pulsate': 'pulsate 4s ease-in-out infinite'
       },

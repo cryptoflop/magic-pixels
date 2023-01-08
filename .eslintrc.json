@@ -33,9 +33,7 @@
     "no-trailing-spaces": [
       "warn"
     ],
-    "newline-per-chained-call": [
-      "warn"
-    ],
+    "newline-per-chained-call": "off",
     "guard-for-in": "off",
     "indent": [
       "warn",
@@ -48,9 +46,6 @@
         "allowTemplateLiterals": true
       }
     ],
-    "semi": [
-      "warn",
-      "always"
-    ]
+    "semi": "off"
   }
 }
