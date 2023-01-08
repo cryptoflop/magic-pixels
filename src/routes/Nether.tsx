@@ -1,6 +1,4 @@
-import { Component, createEffect, For, Index } from 'solid-js';
-import { pixelColor } from '../helpers/color-utils';
-import { createSvg } from '../helpers/svg';
+import { Component, createEffect, For } from 'solid-js';
 import { rndBtwn } from '../helpers/utils';
 
 const Nether: Component = () => {
@@ -8,7 +6,7 @@ const Nether: Component = () => {
 
   createEffect(() => {
     for (const child of container.children) {
-      const CHANGE = 14;
+      const CHANGE = 12;
       let currDeg = rndBtwn(-CHANGE, CHANGE);
       let currPos = rndBtwn(-CHANGE, CHANGE);
       const anim = () => {
@@ -43,7 +41,6 @@ const Nether: Component = () => {
       </For>
     </div>
 
-    {/* hover:animate-none hover:scale-110 transition-transform animate-pulsate */}
     <button class='text-4xl m-auto px-4 py-4 relative'>
       Conjure Pixels
     </button>
