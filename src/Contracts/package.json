@@ -1,0 +1,18 @@
+{
+  "name": "contracts",
+  "scripts": {
+    "start": "npx hardhat node",
+    "compile": "npx hardhat compile",
+    "deploy": "npx hardhat run --network localhost",
+    "deploy-pixels": "npm run deploy scripts/deploy_pixels.ts"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.1",
+    "hardhat": "^2.12.6",
+    "ts-node": "^10.9.1"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.0",
+    "@openzeppelin/contracts-upgradeable": "^4.8.0"
+  }
+}

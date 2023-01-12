@@ -1,3 +1,8 @@
 node_modules
 dist
 .deps
+
+src/Contracts/artifacts
+src/Contracts/typechain-types
+.debugger/generated-sources
+
