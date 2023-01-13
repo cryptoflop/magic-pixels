@@ -1,17 +1,20 @@
-import { Component, createEffect, For } from 'solid-js';
-import { rndBtwn } from '../helpers/utils';
+import { Component, createEffect, For, useContext } from 'solid-js'
+import { MagicPixelsContext } from '../contexts/MagicPixels'
+import { rndBtwn } from '../helpers/utils'
 
 const Nether: Component = () => {
-  let container: HTMLDivElement;
+  const mpCtx = useContext(MagicPixelsContext)
+
+  let container: HTMLDivElement
 
   createEffect(() => {
     for (const child of container.children) {
-      const CHANGE = 12;
-      let currDeg = rndBtwn(-CHANGE, CHANGE);
-      let currPos = rndBtwn(-CHANGE, CHANGE);
+      const CHANGE = 12
+      let currDeg = rndBtwn(-CHANGE, CHANGE)
+      let currPos = rndBtwn(-CHANGE, CHANGE)
       const anim = () => {
-        const deg = rndBtwn(-CHANGE, CHANGE);
-        const pos = currPos > 0 ? -CHANGE : CHANGE;
+        const deg = rndBtwn(-CHANGE, CHANGE)
+        const pos = currPos > 0 ? -CHANGE : CHANGE
         child.animate([
           { transform: `translate(0, ${currPos}px) rotate(${currDeg}deg)` },
           { transform: `translate(0, ${pos}px) rotate(${deg}deg)` }
@@ -19,13 +22,13 @@ const Nether: Component = () => {
           duration: rndBtwn(4000, 6000),
           iterations: 1,
           easing: 'ease-in-out'
-        }).onfinish = anim;
-        currDeg = deg;
-        currPos = pos;
-      };
-      anim();
+        }).onfinish = anim
+        currDeg = deg
+        currPos = pos
+      }
+      anim()
     }
-  });
+  })
 
   return <div class='grid'>
     <div class='m-auto select-none grid grid-cols-4 grid-rows-2 gap-4 lg:gap-8 xl:gap-16' ref={container!}>
@@ -41,10 +44,10 @@ const Nether: Component = () => {
       </For>
     </div>
 
-    <button class='text-4xl m-auto px-4 py-4 relative'>
+    <button class='text-4xl m-auto px-4 py-4 relative' onClick={mpCtx!.actions.conjurePixels}>
       Conjure Pixels
     </button>
-  </div >;
-};
+  </div >
+}
 
-export default Nether;
+export default Nether
