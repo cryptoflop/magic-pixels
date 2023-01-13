@@ -1,12 +1,9 @@
 import { createContext, JSX, Match, Switch } from 'solid-js'
 import { createStore } from 'solid-js/store'
 
-import { configureChains, connect, createClient, fetchBalance, fetchEnsName, InjectedConnector, mainnet, watchAccount } from '@wagmi/core'
-import { publicProvider } from '@wagmi/core/providers/public'
-import { WalletConnectConnector } from '@wagmi/core/connectors/walletConnect'
-import { arbitrum } from '@wagmi/core/chains'
+import { ethers } from 'ethers'
 
-export const Web3Context = createContext<ReturnType<typeof makeWeb3Context>>();
+export const Web3Context = createContext<ReturnType<typeof makeWeb3Context>>()
 
 function makeWeb3Context() {
   const [state, setState] = createStore<{
@@ -15,58 +12,38 @@ function makeWeb3Context() {
   }>({
     address: undefined, name: undefined, connecting: true,
     balance: undefined, pixels: undefined
-  });
-
-  const actions = {
-    connect: () => {
-      setState({ connecting: true })
-      connect({
-        connector: window.ethereum ?
-          new InjectedConnector() :
-          new WalletConnectConnector({
-            chains: [mainnet, arbitrum],
-            options: {
-              qrcode: true
-            }
-          })
-      }).catch(() => setState({ connecting: false }))
-    },
-    fetchEnsName: () => fetchEnsName({ address: state.address! }).then(ensName => ensName && setState({ name: ensName })),
-    updateBalance: () => fetchBalance({ address: state.address! }).then(r => setState({ balance: r.formatted })),
-    updatePixels: () => fetchBalance({ address: state.address!, token: '0x429881672B9AE42b8EbA0E26cD9C73711b891Ca5' })
-      .then(r => setState({ pixels: r.formatted }))
-  }
-
-  const { provider, webSocketProvider } = configureChains(
-    [mainnet, arbitrum],
-    [publicProvider()]
-  )
-
-  const client = createClient({
-    autoConnect: true,
-    provider,
-    webSocketProvider
   })
 
-  watchAccount(acc => {
-    if (acc.status === 'connected') {
-      setState({ address: acc.address, connecting: false })
-      actions.updateBalance()
-      actions.updatePixels()
-      actions.fetchEnsName()
-    }
+  const provider = new ethers.providers.Web3Provider(window.ethereum! as unknown as ethers.providers.ExternalProvider)
 
-    if (acc.status === 'disconnected') {
+  const actions = {
+    connect: async () => {
+      setState({ connecting: true })
+      const accounts = await window.ethereum?.request<`0x${string}`[]>({ method: 'eth_requestAccounts' })
+      if (accounts && accounts[0]) {
+        const account = accounts[0]
+        setState({ address: account })
+        actions.updateBalance()
+        actions.fetchEnsName()
+      }
+      setState({ connecting: false })
+    },
+    fetchEnsName: () => provider.lookupAddress(state.address!).then(ensName => ensName && setState({ name: ensName })).catch(() => void 0),
+    updateBalance: () => provider.getBalance(state.address!).then(r => setState({ balance: r.toString() }))
+  }
+
+  window.ethereum?.on('accountsChanged', accounts => {
+    if (!(accounts as string[])[0]) {
       setState({
         address: undefined, name: undefined,
-        balance: undefined, pixels: undefined
+        balance: undefined, pixels: undefined, connecting: false
       })
     }
   })
 
   actions.connect()
 
-  return { state, actions, client }
+  return { provider, actions, state }
 }
 
 export function Web3Provider(props: { children: JSX.Element }) {
@@ -94,5 +71,5 @@ export function Web3Provider(props: { children: JSX.Element }) {
         {props.children}
       </Match>
     </Switch>
-  </Web3Context.Provider>;
+  </Web3Context.Provider>
 }

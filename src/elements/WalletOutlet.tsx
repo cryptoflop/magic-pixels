@@ -1,7 +1,9 @@
 import { Show, useContext } from 'solid-js'
+import { MagicPixelsContext } from '../contexts/MagicPixels'
 import { Web3Context } from '../contexts/Web3'
 
 export default function WalletOutlet() {
+  const mpcontext = useContext(MagicPixelsContext)
   const context = useContext(Web3Context)
   const state = context?.state
 
@@ -16,9 +18,7 @@ export default function WalletOutlet() {
 
     <Show when={!state?.connecting}>
       <div class='flex' title='Pixels'>
-        {/* TODO: format */}
-        {/* {(state!.pixels ? state!.pixels.slice(0, 4) : '0')} */}
-        12
+        {mpcontext?.pixelCount}
         <div class='ml-1 self-center w-3 h-3 border border-white/80' />
       </div>
     </Show>

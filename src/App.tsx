@@ -1,4 +1,5 @@
 import { Outlet } from 'solid-app-router'
+import { MagicPixelsProvider } from './contexts/MagicPixels'
 import { Web3Provider } from './contexts/Web3'
 import NetherBack from './elements/NetherBack'
 import WalletOutlet from './elements/WalletOutlet'
@@ -8,11 +9,13 @@ export default function App() {
   return <>
     <NetherBack />
     <Web3Provider>
-      <WalletOutlet />
-      <div class='text-black dark:text-white grid grid-cols-[min-content,1fr]'>
-        <Nav />
-        <Outlet />
-      </div>
+      <MagicPixelsProvider>
+        <WalletOutlet />
+        <div class='text-black dark:text-white grid grid-cols-[min-content,1fr]'>
+          <Nav />
+          <Outlet />
+        </div>
+      </MagicPixelsProvider>
     </Web3Provider>
   </>
 }
