@@ -1,6 +1,5 @@
 import { createContext, JSX, observable, useContext } from 'solid-js'
 import { createStore, produce } from 'solid-js/store'
-import { rndBtwn } from '../helpers/utils'
 
 import { BigNumber, ethers } from 'ethers'
 import MagicPixelsArtifact from '../../Contracts/artifacts/contracts/MagicPixels.sol/MagicPixels.json'
@@ -40,12 +39,13 @@ function makeMagicPixelsContext() {
     updatePixels: async () => {
       const pixelsResult: BigNumber[] = await mpContract.getAllPixels(web3Ctx.state.address!)
       if (pixelsResult && pixelsResult[0]) {
-        const pixels = pixelsResult.map(bn => bn.toNumber())
-        setPixels(pixels)
+        setPixels(pixelsResult.map(bn => bn.toNumber()))
       }
     },
     conjurePixels: async () => {
-      await mpContract.mintPixels(web3Ctx.state.address!, Array(8).fill(1).map(() => rndBtwn(0, 220)))
+      await mpContract.mintPixels(web3Ctx.state.address!, {
+        gasLimit: 300000
+      })
     },
     mergePixels: (pixelsToMerge: number[]) => {
       const p = [...state.pixels]
@@ -58,13 +58,10 @@ function makeMagicPixelsContext() {
 
   observable(() => web3Ctx.state.address!).subscribe(actions.updatePixels)
 
-  mpContract.on('PixelsConjured(address,uint8[8])', (conjurer: string, rnds: number[]) => {
-    // TODO: use the ethers filter instead of this if
-    if (conjurer.toLowerCase() === web3Ctx.state.address!) {
-      setState(produce(s => s.conjuringHistory.push(rnds)))
-      if (state.conjuringHistory.length > 1) {
-        actions.mergePixels(rnds)
-      }
+  mpContract.on(mpContract.filters.PixelsConjured(web3Ctx.state.address!), (conjurer: string, rnds: number[]) => {
+    setState(produce(s => s.conjuringHistory.push(rnds)))
+    if (state.conjuringHistory.length > 1) {
+      actions.mergePixels(rnds)
     }
   })
 
@@ -72,9 +69,9 @@ function makeMagicPixelsContext() {
 }
 
 export function MagicPixelsProvider(props: { children: JSX.Element }) {
-  const context = makeMagicPixelsContext()
+  const ctx = makeMagicPixelsContext()
 
-  return <MagicPixelsContext.Provider value={context}>
+  return <MagicPixelsContext.Provider value={ctx}>
     {props.children}
   </MagicPixelsContext.Provider>
 }

@@ -5,10 +5,12 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract MagicPixels is Initializable, PausableUpgradeable, OwnableUpgradeable {
-    uint private constant PIXEL_CONJURING_AMOUNT = 8;
+import "./Nether.sol";
 
-    address private _nether;
+contract MagicPixels is Initializable, PausableUpgradeable, OwnableUpgradeable {
+    uint8 private constant PIXEL_CONJURING_AMOUNT = 8;
+
+    INether private _nether;
 
     mapping(address => mapping(uint8 => uint256)) private pixels;
 
@@ -42,7 +44,7 @@ contract MagicPixels is Initializable, PausableUpgradeable, OwnableUpgradeable {
     }
 
     function nether() public view returns (address) {
-        return _nether;
+        return address(_nether);
     }
 
     function _checkNether() internal view virtual {
@@ -66,18 +68,20 @@ contract MagicPixels is Initializable, PausableUpgradeable, OwnableUpgradeable {
     }
 
     function _setNether(address newNether) internal virtual {
-        _nether = newNether;
+        _nether = INether(newNether);
     }
 
-    function mintPixels(
-        address conjuror,
-        uint8[PIXEL_CONJURING_AMOUNT] calldata rnds
-    ) public onlyNether {
+    function mintPixels(address conjuror) public {
+        uint8[] memory rnds = _nether.conjurePixels(PIXEL_CONJURING_AMOUNT);
+        uint8[8] memory rndsFixed;
+
         for (uint8 i = 0; i < PIXEL_CONJURING_AMOUNT; i++) {
             uint8 pxIdx = rnds[i];
+            rndsFixed[i] = pxIdx;
             uint256 amount = pixels[conjuror][pxIdx];
             pixels[conjuror][pxIdx] = amount + 1;
         }
-        emit PixelsConjured(conjuror, rnds);
+
+        emit PixelsConjured(conjuror, rndsFixed);
     }
 }

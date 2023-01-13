@@ -45,7 +45,7 @@ const Nether: Component = () => {
     </div>
 
     <button class='text-4xl m-auto px-4 py-4 relative' onClick={mpCtx.actions.conjurePixels}>
-      Conjure Pixelsd
+      Conjure Pixels
     </button>
   </div >
 }

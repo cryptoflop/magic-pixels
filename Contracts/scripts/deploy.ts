@@ -11,15 +11,13 @@ async function main() {
 
   console.log(`MagicPixels deployed at ${magicPixels.address}`)
 
-  await magicPixels.setNether(owner.address)
+  const Nether = await ethers.getContractFactory('Nether')
+  const nether = await Nether.deploy()
+  await nether.deployed()
 
-  console.log(`Set Nether as self: ${owner.address}`)
+  await magicPixels.setNether(nether.address)
 
-  await magicPixels.mintPixels(owner.address, [1, 2, 3, 4, 5, 6, 7, 9])
-
-  console.log('Pixels conjured')
-
-  console.log(`Pixels: ${await magicPixels.getAllPixels(owner.address)}`)
+  console.log(`Set Nether as: ${nether.address}`)
 }
 
 main().catch((error) => {
