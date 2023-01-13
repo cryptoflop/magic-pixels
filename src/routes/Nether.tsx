@@ -3,7 +3,7 @@ import { MagicPixelsContext } from '../contexts/MagicPixels'
 import { rndBtwn } from '../helpers/utils'
 
 const Nether: Component = () => {
-  const mpCtx = useContext(MagicPixelsContext)
+  const mpCtx = useContext(MagicPixelsContext)!
 
   let container: HTMLDivElement
 
@@ -44,8 +44,8 @@ const Nether: Component = () => {
       </For>
     </div>
 
-    <button class='text-4xl m-auto px-4 py-4 relative' onClick={mpCtx!.actions.conjurePixels}>
-      Conjure Pixels
+    <button class='text-4xl m-auto px-4 py-4 relative' onClick={mpCtx.actions.conjurePixels}>
+      Conjure Pixelsd
     </button>
   </div >
 }

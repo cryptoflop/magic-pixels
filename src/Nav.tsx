@@ -1,13 +1,18 @@
+import { useContext } from 'solid-js'
+import { NavLink, useMatch } from 'solid-app-router'
+import { createSvg, createSvgPixel } from './helpers/svg'
+import { colorShade, pixelColor } from './helpers/color-utils'
+import { Web3Context } from './contexts/Web3'
+
+import svgBackground from './directives/svgBackground'
+false && svgBackground
+
+import { version } from '../package.json';
+
 import nether from './assets/icons/nether.png'
 import market from './assets/icons/auctionhouse.png'
 import forge from './assets/icons/forge.png'
 import treasury from './assets/icons/treasury.png'
-import { NavLink, useMatch } from 'solid-app-router'
-import { createSvg, createSvgPixel } from './helpers/svg'
-import { colorShade, pixelColor } from './helpers/color-utils'
-
-import svgBackground from './directives/svgBackground'
-false && svgBackground
 
 const routes = [{
   name: 'Nether',
@@ -35,7 +40,9 @@ function createPinkFadeSvg() {
 }
 
 export default function Nav() {
-  return <div class='h-screen bg-white/8 backdrop-blur-lg'>
+  const web3Ctx = useContext(Web3Context)!
+
+  return <div class='grid grid-rows-2 h-screen bg-white/8 backdrop-blur-lg'>
     <nav class='mb-auto grid select-none gap-4 mt-4'>
       {routes.map(r => {
         const route = r.name.toLowerCase()
@@ -50,5 +57,14 @@ export default function Nav() {
         </NavLink>
       })}
     </nav>
+
+    <footer class='mt-auto m-4 flex justify-between opacity-50'>
+      <div title='MagicPixels Version' class='cursor-default'>
+        v{version}
+      </div>
+      <div title='Current block' class='cursor-default'>
+        #{web3Ctx.state.block}
+      </div>
+    </footer>
   </div>
 }
