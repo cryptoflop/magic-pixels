@@ -1,7 +1,7 @@
 import { Outlet } from 'solid-app-router'
 import { MagicPixelsProvider } from './contexts/MagicPixels'
 import { Web3Provider } from './contexts/Web3'
-import NetherBack from './elements/NetherBack'
+import NetherBack from './NetherBack'
 import WalletOutlet from './elements/WalletOutlet'
 import Nav from './Nav'
 

@@ -1,6 +1,6 @@
 import { Component, createEffect, createSignal, Index } from 'solid-js'
-import { BLACK, EMPTY, pixelColor } from '../helpers/color-utils'
-import { rndBtwn } from '../helpers/utils'
+import { BLACK, colorShade, EMPTY, pixelColor } from './helpers/color-utils'
+import { rndBtwn } from './helpers/utils'
 
 const NetherBack: Component = () => {
   let back: HTMLDivElement
@@ -36,7 +36,9 @@ const NetherBack: Component = () => {
         {(p, i) => {
           if (p()[0] === EMPTY) return null
 
-          const colors = p().map(c => pixelColor(c))
+          const pink = pixelColor(20 * 10 + 6)
+          const col = colorShade(pink, rndBtwn(1, 4))
+          const colors = [col, colorShade(col, rndBtwn(2, 4)), col]
           const dims = dim()
           const x = i % dims.w
           const y = Math.ceil((i + 1) / dims.h) - 1
@@ -46,7 +48,7 @@ const NetherBack: Component = () => {
             {colors.length > 0 && <animate attributeName="fill" values={colors
               .concat(colors[0])
               .join(';')
-            } dur={`${rndBtwn(5, 10)}s`} repeatCount="indefinite" begin={`${rndBtwn(20, 1000) / 1000}s`} />}
+            } dur={`${rndBtwn(2, 10)}s`} repeatCount="indefinite" begin={`${rndBtwn(20, 1000) / 1000}s`} />}
           </rect>
         }}
       </Index>
