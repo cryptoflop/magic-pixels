@@ -32,7 +32,7 @@ const routes = [{
 }]
 
 function createPinkFadeSvg() {
-  const pink = pixelColor(20 * 10 + 6)
+  const pink = pixelColor(20 * 10 + 7)
   return createSvg(8, 3, (_, x, y) => {
     const col = colorShade(pink, 11 - 10 * Math.max(0, Math.sin((0.18 * x) - 4.71)))
     return createSvgPixel(x, y, [col, colorShade(col, 1.4), col])
@@ -42,17 +42,17 @@ function createPinkFadeSvg() {
 export default function Nav() {
   const web3Ctx = useContext(Web3Context)!
 
-  return <div class='grid grid-rows-2 h-screen bg-white/8 backdrop-blur-lg'>
-    <nav class='mb-auto grid select-none gap-4 mt-4'>
+  return <div class='grid grid-rows-2 h-screen z-10'>
+    <nav class='mb-auto grid select-none gap-8 mt-8'>
       {routes.map(r => {
         const route = r.name.toLowerCase()
         const active = useMatch(() => route)
 
         return <NavLink href={route} title={r.name} class='grid cursor-pointer'>
-          <div class='grid grid-cols-[min-content,1fr] px-4 py-0.5 bg-black hover:bg-white/5'
+          <div class='grid grid-cols-[min-content,1fr] px-4 py-0.5 hover:bg-white/10'
             use:svgBackground={active() ? [createPinkFadeSvg()] : []}>
-            <img src={r.icon} class='m-2.5 min-w-[2rem] drop-shadow-[0_0_10px_#000]' />
-            <div class='m-auto self-center text-lg'>{r.name}</div>
+            <img src={r.icon} class='m-4 min-w-[32px] drop-shadow-[0_0_12px_#4c0025]' />
+            <div class='m-auto self-center text-xl'>{r.name}</div>
           </div>
         </NavLink>
       })}
