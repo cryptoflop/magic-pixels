@@ -1,13 +1,65 @@
-import { Component, createEffect, For, useContext } from 'solid-js'
+import { For, onMount, useContext } from 'solid-js'
 import { MagicPixelsContext } from '../contexts/MagicPixels'
 import { rndBtwn } from '../helpers/utils'
 
-const Nether: Component = () => {
+function ConjureButton(props: { onClick?: () => void }) {
+  let container: HTMLDivElement
+
+  let blur1: HTMLDivElement
+  let blur2: HTMLDivElement
+
+  onMount(() => {
+    for (const child of container.children) {
+      const CHANGE = 8
+      let currPos = rndBtwn(-CHANGE, CHANGE)
+      const anim = () => {
+        const pos = currPos > 0 ? -CHANGE : CHANGE
+        child.animate([
+          { transform: `translate(0, ${currPos}px)` },
+          { transform: `translate(0, ${pos}px)` }
+        ], {
+          duration: rndBtwn(4000, 6000),
+          iterations: 1,
+          easing: 'ease-in-out'
+        }).onfinish = anim
+        currPos = pos
+      }
+      anim()
+    }
+
+    [blur1, blur2].forEach(e => e.animate([
+      { filter: 'blur(var(--blurs))' },
+      { filter: 'blur(var(--blure))' },
+      { filter: 'blur(var(--blurs))' }
+    ], {
+      duration: 5000,
+      iterations: Infinity
+    }))
+  })
+
+
+  return <button class='text-4xl m-auto relative' onClick={props.onClick}>
+    <div class='grid grid-cols-10 absolute inset-0' ref={container!}>
+      <For each={Array(30).fill(1)}>
+        {() => <div class={rndBtwn(0, 10) > 4 ? '' : (rndBtwn(0, 10) > 4 ? 'bg-pink-700' : 'bg-pink-700/40')} />}
+      </For>
+    </div>
+
+    <div class='bg-pink-500 absolute inset-0' ref={blur2!} style={{ '--blurs': '120px', '--blure': '150px' }} />
+    <div class='bg-pink-500 absolute inset-0 opacity-40' ref={blur1!} style={{ '--blurs': '40px', '--blure': '70px' }} />
+
+    <div class='px-4 py-6 relative drop-shadow-[0_0_10px_#ffffff66]'>
+      Conjure Pixels
+    </div>
+  </button>
+}
+
+export default function Nether() {
   const mpCtx = useContext(MagicPixelsContext)!
 
   let container: HTMLDivElement
 
-  createEffect(() => {
+  onMount(() => {
     for (const child of container.children) {
       const CHANGE = 12
       let currDeg = rndBtwn(-CHANGE, CHANGE)
@@ -44,10 +96,6 @@ const Nether: Component = () => {
       </For>
     </div>
 
-    <button class='text-4xl m-auto px-4 py-4 relative' onClick={mpCtx.actions.conjurePixels}>
-      Conjure Pixels
-    </button>
+    <ConjureButton onClick={mpCtx.actions.conjurePixels} />
   </div >
 }
-
-export default Nether

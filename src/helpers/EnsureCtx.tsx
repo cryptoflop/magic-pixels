@@ -1,5 +1,7 @@
-import { JSX } from 'solid-js'
+import { Context, JSX, useContext } from 'solid-js'
 
 export default function EnsureCtx(props: { context: unknown, children: JSX.Element }) {
-  return props.context ? props.children : null
+  const ctx = useContext(props.context as Context<unknown>)
+
+  return ctx ? props.children : null
 }

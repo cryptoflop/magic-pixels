@@ -23,7 +23,7 @@ function makeMagicPixelsContext() {
   const mpContract = new ethers.Contract(
     MAGIG_PIXELS_ADDRESS,
     MagicPixelsArtifact.abi,
-    web3Ctx!.provider.getSigner()
+    web3Ctx.provider.getSigner()
   )
 
   const setPixels = (pixels: number[]) => {

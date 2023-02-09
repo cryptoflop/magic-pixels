@@ -2,6 +2,8 @@ import { createContext, JSX, Match, Switch } from 'solid-js'
 import { createStore } from 'solid-js/store'
 
 import { ethers } from 'ethers'
+import DemoProvider, { createDemoProviderProxyLogger } from '../helpers/DemoProvider'
+import EnsureCtx from '../helpers/EnsureCtx'
 
 export const Web3Context = createContext<ReturnType<typeof makeWeb3Context>>()
 
@@ -14,7 +16,18 @@ function makeWeb3Context() {
     balance: undefined, pixels: undefined, block: undefined
   })
 
-  const provider = new ethers.providers.Web3Provider(window.ethereum! as unknown as ethers.providers.ExternalProvider)
+  const provider = new ethers.providers.Web3Provider(
+    // createDemoProviderProxyLogger(window.ethereum!) as unknown as ethers.providers.ExternalProvider
+    // window.ethereum! as unknown as ethers.providers.ExternalProvider
+    // createDemoProviderProxyLogger(new DemoProvider(
+    //   '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+    //   '0x5fbdb2315678afecb367f032d93f642f64180aa3'
+    // )) as unknown as ethers.providers.ExternalProvider
+    new DemoProvider(
+      '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      '0x5fbdb2315678afecb367f032d93f642f64180aa3'
+    ) as unknown as ethers.providers.ExternalProvider
+  )
 
   const actions = {
     connect: async () => {
@@ -32,7 +45,7 @@ function makeWeb3Context() {
     updateBalance: () => provider.getBalance(state.address!).then(r => setState({ balance: r.toString() }))
   }
 
-  window.ethereum?.on('accountsChanged', accounts => {
+  provider.on('accountsChanged', accounts => {
     if (!(accounts as string[])[0]) {
       setState({
         address: undefined, name: undefined, block: undefined,
@@ -56,22 +69,24 @@ export function Web3Provider(props: { children: JSX.Element }) {
   </div>
 
   return <Web3Context.Provider value={ctx}>
-    <Switch>
-      <Match when={ctx.state.connecting}>
-        <Header />
-        <div class='text-xl m-auto px-4 py-2 bg-white/10 backdrop-blur-lg'>
+    <EnsureCtx context={Web3Context}>
+      <Switch>
+        <Match when={ctx.state.connecting}>
+          <Header />
+          <div class='text-xl m-auto px-4 py-2 bg-white/10 backdrop-blur-lg'>
           Connecting...
-        </div>
-      </Match>
-      <Match when={!ctx.state.connecting && !ctx.state.address}>
-        <Header />
-        <button class='text-xl m-auto px-4 py-2 bg-white/10 backdrop-blur-lg hover:bg-white/20' onClick={ctx.actions.connect}>
+          </div>
+        </Match>
+        <Match when={!ctx.state.connecting && !ctx.state.address}>
+          <Header />
+          <button class='text-xl m-auto px-4 py-2 bg-white/10 backdrop-blur-lg hover:bg-white/20' onClick={ctx.actions.connect}>
           Connect
-        </button>
-      </Match>
-      <Match when={!ctx.state.connecting && ctx.state.address}>
-        {props.children}
-      </Match>
-    </Switch>
+          </button>
+        </Match>
+        <Match when={!ctx.state.connecting && ctx.state.address}>
+          {props.children}
+        </Match>
+      </Switch>
+    </EnsureCtx>
   </Web3Context.Provider>
 }

@@ -14,8 +14,8 @@ const Treasury: Component = () => {
       <For each={allColors}>
         {(color, i) => {
           const count = () => state.map[i()]
-          return <div class={`h-8 w-8 border-2 border-white/40 text-white cursor-pointer`}
-            style={{ 'background-color': color, 'opacity': count() ? 1 : 0.5 }}>
+          return <div class={`h-12 w-12 border-4 border-white/40 text-white cursor-pointer`}
+            style={{ 'background-color': color, 'opacity': count() ? 1 : 0.7 }}>
             <div class='drop-shadow-[0_0_2px_black] text-center'>{count() || ''}</div>
           </div>}}
       </For>
