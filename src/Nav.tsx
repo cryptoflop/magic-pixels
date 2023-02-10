@@ -8,8 +8,7 @@ import nether from './assets/icons/nether.png'
 import market from './assets/icons/auctionhouse.png'
 import forge from './assets/icons/forge.png'
 import treasury from './assets/icons/treasury.png'
-import { rndBtwn } from './helpers/utils'
-import { hex2rgb, pixelColor } from './helpers/color-utils'
+import { rndColors } from './helpers/color-utils'
 
 const routes = [{
   name: 'Nether',
@@ -34,12 +33,9 @@ function RouteBtn(props: { name: string, active: boolean }) {
     const num = 6
 
     back.onmouseenter = () => back.style.setProperty('--backopacity', props.active ? '1' : '0.6')
-    back.onmouseleave = () => back.style.setProperty('--backopacity', props.active ? '1' : '0.2')
+    back.onmouseleave = () => back.style.setProperty('--backopacity', props.active ? '1' : '0')
 
-    const colors = Array(num).fill(1)
-      .map(() => pixelColor(rndBtwn(5, 20) * 10 + 5))
-      .map(hex => hex2rgb(hex))
-      .map(rgb => ({ backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, var(--backopacity))` }))
+    const colors = rndColors(num, 5, 'rgb').map(rgb => ({ backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, var(--backopacity))` }))
 
     back.animate(colors.concat(colors[0]), {
       duration: (num * 4) * 1000,
@@ -48,7 +44,7 @@ function RouteBtn(props: { name: string, active: boolean }) {
   })
 
   return <>
-    <div class='absolute inset-0 transition-all' style={{ '--backopacity': props.active ? 1 : 0.4, 'filter': 'blur(40px)' }} ref={back!} />
+    <div class='absolute inset-0 transition-all' style={{ '--backopacity': props.active ? 1 : 0, 'filter': 'blur(42px)' }} ref={back!} />
     <div class='m-auto text-xl z-10 pointer-events-none'>{props.name}</div>
   </>
 }

@@ -68,3 +68,14 @@ export function hex2rgb(hex: string) {
   // @ts-ignore: ignore no left hand side arithmethic
   return{r:'0x'+hex[1]+hex[2]|0,g:'0x'+hex[3]+hex[4]|0,b:'0x'+hex[5]+hex[6]|0}
 }
+
+export function rndColors<T extends 'idx' | 'hex' | 'rgb'>(num: number, intensity: number, type: T) {
+  return Array(num).fill(1)
+    .map(() => rndBtwn(5, 20) * 10 + intensity)
+    .map(idx => {
+      if (type === 'idx') return idx
+      const hex = pixelColor(idx)
+      if (type === 'hex') return hex
+      return hex2rgb(hex)
+    }) as (T extends 'idx' ? number[] : T extends 'hex' ? string[] : T extends 'rgb' ? ReturnType<typeof hex2rgb>[] : never)
+}

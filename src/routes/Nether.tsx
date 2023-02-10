@@ -1,6 +1,6 @@
 import { For, onMount, useContext } from 'solid-js'
 import { MagicPixelsContext } from '../contexts/MagicPixels'
-import { hex2rgb, pixelColor } from '../helpers/color-utils'
+import { rndColors } from '../helpers/color-utils'
 import { rndBtwn } from '../helpers/utils'
 
 function ConjureButton(props: { onClick?: () => void }) {
@@ -18,10 +18,7 @@ function ConjureButton(props: { onClick?: () => void }) {
     }))
 
     const num = 6
-    const colors = Array(num).fill(1)
-      .map(() => pixelColor(rndBtwn(5, 20) * 10 + 5))
-      .map(hex => hex2rgb(hex))
-      .map(rgb => ({ backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 1)` }));
+    const colors = rndColors(num, 5, 'rgb').map(rgb => ({ backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 1)` }));
 
     [blur1, blur2].forEach(e => e.animate(colors.concat(colors[0]), {
       duration: (num * 4) * 1000,
