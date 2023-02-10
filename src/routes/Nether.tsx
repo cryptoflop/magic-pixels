@@ -1,32 +1,13 @@
 import { For, onMount, useContext } from 'solid-js'
 import { MagicPixelsContext } from '../contexts/MagicPixels'
+import { hex2rgb, pixelColor } from '../helpers/color-utils'
 import { rndBtwn } from '../helpers/utils'
 
 function ConjureButton(props: { onClick?: () => void }) {
-  let container: HTMLDivElement
-
   let blur1: HTMLDivElement
   let blur2: HTMLDivElement
 
   onMount(() => {
-    for (const child of container.children) {
-      const CHANGE = 8
-      let currPos = rndBtwn(-CHANGE, CHANGE)
-      const anim = () => {
-        const pos = currPos > 0 ? -CHANGE : CHANGE
-        child.animate([
-          { transform: `translate(0, ${currPos}px)` },
-          { transform: `translate(0, ${pos}px)` }
-        ], {
-          duration: rndBtwn(4000, 6000),
-          iterations: 1,
-          easing: 'ease-in-out'
-        }).onfinish = anim
-        currPos = pos
-      }
-      anim()
-    }
-
     [blur1, blur2].forEach(e => e.animate([
       { filter: 'blur(var(--blurs))' },
       { filter: 'blur(var(--blure))' },
@@ -35,20 +16,25 @@ function ConjureButton(props: { onClick?: () => void }) {
       duration: 5000,
       iterations: Infinity
     }))
+
+    const num = 6
+    const colors = Array(num).fill(1)
+      .map(() => pixelColor(rndBtwn(5, 20) * 10 + 5))
+      .map(hex => hex2rgb(hex))
+      .map(rgb => ({ backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 1)` }));
+
+    [blur1, blur2].forEach(e => e.animate(colors.concat(colors[0]), {
+      duration: (num * 4) * 1000,
+      iterations: Infinity
+    }))
   })
 
 
-  return <button class='text-4xl m-auto relative' onClick={props.onClick}>
-    <div class='grid grid-cols-10 absolute inset-0' ref={container!}>
-      <For each={Array(30).fill(1)}>
-        {() => <div class={rndBtwn(0, 10) > 4 ? '' : (rndBtwn(0, 10) > 4 ? 'bg-pink-700' : 'bg-pink-700/40')} />}
-      </For>
-    </div>
+  return <button class='text-4xl m-auto relative ' onClick={props.onClick}>
+    <div class='absolute inset-0' ref={blur2!} style={{ '--blurs': '60px', '--blure': '80px' }} />
+    <div class='absolute inset-0 opacity-20' ref={blur1!} style={{ '--blurs': '40px', '--blure': '60px' }} />
 
-    <div class='bg-pink-500 absolute inset-0' ref={blur2!} style={{ '--blurs': '120px', '--blure': '150px' }} />
-    <div class='bg-pink-500 absolute inset-0 opacity-40' ref={blur1!} style={{ '--blurs': '40px', '--blure': '70px' }} />
-
-    <div class='px-4 py-6 relative drop-shadow-[0_0_10px_#ffffff66]'>
+    <div class='px-4 py-1 relative drop-shadow-[0_0_6px_#ffffffaa] active:scale-95 hover:scale-110 transition-transform'>
       Conjure Pixels
     </div>
   </button>

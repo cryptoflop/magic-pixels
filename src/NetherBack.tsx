@@ -158,20 +158,18 @@ const NetherBack = () => {
 
         void main() {
           vec2 uv = fragCoord;
-    
-          float amp = 0.;
 
-          float t=iTime*.0025;
+          float t=iTime*.002;
           
           vec2 a = grid(uv,10.), b = grid(uv,25.), c = grid(uv,50.);
           vec2 p = floor(a)/10.+t, q = floor(b)/25.+.7*t, s = floor(c)/50.+1.3*t;
           
           vec2 bp = ( edge(a) + edge(b) + edge(c) )/1.5;
-          // bp*=bp*bp;
+          bp*=bp*bp;
           
-          mediump vec4 tex = .9*T(p)+.9*T(q)+.9*T(s); 
-          tex -= .1*(bp.x+bp.y);
-          tex *= 1.*smoothstep(1.+amp,1.8,tex.r)*tex;
+          mediump vec4 tex = .9*T(p)+.88*T(q)+.86*T(s); 
+          tex -= .18*(bp.x+bp.y);
+          tex *= 2.*smoothstep(1.,1.8,tex.r)*tex;
 
           gl_FragColor = vec4(vec3(0.), 1.) + tex;
         }
