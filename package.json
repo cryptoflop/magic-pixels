@@ -4,7 +4,7 @@
   "license": "MIT",
   "description": "Get lost in a nether full of magic pixels",
   "info": "Web3 app where you can gamble to get pixels which can be used to create NFT's",
-  "homepage": "https://www.magic-pixels.xyz",
+  "homepage": "www.mgcpxls.xyz",
   "contributors": [
     {
       "name": "Max David",
@@ -20,7 +20,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "deploy-demo": "npm run build & surge --domain www.mgcpxls.xyz"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.47.1",
@@ -37,6 +38,7 @@
     "@metamask/providers": "^10.2.1",
     "ethers": "^5.7.2",
     "solid-app-router": "^0.4.2",
-    "solid-js": "^1.6.6"
+    "solid-js": "^1.6.6",
+    "surge": "^0.23.1"
   }
 }
