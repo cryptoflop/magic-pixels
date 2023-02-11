@@ -10,9 +10,9 @@ export const Web3Context = createContext<ReturnType<typeof makeWeb3Context>>()
 function makeWeb3Context() {
   const [state, setState] = createStore<{
     connecting: boolean, address?: string, block?: string
-    name?: string, balance?: string, pixels?: string
+    name?: string, balance?: string, pixels?: string, demo?: boolean
   }>({
-    address: undefined, name: undefined, connecting: true,
+    address: undefined, name: undefined, connecting: true, demo: true,
     balance: undefined, pixels: undefined, block: undefined
   })
 
@@ -32,7 +32,7 @@ function makeWeb3Context() {
   const actions = {
     connect: async () => {
       setState({ connecting: true })
-      const accounts = await window.ethereum?.request<string[]>({ method: 'eth_requestAccounts' })
+      const accounts = await provider.listAccounts()
       if (accounts && accounts[0]) {
         const account = accounts[0]
         setState({ address: account.toLowerCase() })

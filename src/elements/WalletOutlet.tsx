@@ -35,5 +35,11 @@ export default function WalletOutlet() {
       </div>
     </Show>
 
+    <Show when={state.demo}>
+      <div class='absolute top-2 -left-16' title='This dApp currently uses a demo wallet'>
+        DEMO
+      </div>
+    </Show>
+
   </div>
 }
