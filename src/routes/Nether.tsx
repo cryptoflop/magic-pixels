@@ -1,39 +1,26 @@
 import { For, onMount, useContext } from 'solid-js'
 import { MagicPixelsContext } from '../contexts/MagicPixels'
-import { rndColors } from '../helpers/color-utils'
 import { rndBtwn } from '../helpers/utils'
 
 function ConjureButton(props: { onClick?: () => void }) {
-  let blur1: HTMLDivElement
-  let blur2: HTMLDivElement
+  let btn: HTMLButtonElement
 
   onMount(() => {
-    [blur1, blur2].forEach(e => e.animate([
-      { filter: 'blur(var(--blurs))' },
-      { filter: 'blur(var(--blure))' },
-      { filter: 'blur(var(--blurs))' }
-    ], {
-      duration: 5000,
-      iterations: Infinity
-    }))
-
-    const num = 6
-    const colors = rndColors(num, 5, 'rgb').map(rgb => ({ backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 1)` }));
-
-    [blur1, blur2].forEach(e => e.animate(colors.concat(colors[0]), {
-      duration: (num * 4) * 1000,
-      iterations: Infinity
-    }))
+    btn.animate([
+      { opacity: '0.7', transform: 'translateY(0) scale(1)' },
+      { opacity: '1', transform: 'translateY(-4px) scale(1.01)' },
+      { opacity: '0.7', transform: 'translateY(0) scale(1)' }
+    ],
+    {
+      duration: 3300,
+      iterations: Infinity,
+      easing: 'ease-out'
+    })
   })
 
 
-  return <button class='text-4xl m-auto relative ' onClick={props.onClick}>
-    <div class='absolute inset-0' ref={blur2!} style={{ '--blurs': '60px', '--blure': '80px' }} />
-    <div class='absolute inset-0 opacity-20' ref={blur1!} style={{ '--blurs': '40px', '--blure': '60px' }} />
-
-    <div class='px-4 py-1 relative drop-shadow-[0_0_6px_#ffffffaa] active:scale-95 hover:scale-110 transition-transform'>
-      Conjure Pixels
-    </div>
+  return <button onClick={props.onClick} class='text-5xl m-auto p-4 hover:scale-[1.02] hover:underline hover:opacity-100' ref={btn!}>
+    Conjure Pixels
   </button>
 }
 
