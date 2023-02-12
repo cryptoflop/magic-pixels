@@ -21,7 +21,7 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "deploy-demo": "npm run build & surge --domain www.mgcpxls.xyz"
+    "deploy-demo": "npm run build & node -e \"require('fs').renameSync('dist/index.html', 'dist/200.html')\" & surge --domain www.mgcpxls.xyz"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.47.1",
