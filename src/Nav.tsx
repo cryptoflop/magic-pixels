@@ -1,4 +1,4 @@
-import { onMount, useContext } from 'solid-js'
+import { Accessor, useContext } from 'solid-js'
 import { NavLink, useMatch } from 'solid-app-router'
 import { Web3Context } from './contexts/Web3'
 
@@ -8,7 +8,6 @@ import nether from './assets/icons/nether.png'
 import market from './assets/icons/auctionhouse.png'
 import forge from './assets/icons/forge.png'
 import treasury from './assets/icons/treasury.png'
-import { rndColors } from './helpers/color-utils'
 
 const routes = [{
   name: 'Nether',
@@ -28,25 +27,10 @@ const routes = [{
 }]
 
 function RouteBtn(props: { name: string, active: boolean }) {
-  let back: HTMLDivElement
-  onMount(() => {
-    const num = 6
-
-    back.onmouseenter = () => back.style.setProperty('--backopacity', props.active ? '1' : '0.6')
-    back.onmouseleave = () => back.style.setProperty('--backopacity', props.active ? '1' : '0')
-
-    const colors = rndColors(num, 5, 'rgb').map(rgb => ({ backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, var(--backopacity))` }))
-
-    back.animate(colors.concat(colors[0]), {
-      duration: (num * 4) * 1000,
-      iterations: Infinity
-    })
-  })
-
-  return <>
-    <div class='absolute inset-0 transition-all' style={{ '--backopacity': props.active ? 1 : 0, 'filter': 'blur(42px)' }} ref={back!} />
-    <div class='m-auto text-xl z-10 pointer-events-none'>{props.name}</div>
-  </>
+  return <div class='m-auto text-2xl drop-shadow-[0_0_6px_black] hover:underline'
+    style={{ 'text-decoration': props.active ? 'underline' : 'none' }}>
+    {props.name}
+  </div>
 }
 
 export default function Nav() {

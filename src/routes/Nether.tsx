@@ -7,9 +7,9 @@ function ConjureButton(props: { onClick?: () => void }) {
 
   onMount(() => {
     btn.animate([
-      { opacity: '0.7', transform: 'translateY(0) scale(1)' },
-      { opacity: '1', transform: 'translateY(-4px) scale(1.01)' },
-      { opacity: '0.7', transform: 'translateY(0) scale(1)' }
+      { transform: 'translateY(0) scale(1)' },
+      { transform: 'translateY(-4px) scale(1.04)' },
+      { transform: 'translateY(0) scale(1)' }
     ],
     {
       duration: 3300,
@@ -19,7 +19,7 @@ function ConjureButton(props: { onClick?: () => void }) {
   })
 
 
-  return <button onClick={props.onClick} class='text-5xl m-auto p-4 hover:scale-[1.02] hover:underline hover:opacity-100' ref={btn!}>
+  return <button onClick={props.onClick} class='text-5xl m-auto p-4 hover:underline' ref={btn!}>
     Conjure Pixels
   </button>
 }
