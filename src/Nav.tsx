@@ -1,4 +1,4 @@
-import { Accessor, useContext } from 'solid-js'
+import { useContext } from 'solid-js'
 import { NavLink, useMatch } from 'solid-app-router'
 import { Web3Context } from './contexts/Web3'
 
@@ -27,8 +27,8 @@ const routes = [{
 }]
 
 function RouteBtn(props: { name: string, active: boolean }) {
-  return <div class='m-auto text-2xl drop-shadow-[0_0_6px_black] hover:underline'
-    style={{ 'text-decoration': props.active ? 'underline' : 'none' }}>
+  return <div class='text-2xl drop-shadow-[0_0_6px_black] hover:bg-white/20 p-4 text-center'
+    style={{ 'background-color': props.active ? '#ffffff38' : 'unset' }}>
     {props.name}
   </div>
 }

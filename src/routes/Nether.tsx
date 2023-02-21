@@ -3,23 +3,7 @@ import { MagicPixelsContext } from '../contexts/MagicPixels'
 import { rndBtwn } from '../helpers/utils'
 
 function ConjureButton(props: { onClick?: () => void }) {
-  let btn: HTMLButtonElement
-
-  onMount(() => {
-    btn.animate([
-      { transform: 'translateY(0) scale(1)' },
-      { transform: 'translateY(-4px) scale(1.04)' },
-      { transform: 'translateY(0) scale(1)' }
-    ],
-    {
-      duration: 3300,
-      iterations: Infinity,
-      easing: 'ease-out'
-    })
-  })
-
-
-  return <button onClick={props.onClick} class='text-5xl m-auto p-4 hover:underline' ref={btn!}>
+  return <button onClick={props.onClick} class='text-5xl m-auto p-4 hover:bg-white/20 drop-shadow-[0_0_6px_#000000]'>
     Conjure Pixels
   </button>
 }
