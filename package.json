@@ -1,44 +1,28 @@
 {
   "name": "magic-pixels",
-  "version": "0.1.0",
-  "license": "MIT",
-  "description": "Get lost in a nether full of magic pixels",
-  "info": "Web3 app where you can gamble to get pixels which can be used to create NFT's",
-  "homepage": "www.mgcpxls.xyz",
-  "contributors": [
-    {
-      "name": "Max David",
-      "email": "wow.max.david@gmail.com",
-      "url": "https://github.com/maxdavidwow"
-    }
-  ],
-  "keywords": [
-    "nft",
-    "pixelart",
-    "dApp"
-  ],
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview",
-    "deploy-demo": "npm run build & node -e \"require('fs').renameSync('dist/index.html', 'dist/200.html')\" & surge --domain www.mgcpxls.xyz"
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.47.1",
-    "@typescript-eslint/parser": "^5.47.1",
-    "autoprefixer": "^10.4.13",
-    "eslint": "^8.31.0",
-    "postcss": "^8.4.20",
-    "tailwindcss": "^3.2.4",
-    "typescript": "^4.9.4",
-    "vite": "^4.0.4",
-    "vite-plugin-solid": "^2.5.0"
+    "@sveltejs/vite-plugin-svelte": "^2.4.2",
+    "@tsconfig/svelte": "^5.0.0",
+    "autoprefixer": "^10.4.15",
+    "postcss": "^8.4.29",
+    "svelte": "^4.0.5",
+    "svelte-check": "^3.4.6",
+    "tailwindcss": "^3.3.3",
+    "tslib": "^2.6.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
   },
   "dependencies": {
-    "@metamask/providers": "^10.2.1",
-    "ethers": "^5.7.2",
-    "solid-app-router": "^0.4.2",
-    "solid-js": "^1.6.6",
-    "surge": "^0.23.1"
+    "@wagmi/core": "^1.4.1",
+    "viem": "^1.10.9"
   }
 }

@@ -1,17 +1,28 @@
 {
-  "name": "contracts",
-  "scripts": {
-    "start": "npx hardhat node",
-    "compile": "npx hardhat compile",
-    "deploy": "npx hardhat run --network localhost scripts/deploy.ts"
-  },
-  "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^2.0.1",
-    "hardhat": "^2.12.6",
-    "ts-node": "^10.9.1"
-  },
-  "dependencies": {
-    "@openzeppelin/contracts": "^4.8.0",
-    "@openzeppelin/contracts-upgradeable": "^4.8.0"
-  }
+	"name": "magic-pixels-contracts",
+	"version": "1.0.0",
+	"scripts": {
+		"start": "npx hardhat node",
+		"start-mainnet": "npx hardhat node --fork https://mainnet.infura.io/v3/81a4b0a8dbb744c5b1ec5bef6b63f90f",
+		"compile": "npx hardhat compile & npx hardhat typechain",
+		"run": "npx hardhat run scripts/deploy.ts",
+		"deploy": "npx hardhat run --network localhost scripts/deploy.ts",
+		"randomp": "npx hardhat run --network localhost scripts/nguf-randomp.ts"
+	},
+	"devDependencies": {
+		"@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
+		"@nomicfoundation/hardhat-network-helpers": "^1.0.9",
+		"@nomicfoundation/hardhat-toolbox": "^3.0.0",
+		"@openzeppelin/contracts": "^4.9.3",
+		"@openzeppelin/contracts-upgradeable": "^4.9.3",
+		"@openzeppelin/hardhat-upgrades": "^2.3.1",
+		"@types/chai": "^4.3.4",
+		"@types/mocha": "^10.0.1",
+		"@types/node": "^18.15.11",
+		"@wagmi/cli": "^1.5.2",
+		"chai": "^4.3.7",
+		"ethers": "^6.7.1",
+		"hardhat": "^2.17.4",
+		"ts-node": "^10.9.1"
+	}
 }

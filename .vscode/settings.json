@@ -1,8 +1,8 @@
 {
-	"tailwindCSS.classAttributes": [
-		"class",
-		"className",
-		"ngClass",
-		"classNameInner"
-	]
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "svelte.svelte-vscode"
+},
 }

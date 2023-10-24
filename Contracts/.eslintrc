@@ -1,0 +1,11 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "../src/**/*",
+    "./node_modules/**/*"
+  ],
+  "env": {
+    "browser": false,
+    "node": true
+  }
+}

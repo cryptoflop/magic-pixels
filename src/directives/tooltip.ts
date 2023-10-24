@@ -1,34 +1,42 @@
-import { Accessor, onCleanup } from 'solid-js';
+import Tooltip from '../elements/Tooltip.svelte';
 
-export default function tooltip(el: HTMLElement, tooltip: Accessor<string>) {
-  if (!tooltip()) return;
+let current: Tooltip | null
 
-  let tt: HTMLElement;
-  const move = (e: MouseEvent) => {
-    tt.style.cssText = `top: ${e.y - tt.clientHeight - 1}px; left: ${e.x}px;`;
-  };
+window.addEventListener("mousemove", (e) => {
+	if (!current) return;
 
-  const leave = () => {
-    el.removeEventListener('mousemove', move);
-    el.removeEventListener('mousedown', leave);
-    el.removeEventListener('mouseleave', leave);
-    tt.remove();
-  };
+	if (e.target !== current.el) {
+		current.$destroy();
+		current = null
+		return;
+	}
+	
+	current.$set({
+		x: e.pageX,
+		y: e.pageY,
+	})
+})
 
-  const show = (e: MouseEvent) => {
-    tt = document.createElement('div');
-    tt.className = 'tooltip';
-    tt.innerText = tooltip();
-    move(e);
-    document.body.appendChild(tt);
+export function tooltip(element: HTMLElement, title: string) {
+	function mouseOver(event: { pageX: any; pageY: any; }) {
+		if (current) current.$destroy();
 
-    el.addEventListener('mousemove', move);
-    el.addEventListener('mousedown', leave);
-    el.addEventListener('mouseleave', leave);
-  };
+		current = new Tooltip({
+			props: {
+				title: title,
+				x: event.pageX,
+				y: event.pageY,
+			},
+			target: document.body,
+		});
+		current.el = element;
+	}
+	
+	element.addEventListener('mouseover', mouseOver);
 
-  el.addEventListener('mouseenter', show);
-  onCleanup(() => {
-    el.removeEventListener('mouseenter', show);
-  });
+	return {
+		destroy() {
+			element.removeEventListener('mouseover', mouseOver);
+		}
+	}
 }

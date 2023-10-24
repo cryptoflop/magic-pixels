@@ -1,8 +1,25 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
 node_modules
 dist
-.deps
+dist-ssr
+*.local
+**/artifacts/**/**.json
 
-Contracts/artifacts
-Contracts/typechain-types
-.debugger/generated-sources
-
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

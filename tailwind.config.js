@@ -1,23 +1,9 @@
-// eslint-disable-next-line no-undef
-module.exports = {
-  content: [
-    './index.html',
-    './src/**/*.{js,ts,jsx,tsx,css,md,mdx,html,json,scss}'
-  ],
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
-    extend: {
-      opacity: {
-        '8': '.08'
-      },
-      animation: {
-        'pulsate': 'pulsate 4s ease-in-out infinite'
-      },
-      keyframes: {
-        pulsate: {
-          '75%, 100%': { transform: 'scale(1.2)', opacity: 0 }
-        }
-      }
-    }
+    extend: {},
   },
-  plugins: []
-};
+  plugins: [],
+}
+
