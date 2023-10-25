@@ -1,11 +1,26 @@
 <script lang="ts">
-	import { getContext, onDestroy, onMount, tick } from "svelte";
+	import { getContext, onDestroy } from "svelte";
 	import type { createWeb3Ctx } from "../contexts/web3";
 	import PixelPalette from "../elements/PixelPalette.svelte";
-	import { EMPTY, comparePixel, formatDelay, pixelColor, pixelizeElement, pixelsToSvg } from "../helpers/color-utils";
-	import { PLATE_SIZE } from "../values";
+	import {
+		EMPTY,
+		comparePixel,
+		formatDelay,
+		pixelizeElement,
+		pixelsToSvg,
+	} from "../helpers/color-utils";
 
-	const PIXEL_SIZE = 24;
+	const PLATE_DIMENSIONS = [8, 16, 32];
+
+	let dimension = PLATE_DIMENSIONS[1];
+
+	const PIXEL_SIZES = {
+		8: 48,
+		16: 24,
+		32: 12,
+	};
+
+	$: size = PIXEL_SIZES[dimension as keyof typeof PIXEL_SIZES];
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const pixels = web3.pixels;
@@ -20,16 +35,23 @@
 
 	$: placedPixels = placedPixelsIndices.map((i) => $pixels[i]);
 
-	$: delaysPacked = Object.keys(delays).map((k) => [Number(k), delays[Number(k)]]);
+	$: delaysPacked = Object.keys(delays).map((k) => [
+		Number(k),
+		delays[Number(k)],
+	]);
 
 	function clear() {
-		placedPixelsIndices = Array(PLATE_SIZE ** 2).fill(-1);
+		placedPixelsIndices = Array(dimension ** 2).fill(-1);
 		delays = {};
+	}
+	$: {
+		clear();
+		console.log(dimension);
 	}
 	clear();
 
 	function rnd() {
-		placedPixelsIndices = Array(PLATE_SIZE ** 2)
+		placedPixelsIndices = Array(dimension ** 2)
 			.fill(1)
 			.map((_, i) => i)
 			.map((idx, i) => (i >= $pixels.length ? -1 : idx))
@@ -38,13 +60,19 @@
 
 	$: placedPixelsCount = placedPixelsIndices.filter((p) => p >= 0).length;
 
-	$: availablePixels = $pixels.filter((_, i) => placedPixelsIndices.findIndex((idx) => idx == i) == -1); // removed placed pixels
+	$: availablePixels = $pixels.filter(
+		(_, i) => placedPixelsIndices.findIndex((idx) => idx == i) == -1
+	); // removed placed pixels
 
 	let filteredPixels: PixelData[] = [];
 
 	let grabbed: number | null;
 	function grab(pxl: PixelData, e: MouseEvent) {
-		grabbed = $pixels.findIndex((p, i) => placedPixelsIndices.findIndex((idx) => idx == i) == -1 && comparePixel(pxl, p));
+		grabbed = $pixels.findIndex(
+			(p, i) =>
+				placedPixelsIndices.findIndex((idx) => idx == i) == -1 &&
+				comparePixel(pxl, p)
+		);
 
 		document.body.classList.add("cursor-grabbing");
 
@@ -69,7 +97,9 @@
 
 			const target = e.target as HTMLElement;
 			if (target.tagName != "IMG") return;
-			drop(Math.floor(e.offsetY / PIXEL_SIZE) * PLATE_SIZE + Math.floor(e.offsetX / PIXEL_SIZE));
+			drop(
+				Math.floor(e.offsetY / size) * dimension + Math.floor(e.offsetX / size)
+			);
 		}
 		document.body.addEventListener("mousemove", onMove);
 		document.body.addEventListener("mouseup", onRelease);
@@ -91,7 +121,8 @@
 	function updateHover(e: MouseEvent & { layerX?: number; layerY?: number }) {
 		const target = e.target as HTMLElement;
 		if (target.tagName == "IMG") {
-			const idx = Math.floor(e.offsetY / PIXEL_SIZE) * PLATE_SIZE + Math.floor(e.offsetX / PIXEL_SIZE);
+			const idx =
+				Math.floor(e.offsetY / size) * dimension + Math.floor(e.offsetX / size);
 			if (idx == hovering) return;
 			if (placedPixelsIndices[idx] == -1) {
 				hovering = -1;
@@ -104,7 +135,8 @@
 	}
 
 	let shiftPressed = false;
-	const up = (e: KeyboardEvent) => (shiftPressed = e.key == "Shift" ? false : shiftPressed);
+	const up = (e: KeyboardEvent) =>
+		(shiftPressed = e.key == "Shift" ? false : shiftPressed);
 	document.addEventListener("keyup", up);
 	const down = (e: KeyboardEvent) => (shiftPressed = e.shiftKey);
 	document.addEventListener("keydown", down);
@@ -115,9 +147,12 @@
 
 	function onHoverWheel(e: WheelEvent) {
 		if (hovering < 0) return;
-		if (!localStorage.getItem("delayHint")) localStorage.setItem("delayHint", "true");
+		if (!localStorage.getItem("delayHint"))
+			localStorage.setItem("delayHint", "true");
 		const v = delays[hovering] || 0;
-		const dir = (e.deltaY > 0 ? 1 : -1) * (shiftPressed ? Math.abs((v % 10) + (e.deltaY > 0 ? -10 : 0)) || 10 : 1);
+		const dir =
+			(e.deltaY > 0 ? 1 : -1) *
+			(shiftPressed ? Math.abs((v % 10) + (e.deltaY > 0 ? -10 : 0)) || 10 : 1);
 		const max = $pixels[placedPixelsIndices[hovering]].length * 100;
 		if (dir < 0 && v + dir < 0) {
 			delays[hovering] = max + dir;
@@ -130,13 +165,16 @@
 	function releasePixel(e: MouseEvent) {
 		const target = e.target as HTMLElement;
 		if (target.tagName != "IMG") return;
-		const idx = Math.floor(e.offsetY / PIXEL_SIZE) * PLATE_SIZE + Math.floor(e.offsetX / PIXEL_SIZE);
+		const idx =
+			Math.floor(e.offsetY / size) * dimension + Math.floor(e.offsetX / size);
 		drop(idx);
 		delete delays[idx];
 	}
 </script>
 
-<div class="grid grid-cols-[min-content,min-content] grid-rows-[1fr,min-content] gap-x-4 gap-y-2 m-auto">
+<div
+	class="grid grid-cols-[min-content,min-content] grid-rows-[1fr,min-content] gap-x-4 gap-y-2 m-auto"
+>
 	<PixelPalette
 		pixels={availablePixels}
 		cols={5}
@@ -156,12 +194,21 @@
 			<div class="absolute inset-0 bg-white/80 animate-pulse z-[-1]" />
 		{/if}
 
+		<select
+			class="absolute ml-auto right-0 -translate-y-8 translate-x-0.5"
+			bind:value={dimension}
+		>
+			{#each PLATE_DIMENSIONS as dim}
+				<option value={dim}>{dim}x{dim}</option>
+			{/each}
+		</select>
+
 		<img
 			class="select-none"
 			style="max-width: none;"
 			draggable="false"
-			height="{PLATE_SIZE * PIXEL_SIZE}px"
-			width="{PLATE_SIZE * PIXEL_SIZE}px"
+			height="{dimension * size}px"
+			width="{dimension * size}px"
 			src={pixelsToSvg(
 				placedPixels.map((p) => p ?? [EMPTY]),
 				delaysPacked
@@ -176,12 +223,8 @@
 	</div>
 
 	<div class="flex">
-		<div class="text-xs/3 my-1 mr-2 border-2 py-0 px-0.5 ml">
-			{PLATE_SIZE}x{PLATE_SIZE}
-		</div>
-
 		<div class="text-xs mt-1">
-			{PLATE_SIZE ** 2 - placedPixelsCount} empty pixels
+			{dimension ** 2 - placedPixelsCount} empty pixels
 		</div>
 
 		<div class="flex mx-auto text-xs mt-1">
@@ -189,8 +232,11 @@
 				<div class="">{formatDelay(delays[hovering] || 0)}s</div>
 				{#if !localStorage.getItem("delayHint")}
 					<div class="relative fade-in">
-						<div class="absolute border-2 px-1 py-0.5 text-center w-[120px] left-[-72px] top-[20px]">
-							Hover over any multicolor pixel and scroll to adjust the time offset! Press shift to use decimal steps.
+						<div
+							class="absolute border-2 px-1 py-0.5 text-center w-[120px] left-[-72px] top-[20px]"
+						>
+							Hover over any multicolor pixel and scroll to adjust the time
+							offset! Press shift to use decimal steps.
 						</div>
 					</div>
 				{/if}
@@ -203,7 +249,7 @@
 		<span>&ensp;|&ensp;</span>
 		<button
 			class="button -mt-0.5 text-lg"
-			disabled={placedPixelsCount < PLATE_SIZE ** 2}
+			disabled={placedPixelsCount < dimension ** 2}
 			on:click={() => web3.mint(placedPixelsIndices, delaysPacked)}
 			on:mouseenter={() => (flash = true)}
 			on:mouseleave={() => (flash = false)}
