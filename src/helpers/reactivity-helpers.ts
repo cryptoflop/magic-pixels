@@ -1,5 +1,8 @@
-import { derived, type Readable, type Writable } from 'svelte/store'
+import { type Readable, type Writable } from 'svelte/store'
 
+/**
+ * Makes a store cached, meaning it adds a "current" property to the store with the result of the last value emitted
+ */
 export function cachedStore<T, K extends Readable<T> | Writable<T>>(store: K) {
 	let subs = 0
 	const obj = {
@@ -17,6 +20,9 @@ export function cachedStore<T, K extends Readable<T> | Writable<T>>(store: K) {
 	return obj
 }
 
+/**
+ * Makes a store consistent, meaning after initially subscribed to it will never unsubscribe
+ */
 export function consistentStore<T, K extends Readable<T> | Writable<T>>(store: K) {
 	let init = false
 	const obj = {
@@ -32,31 +38,14 @@ export function consistentStore<T, K extends Readable<T> | Writable<T>>(store: K
 	return obj
 }
 
-export function asyncDerived(stores: any, callback: any, initial_value?: any) {
-	let guard: any
-
-	return derived(stores, ($stores, set) => {
-		const inner = guard = {}
-
-		set(initial_value)
-		Promise.resolve(callback($stores)).then(value => {
-			if (guard === inner) {
-				set(value)
-			}
-		})
-	}, initial_value)
-}
-
-export function asyncDerivedConst(stores: any, callback: any, initial_value: any) {
-	let previous = 0
-
-	return derived(stores, ($stores, set) => {
-		const start = Date.now()
-		Promise.resolve(callback($stores)).then(value => {
-			if (start > previous) {
-				previous = start
-				set(value)
-			}
-		})
-	}, initial_value)
+/**
+ * Makes a store refreshable, meaning it adds a "refresh" method which signals the store to refresh itself
+ */
+export function refreshableStore<T, K extends Writable<T>>(store: K, refresh: () => Promise<T>, refreshOnInit = false) {
+	const obj = {
+		...store,
+		refresh: () => refresh().then(store.set)
+	}
+	setTimeout(() => refreshOnInit && obj.refresh(), 1)
+	return obj
 }
