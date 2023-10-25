@@ -18,15 +18,3 @@ contracts/.openzeppelin
 contracts/artifacts
 contracts/cache
 contracts/typechain-types
-
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
