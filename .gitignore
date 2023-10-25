@@ -14,7 +14,7 @@ dist
 dist-ssr
 *.local
 
-contracts/.openzepplin
+contracts/.openzeppelin
 contracts/artifacts
 contracts/cache
 contracts/typechain-types

@@ -18,6 +18,10 @@ contract AuctionHouse {
 		return LibAuctionHouse.store().trades[id];
 	}
 
+	function getTrades(address seller) external view returns (bytes32[] memory) {
+		return LibAuctionHouse.store().tradesBySeller[seller];
+	}
+
 	
 	function openTrade(
 		address buyer,

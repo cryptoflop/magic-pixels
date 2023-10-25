@@ -2,6 +2,98 @@
   "version": "3.4",
   "log": [
     {
+      "contracts/diamond/facets/AuctionHouse/AHCore.sol:AuctionHouse": {
+        "src": "contracts\\diamond\\facets\\AuctionHouse\\AHCore.sol:8",
+        "version": {
+          "withMetadata": "83346911b270060fd9a1a81afcfeac207912187d4bf248247e113be7c9079eeb",
+          "withoutMetadata": "1d828b06ebedffb0ce25683defb72e1171424c5d50d75a7656d94941eb5b827c",
+          "linkedWithoutMetadata": "1d828b06ebedffb0ce25683defb72e1171424c5d50d75a7656d94941eb5b827c"
+        },
+        "inherit": [],
+        "libraries": [
+          "contracts/diamond/facets/AuctionHouse/LibAuctionHouse.sol:LibAuctionHouse",
+          "contracts/diamond/facets/MagicPixels/LibPixels.sol:LibPixels"
+        ],
+        "methods": [
+          "getTrade(bytes32)",
+          "getTrades(address)",
+          "openTrade(address,uint8[][],uint256)",
+          "closeTrade(bytes32)",
+          "cancelTrade(bytes32)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.18"
+      },
+      "contracts/diamond/facets/AuctionHouse/LibAuctionHouse.sol:LibAuctionHouse": {
+        "src": "contracts\\diamond\\facets\\AuctionHouse\\LibAuctionHouse.sol:4",
+        "version": {
+          "withMetadata": "755af2613fcb0d170698efc85f5132a6a08c968e9de19b5f284ff97f90c26652",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.18"
+      },
+      "contracts/diamond/facets/MagicPixels/LibPixels.sol:LibPixels": {
+        "src": "contracts\\diamond\\facets\\MagicPixels\\LibPixels.sol:6",
+        "version": {
+          "withMetadata": "5ab4e337ead5a5a1498c4f7209d5da060ccd402e08960e441c96eddb858ee6f6",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.18"
+      },
+      "contracts/diamond/facets/MagicPlates/IMagicPlates.sol:IMagicPlates": {
+        "src": "contracts\\diamond\\facets\\MagicPlates\\IMagicPlates.sol:4",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "mint(address,uint8[][],uint256[])"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.18"
+      }
+    },
+    {
       "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:OwnableUpgradeable": {
         "src": "@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:21",
         "inherit": [

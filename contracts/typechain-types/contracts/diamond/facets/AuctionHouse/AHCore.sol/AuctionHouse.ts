@@ -41,7 +41,12 @@ export declare namespace LibAuctionHouse {
 
 export interface AuctionHouseInterface extends Interface {
   getFunction(
-    nameOrSignature: "cancelTrade" | "closeTrade" | "getTrade" | "openTrade"
+    nameOrSignature:
+      | "cancelTrade"
+      | "closeTrade"
+      | "getTrade"
+      | "getTrades"
+      | "openTrade"
   ): FunctionFragment;
 
   getEvent(
@@ -58,6 +63,10 @@ export interface AuctionHouseInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "getTrade", values: [BytesLike]): string;
   encodeFunctionData(
+    functionFragment: "getTrades",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "openTrade",
     values: [AddressLike, BigNumberish[][], BigNumberish]
   ): string;
@@ -68,6 +77,7 @@ export interface AuctionHouseInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "closeTrade", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getTrade", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getTrades", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "openTrade", data: BytesLike): Result;
 }
 
@@ -155,6 +165,8 @@ export interface AuctionHouse extends BaseContract {
     "view"
   >;
 
+  getTrades: TypedContractMethod<[seller: AddressLike], [string[]], "view">;
+
   openTrade: TypedContractMethod<
     [buyer: AddressLike, pixels: BigNumberish[][], price: BigNumberish],
     [void],
@@ -178,6 +190,9 @@ export interface AuctionHouse extends BaseContract {
     [LibAuctionHouse.TradeStructOutput],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "getTrades"
+  ): TypedContractMethod<[seller: AddressLike], [string[]], "view">;
   getFunction(
     nameOrSignature: "openTrade"
   ): TypedContractMethod<

@@ -1,10 +1,13 @@
 import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, multicall } from "@wagmi/core";
 import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
-import { parseAbiItem, parseEther, type PublicClient, type FallbackTransport, formatEther, formatUnits } from "viem";
+import { parseAbiItem, parseEther, type PublicClient, type FallbackTransport, formatUnits } from "viem";
 import { readable, writable } from "svelte/store";
 import { base } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
 import { BATCH_COST } from "../values";
+
+export type Plate = { pixels: number[][], delays: number[][] }
+export type P2PTrade = { seller: string, buyer: string, pixels: number[][], price: bigint }
 
 export function createWeb3Ctx() {
 	const PXLS = import.meta.env.VITE_PXLS
@@ -46,7 +49,6 @@ export function createWeb3Ctx() {
 				functionName: "latestAnswer"
 			}).then(r => {
 				const price = Number(formatUnits(r, 8));
-				console.log(price);
 				set(Number(price));
 			});
 		})),
@@ -69,7 +71,7 @@ export function createWeb3Ctx() {
 			})
 		})),
 
-		plates: consistentStore(writable<{ pixels: number[][], delays: number[][] }[]>([], (set) => {
+		plates: consistentStore(writable<Plate[]>([], (set) => {
 			ctx.account.subscribe(async acc => {
 				if (!acc) {
 					set([])
@@ -102,6 +104,43 @@ export function createWeb3Ctx() {
 				})).filter(d => d.result).map(d => d.result as unknown as [number[][], number[][]]).map(d => ({ pixels: d[0], delays: d[1] }))
 
 				set(plates)
+			})
+		})),
+
+		trades: consistentStore(readable<P2PTrade[]>([], set => {
+			ctx.account.subscribe(async acc => {
+				if (!acc) {
+					set([])
+					return
+				}
+
+				const tradeIds = await readContract({
+					address: PXLS,
+					abi: [parseAbiItem("function getTrades(address seller) view returns(bytes32[])")],
+					functionName: "getTrades",
+					args: [acc],
+				});
+
+				if (tradeIds.length === 0) {
+					set([])
+					return
+				}
+	
+				const trades = (await multicall({
+					contracts: tradeIds.map(id => ({
+						address: PLTS,
+						abi: [parseAbiItem("function getTrade(bytes32 id) view returns((address, address, uint8[][], uint256))")],
+						functionName: "getTrade",
+						args: [id]
+					})),
+				})).filter(d => d.result).map(d => d.result!).map(t => ({
+					seller: t[0],
+					buyer: t[1],
+					pixels: t[2].map(p => p.map(pi => pi)),
+					price: t[3]
+				}))
+	
+				set(trades)
 			})
 		})),
 

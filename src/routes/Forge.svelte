@@ -170,12 +170,16 @@
 	</div>
 
 	<div>
-		<div class="text-xs ml-2 mt-1">
+		<div class="text-xs mt-1">
 			{filteredPixels.length} pixels
 		</div>
 	</div>
 
-	<div class="mx-2 flex">
+	<div class="flex">
+		<div class="text-xs/3 my-1 mr-2 border-2 py-0 px-0.5 ml">
+			{PLATE_SIZE}x{PLATE_SIZE}
+		</div>
+
 		<div class="text-xs mt-1">
 			{PLATE_SIZE ** 2 - placedPixelsCount} empty pixels
 		</div>

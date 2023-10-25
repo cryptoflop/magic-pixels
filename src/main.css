@@ -30,6 +30,10 @@
   cursor: url('cursor-grabbing.png'), auto;
 }
 
+button {
+	cursor: url('cursor-point.png'), auto;
+}
+
 input[type=range] {
   height: 2px;
   background-color: white;
