@@ -13,7 +13,12 @@ node_modules
 dist
 dist-ssr
 *.local
-**/artifacts/**/**.json
+
+contracts/.openzepplin
+contracts/artifacts
+contracts/cache
+contracts/typechain-types
+
 
 # Editor directories and files
 .vscode/*
