@@ -3,11 +3,20 @@ import '@nomicfoundation/hardhat-toolbox'
 
 import '@openzeppelin/hardhat-upgrades';
 
+require('dotenv').config()
+
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       chainId: 1
-    }
+    },
+		tenderly: {
+      url: process.env['RPC_TENDERLY'],
+      accounts: [process.env['TESTI_PK']!]
+    },
+		base: {
+			url: process.env['RPC_BASE'],
+		}
   },
   solidity: {
     version: '0.8.18',

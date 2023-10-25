@@ -6,8 +6,10 @@ import { deployPlts } from './MagicPlates'
 export async function deploy () {
 	const pxlsAddress = await deployPxls()
 	const pxls = await ethers.getContractAt('IMagicPixels', pxlsAddress)
+	console.log("Pixels: " + pxlsAddress)
 	const pltsAddress = await deployPlts()
 	const plts = await ethers.getContractAt('MagicPlates', pltsAddress)
+	console.log("Plates: " + pltsAddress)
 
 	console.log("Deployed")
 
