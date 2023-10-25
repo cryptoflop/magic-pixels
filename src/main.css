@@ -14,12 +14,27 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+
+  cursor: url('cursor.png'), auto;
+}
+
+.cursor-pointer {
+  cursor: url('cursor-point.png'), auto;
+}
+
+.cursor-grab {
+  cursor: url('cursor-grab.png'), auto;
+}
+
+.cursor-grabbing {
+  cursor: url('cursor-grabbing.png'), auto;
 }
 
 input[type=range] {
   height: 2px;
   background-color: white;
   -webkit-appearance: none;
+  cursor: url('cursor.png'), auto;
 }
 
 input[type=range]:focus {
@@ -31,28 +46,28 @@ input[type=range]::-webkit-slider-thumb {
   height: 20px;
   width: 8px;
   background: #FFFFFF;
-  cursor: pointer;
   -webkit-appearance: none;
+  cursor: url('cursor-point.png'), auto;
 }
 
 ::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
+  width: 8px;
+  height: 8px;
   @apply bg-gray-300/20;
 }
 
 ::-webkit-scrollbar-thumb {
-	@apply bg-white;
+  @apply bg-white;
 }
 
 ::-moz-selection {
-	color: white;
-	@apply bg-white/80;
+  color: white;
+  @apply bg-white/80;
 }
 
 ::selection {
-	color: white;
-	@apply bg-white/80;
+  color: white;
+  @apply bg-white/80;
 }
 
 .button:not(:disabled) {
@@ -123,7 +138,7 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 .border-blackandwhite {
-  background-image: linear-gradient(90deg, #000000 50%, #ffffff 50%), 
+  background-image: linear-gradient(90deg, #000000 50%, #ffffff 50%),
     linear-gradient(90deg, #000000 50%, #ffffff 50%),
     linear-gradient(0deg, #000000 50%, #ffffff 50%),
     linear-gradient(0deg, #000000 50%, #ffffff 50%);
@@ -134,7 +149,7 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 .border-hover-blackandwhite:hover {
-  background-image: linear-gradient(90deg, #000000 50%, #ffffff 50%), 
+  background-image: linear-gradient(90deg, #000000 50%, #ffffff 50%),
     linear-gradient(90deg, #000000 50%, #ffffff 50%),
     linear-gradient(0deg, #000000 50%, #ffffff 50%),
     linear-gradient(0deg, #000000 50%, #ffffff 50%);
@@ -144,19 +159,26 @@ input[type=range]::-webkit-slider-thumb {
   animation: border-anim 1s infinite linear;
 }
 
-@keyframes border-anim 
-{
+@keyframes border-anim {
   0% {
     background-position: left top, right bottom, left bottom, right top;
   }
+
   100% {
     background-position: left 10px top, right 10px bottom, left bottom 10px, right top 10px;
   }
 }
 
 @keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
-.fade-in { animation: fadeIn 1s; }
+.fade-in {
+  animation: fadeIn 1s;
+}
