@@ -3,6 +3,6 @@
     "*.css": "tailwindcss"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "svelte.svelte-vscode"
-},
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
 }
