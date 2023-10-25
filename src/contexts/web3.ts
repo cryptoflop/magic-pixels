@@ -1,6 +1,6 @@
 import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, multicall } from "@wagmi/core";
 import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
-import { parseAbiItem, parseEther, type PublicClient, type FallbackTransport } from "viem";
+import { parseAbiItem, parseEther, type PublicClient, type FallbackTransport, formatEther, formatUnits } from "viem";
 import { readable, writable } from "svelte/store";
 import { base } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
@@ -42,10 +42,10 @@ export function createWeb3Ctx() {
 		usdPrice: consistentStore(readable<number>(1700, (set) => {
 			readContract({
 				address: USDC,
-				abi: [parseAbiItem("function getReserves() public view returns (uint112 _reserve0, uint112 _reserve1, uint32 _blockTimestampLast)")],
-				functionName: "getReserves"
+				abi: [parseAbiItem("function latestAnswer() public view returns(uint256)")],
+				functionName: "latestAnswer"
 			}).then(r => {
-				const price = (r[0] * (10n ** (18n-6n))) / r[1];
+				const price = Number(formatUnits(r, 8));
 				console.log(price);
 				set(Number(price));
 			});
