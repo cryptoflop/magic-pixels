@@ -25,7 +25,7 @@
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const pixels = web3.pixels;
 
-	let placedPixelsIndices: number[];
+	let placedPixelIndices: number[];
 
 	let delays: { [key: number]: number } = {};
 
@@ -33,7 +33,7 @@
 
 	let hovering = -1;
 
-	$: placedPixels = placedPixelsIndices.map((i) => $pixels[i]);
+	$: placedPixels = placedPixelIndices.map((i) => $pixels[i]);
 
 	$: delaysPacked = Object.keys(delays).map((k) => [
 		Number(k),
@@ -41,27 +41,26 @@
 	]);
 
 	function clear() {
-		placedPixelsIndices = Array(dimension ** 2).fill(-1);
+		placedPixelIndices = Array(dimension ** 2).fill(-1);
 		delays = {};
 	}
 	$: {
-		clear();
-		console.log(dimension);
+		dimension && clear();
 	}
 	clear();
 
 	function rnd() {
-		placedPixelsIndices = Array(dimension ** 2)
+		placedPixelIndices = Array(dimension ** 2)
 			.fill(1)
 			.map((_, i) => i)
 			.map((idx, i) => (i >= $pixels.length ? -1 : idx))
 			.sort(() => 0.5 - Math.random());
 	}
 
-	$: placedPixelsCount = placedPixelsIndices.filter((p) => p >= 0).length;
+	$: placedPixelsCount = placedPixelIndices.filter((p) => p >= 0).length;
 
 	$: availablePixels = $pixels.filter(
-		(_, i) => placedPixelsIndices.findIndex((idx) => idx == i) == -1
+		(_, i) => placedPixelIndices.findIndex((idx) => idx == i) == -1
 	); // removed placed pixels
 
 	let filteredPixels: PixelData[] = [];
@@ -70,8 +69,8 @@
 	function grab(pxl: PixelData, e: MouseEvent) {
 		grabbed = $pixels.findIndex(
 			(p, i) =>
-				placedPixelsIndices.findIndex((idx) => idx == i) == -1 &&
-				comparePixel(pxl, p)
+				comparePixel(pxl, p) &&
+				placedPixelIndices.findIndex((idx) => idx == i) == -1
 		);
 
 		document.body.classList.add("cursor-grabbing");
@@ -107,13 +106,13 @@
 
 	function drop(i: number) {
 		if (grabbed == null) {
-			placedPixelsIndices[i] = -1;
-			placedPixelsIndices = [...placedPixelsIndices];
+			placedPixelIndices[i] = -1;
+			placedPixelIndices = [...placedPixelIndices];
 			delete delays[i];
 			delays = { ...delays };
 		} else {
-			placedPixelsIndices[i] = grabbed;
-			placedPixelsIndices = [...placedPixelsIndices];
+			placedPixelIndices[i] = grabbed;
+			placedPixelIndices = [...placedPixelIndices];
 			grabbed = null;
 		}
 	}
@@ -124,7 +123,7 @@
 			const idx =
 				Math.floor(e.offsetY / size) * dimension + Math.floor(e.offsetX / size);
 			if (idx == hovering) return;
-			if (placedPixelsIndices[idx] == -1) {
+			if (placedPixelIndices[idx] == -1) {
 				hovering = -1;
 			} else {
 				hovering = idx;
@@ -153,7 +152,7 @@
 		const dir =
 			(e.deltaY > 0 ? 1 : -1) *
 			(shiftPressed ? Math.abs((v % 10) + (e.deltaY > 0 ? -10 : 0)) || 10 : 1);
-		const max = $pixels[placedPixelsIndices[hovering]].length * 100;
+		const max = $pixels[placedPixelIndices[hovering]].length * 100;
 		if (dir < 0 && v + dir < 0) {
 			delays[hovering] = max + dir;
 		} else {
@@ -228,7 +227,7 @@
 		</div>
 
 		<div class="flex mx-auto text-xs mt-1">
-			{#if hovering >= 0 && $pixels[placedPixelsIndices[hovering]]?.length > 1}
+			{#if hovering >= 0 && $pixels[placedPixelIndices[hovering]]?.length > 1}
 				<div class="">{formatDelay(delays[hovering] || 0)}s</div>
 				{#if !localStorage.getItem("delayHint")}
 					<div class="relative fade-in">
@@ -250,7 +249,7 @@
 		<button
 			class="button -mt-0.5 text-lg"
 			disabled={placedPixelsCount < dimension ** 2}
-			on:click={() => web3.mint(placedPixelsIndices, delaysPacked)}
+			on:click={() => web3.mint(placedPixelIndices, delaysPacked)}
 			on:mouseenter={() => (flash = true)}
 			on:mouseleave={() => (flash = false)}
 		>
