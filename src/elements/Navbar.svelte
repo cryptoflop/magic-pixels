@@ -1,11 +1,20 @@
 <script lang="ts">
-  const views = ["Nether", "Forge", "Treasury", "Auctions"];
+	import { getContext } from "svelte";
+	import type { createRoutingCtx } from "../contexts/routing";
 
-  export let view = views[3];
+	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
+	const root = routing.root;
+
+	const views = ["Nether", "Forge", "Treasury", "Auctions"];
 </script>
 
 <div class="flex space-x-6 mx-auto select-none text-lg">
-  {#each views as v}
-    <button class="button {v == view && 'underline'}" on:click={() => (view = v)}>{v}</button>
-  {/each}
+	{#each views as v}
+		<button
+			class="button {v.toLowerCase() == $root && 'underline'}"
+			on:click={() =>
+				v.toLowerCase() != $root && routing.goto(v.toLowerCase(), true)}
+			>{v}</button
+		>
+	{/each}
 </div>

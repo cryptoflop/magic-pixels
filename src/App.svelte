@@ -13,8 +13,6 @@
 	import atmosphereSrc from "./assets/atmoshpere.mp3";
 	import discordImg from "./assets/dc.png";
 
-	let view: string;
-
 	createAudio(atmosphereSrc, { autoPlay: true, loop: true, volume: 0.2 });
 
 	setContext("web3", createWeb3Ctx());
@@ -42,7 +40,7 @@
 	</a>
 
 	<Speaker />
-	<Navbar bind:view />
+	<Navbar />
 	<Wallet />
 
 	<outlet id="outlet" class="m-auto">

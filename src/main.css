@@ -15,30 +15,40 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 
-  cursor: url('cursor.png'), auto;
+  cursor: url('/cursor.png'), auto;
 }
 
 .cursor-pointer {
-  cursor: url('cursor-point.png'), auto;
+  cursor: url('/cursor-point.png'), auto;
 }
 
 .cursor-grab {
-  cursor: url('cursor-grab.png'), auto;
+  cursor: url('/cursor-grab.png'), auto;
 }
 
 .cursor-grabbing {
-  cursor: url('cursor-grabbing.png'), auto;
+  cursor: url('/cursor-grabbing.png'), auto;
 }
 
 button {
-	cursor: url('cursor-point.png'), auto;
+	cursor: url('/cursor-point.png'), auto;
+}
+
+button:disabled {
+	cursor: url('/cursor.png'), auto;
+}
+
+select {
+	outline: none;
+	background: black;
+	border: 2px solid white;
 }
 
 input[type=range] {
   height: 2px;
   background-color: white;
+  cursor: url('/cursor.png'), auto;
   -webkit-appearance: none;
-  cursor: url('cursor.png'), auto;
 }
 
 input[type=range]:focus {
@@ -51,7 +61,7 @@ input[type=range]::-webkit-slider-thumb {
   width: 8px;
   background: #FFFFFF;
   -webkit-appearance: none;
-  cursor: url('cursor-point.png'), auto;
+  cursor: url('/cursor-point.png'), auto;
 }
 
 ::-webkit-scrollbar {

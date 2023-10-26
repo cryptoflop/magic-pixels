@@ -4,10 +4,10 @@ import { parseAbiItem, parseEther, type PublicClient, type FallbackTransport, fo
 import { readable, writable } from "svelte/store";
 import { base } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
-import { BATCH_COST } from "../values";
+import { BATCH_COST, NULL_ADDR } from "../values";
 
 export type Plate = { pixels: number[][], delays: number[][] }
-export type P2PTrade = { seller: string, buyer: string, pixels: number[][], price: bigint }
+export type P2PTrade = { id: `0x${string}`, seller: string, buyer: string, pixels: number[][], price: bigint }
 
 export function createWeb3Ctx() {
 	const PXLS = import.meta.env.VITE_PXLS
@@ -59,14 +59,14 @@ export function createWeb3Ctx() {
 					set([])
 					return
 				}
-				
+
 				const pixels = (await readContract({
 					address: PXLS,
 					abi: [parseAbiItem("function pixelsOf(address addr) external view returns (uint8[][] memory)")],
 					functionName: "pixelsOf",
 					args: [acc],
 				})) as number[][];
-				
+
 				set(pixels)
 			})
 		})),
@@ -107,7 +107,7 @@ export function createWeb3Ctx() {
 			})
 		})),
 
-		trades: consistentStore(readable<P2PTrade[]>([], set => {
+		trades: consistentStore(writable<P2PTrade[]>([], set => {
 			ctx.account.subscribe(async acc => {
 				if (!acc) {
 					set([])
@@ -125,24 +125,79 @@ export function createWeb3Ctx() {
 					set([])
 					return
 				}
-	
+
 				const trades = (await multicall({
 					contracts: tradeIds.map(id => ({
-						address: PLTS,
+						address: PXLS,
 						abi: [parseAbiItem("function getTrade(bytes32 id) view returns((address, address, uint8[][], uint256))")],
 						functionName: "getTrade",
 						args: [id]
 					})),
-				})).filter(d => d.result).map(d => d.result!).map(t => ({
+				})).filter(d => d.result).map(d => d.result!).map((t, i) => ({
+					id: tradeIds[i],
 					seller: t[0],
 					buyer: t[1],
 					pixels: t[2].map(p => p.map(pi => pi)),
 					price: t[3]
 				}))
-	
+
 				set(trades)
 			})
 		})),
+
+		async getTrade(id: `0x${string}`) {
+			const trade = await readContract({
+				address: PXLS,
+				abi: [parseAbiItem("function getTrade(bytes32 id) view returns((address, address, uint8[][], uint256))")],
+				functionName: "getTrade",
+				args: [id]
+			});
+			return trade[2].length ? {
+				id,
+				seller: trade[0],
+				buyer: trade[1],
+				pixels: trade[2].map(p => p.map(pi => pi)),
+				price: trade[3]
+			} as P2PTrade : null
+		},
+
+		async openTrade(pixels: number[][], price: bigint, receiver: string, isSell: boolean) {
+			const { hash } = await writeContract({
+				address: PXLS,
+				abi: [parseAbiItem("function openTrade(address, uint8[][], uint256, bool) external payable")],
+				functionName: "openTrade",
+				args: [receiver as `0x${string}`, pixels, price, isSell],
+				value: price
+			});
+
+			const { status, blockNumber } = await waitForTransaction({ hash })
+			if (status == "reverted") throw "reverted"
+
+			const logs = await publicClient.getLogs({
+				address: PXLS,
+				event: parseAbiItem('event TradeOpened(address indexed creator, bytes32 id)'),
+				args: {
+					creator: ctx.account.current
+				},
+				fromBlock: blockNumber,
+				toBlock: blockNumber
+			})
+
+			const tradeId = logs[0]!.args.id!
+
+			ctx.trades.update(curr => {
+				curr.push({
+					id: tradeId,
+					seller: isSell ? ctx.account.current! : receiver,
+					buyer: isSell ? receiver : ctx.account.current!,
+					pixels,
+					price
+				})
+				return curr
+			})
+
+			return tradeId
+		},
 
 		async conjure(batches: number) {
 			const { hash } = await writeContract({
@@ -208,7 +263,7 @@ export function createWeb3Ctx() {
 
 			ctx.pixels.update(c => {
 				const plate: number[][] = []
-				
+
 				const m = [...c]
 				const indicesSorted = indices.sort((a, b) => b - a)
 				// pop used pixels
@@ -235,7 +290,7 @@ export function createWeb3Ctx() {
 		}
 	}
 
-	ctx.connect().then(() => ctx.pixels.subscribe(() => {})()) // connect and force sub pixels
+	ctx.connect().then(() => ctx.pixels.subscribe(() => { })()) // connect and force sub pixels
 
 	return ctx
 }
