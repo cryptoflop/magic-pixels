@@ -7,7 +7,7 @@ import { LibPixels } from "../MagicPixels/LibPixels.sol";
 /// @notice module that handles trades and auctioning
 contract AuctionHouse {
 
-	event TradeOpened(address indexed seller, bytes32 id);
+	event TradeOpened(address indexed creator, bytes32 id);
 	event TradeClosed(
 		address indexed seller,
 		address indexed buyer,
@@ -24,22 +24,23 @@ contract AuctionHouse {
 
 	
 	function openTrade(
-		address buyer,
+		address receiver,
 		uint8[][] calldata pixels,
-		uint256 price
+		uint256 price,
+		bool isSell
 	) external payable {
 		LibAuctionHouse.Storage storage s = LibAuctionHouse.store();
 
-		bytes32 id = keccak256(abi.encode(tx.origin, buyer, pixels));
-		require(s.trades[id].seller == address(0), "trade already exists");
+		bytes32 id = keccak256(abi.encode(tx.origin, receiver, pixels));
+		require(s.trades[id].pixels.length == 0, "trade already exists");
 
-		if (msg.value == 0) {
+		if (isSell) {
 			// open as seller
-			s.trades[id] = LibAuctionHouse.Trade(tx.origin, buyer, pixels, price);
+			s.trades[id] = LibAuctionHouse.Trade(tx.origin, receiver, pixels, price);
 		} else {
 			// open as buyer
 			require(msg.value == price, "incorrect eth amount");
-			s.trades[id] = LibAuctionHouse.Trade(buyer, tx.origin, pixels, price);
+			s.trades[id] = LibAuctionHouse.Trade(receiver, tx.origin, pixels, price);
 		}
 
 		s.tradesBySeller[tx.origin].push(id);
