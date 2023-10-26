@@ -43,7 +43,7 @@
 	<Navbar />
 	<Wallet />
 
-	<outlet id="outlet" class="m-auto">
+	<outlet id="outlet" class="grid">
 		<svelte:component this={$routeCompontent} />
 	</outlet>
 </main>

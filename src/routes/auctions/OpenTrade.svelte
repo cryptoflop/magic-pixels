@@ -60,7 +60,7 @@
 	}
 </script>
 
-<div class="grid gap-2">
+<div class="m-auto grid gap-2">
 	<div class="flex">
 		<button class="button" on:click={() => routing.goback()}>go back</button>
 

@@ -25,6 +25,15 @@
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const pixels = web3.pixels;
 
+	(window as any).give = (pxl: number[], amount: number) => {
+		pixels.update((pxls) => {
+			for (let i = 0; i < amount; i++) {
+				pxls.push(pxl);
+			}
+			return [...pxls];
+		});
+	};
+
 	let placedPixelIndices: number[];
 
 	let delays: { [key: number]: number } = {};

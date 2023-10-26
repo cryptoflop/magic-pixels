@@ -208,7 +208,7 @@ export function createWeb3Ctx() {
 				value: parseEther(BATCH_COST.toString()) * BigInt(batches)
 			})
 
-			const { status, blockNumber } = await waitForTransaction({ hash })
+			const { status, blockNumber } = await waitForTransaction({ hash, confirmations: import.meta.env.DEV ? 1 : 2 })
 			if (status == "reverted") throw "reverted"
 
 			const ethFoundLogs = await publicClient.getLogs({

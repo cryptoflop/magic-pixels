@@ -20,7 +20,7 @@
 	}
 </script>
 
-<div>
+<div class="m-auto">
 	<button class="button mb-2" on:click={() => routing.goback()}>go back</button>
 
 	{#if trade === undefined}

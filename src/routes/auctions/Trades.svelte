@@ -14,14 +14,20 @@
 	<div
 		class="border-2 grid gap-4 p-4 overflow-y-auto max-h-[60vh] min-w-[22.5rem]"
 	>
-		{#if !$trades.length}
+		{#if $trades === null}
+			<div class=" text-center text-xs opacity-60 left-0 right-0">
+				Fetching trades...
+			</div>
+		{/if}
+
+		{#if $trades.length === 0}
 			<div class=" text-center text-xs opacity-60 left-0 right-0">
 				No trades
 			</div>
 		{/if}
 
-		{#each $trades as trade}
-			<div class="hover:bg-white/10" on:click={(e) => console.log(e)}>
+		{#each $trades ?? [] as trade}
+			<div class="hover:bg-white/10" on:click|self={(e) => console.log(e)}>
 				<Trade {trade} />
 			</div>
 		{/each}
