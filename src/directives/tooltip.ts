@@ -10,7 +10,7 @@ window.addEventListener("mousemove", (e) => {
 		current = null
 		return;
 	}
-	
+
 	current.$set({
 		x: e.pageX,
 		y: e.pageY,
@@ -31,10 +31,16 @@ export function tooltip(element: HTMLElement, title: string) {
 		});
 		current.el = element;
 	}
-	
+
 	element.addEventListener('mouseover', mouseOver);
 
 	return {
+		update(newValue: string) {
+			title = newValue;
+			if (current?.el === element) {
+				current.$set({ title })
+			}
+		},
 		destroy() {
 			element.removeEventListener('mouseover', mouseOver);
 		}
