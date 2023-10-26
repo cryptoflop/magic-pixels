@@ -133,7 +133,9 @@
 			{#each pixels as pxl, i (i)}
 				<div class="border-2">
 					{#if pxl[0] == EMPTY}
-						<div class="h-6 w-6 text-center text-lg align-baseline select-none">
+						<div
+							class="h-6 w-6 text-center text-lg/6 align-baseline select-none"
+						>
 							?
 						</div>
 					{:else}
@@ -166,7 +168,7 @@
 		<div class="flex mx-auto">
 			<div>{ethPrice.toFixed(3)}eth</div>
 			<span>&ensp;=&ensp;</span>
-			<span use:tooltip={`1 eth = $${$usd}`}
+			<span use:tooltip={`1 eth = $${$usd.toFixed(2)}`}
 				>${(ethPrice * $usd).toFixed(2)}</span
 			>
 			<span>&ensp;=&ensp;</span>
