@@ -48,12 +48,11 @@ export function pixelemitter(element: HTMLElement, options: EmitterOptions) {
 		const w = element.clientWidth;
 		const h = element.clientHeight;
 
-		const x = rndBtwn(0, w) - centerX;
-		const y = rndBtwn(0, h) - centerY;
+		const x = rndBtwn(1, w) - centerX;
+		const y = rndBtwn(1, h) - centerY;
 
 		const [ex, ey] = moveAlongLine(x, y, 1.5)
 
-		if (isNaN(ex) || isNaN(ey)) { debugger }
 		return [x + centerX, ex + centerX, y + centerY, ey + centerY]
 	}
 
