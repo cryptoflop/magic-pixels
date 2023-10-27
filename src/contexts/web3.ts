@@ -86,13 +86,13 @@ export function createWeb3Ctx() {
 				});
 
 				const tokenIds = (await multicall({
-					contracts: Array(Number(numNfts)).fill(1).map(i => ({
+					contracts: Array(Number(numNfts)).fill(1).map((_, i) => ({
 						address: PLTS,
 						abi: [parseAbiItem("function tokenOfOwnerByIndex(address owner, uint256 idx) view returns (uint256)")],
 						functionName: "tokenOfOwnerByIndex",
 						args: [acc, BigInt(i)],
 					})),
-				})).filter(d => d.result).map(d => d.result!)
+				})).filter(d => d.result !== undefined).map(d => d.result!)
 
 				const plates = (await multicall({
 					contracts: tokenIds.map(i => ({
@@ -101,7 +101,7 @@ export function createWeb3Ctx() {
 						functionName: "underlyingPixels",
 						args: [i],
 					})),
-				})).filter(d => d.result).map(d => d.result as unknown as [number[][], number[][]]).map(d => ({ pixels: d[0], delays: d[1] }))
+				})).filter(d => d.result !== undefined).map(d => d.result as unknown as [number[][], number[][]]).map(d => ({ pixels: d[0], delays: d[1] }))
 
 				set(plates)
 			})
