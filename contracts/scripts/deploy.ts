@@ -212,7 +212,7 @@ export async function deploy () {
     ].map((c) => '%23' + c),
   )
 
-  const tx = await pxls.conjure(15, { value: ethers.parseEther("0.1") })
+  const tx = await pxls.conjure(300, { value: ethers.parseEther("0.15") })
   const rc = await tx.wait(1)
   // console.log(rc!.logs[0])
 

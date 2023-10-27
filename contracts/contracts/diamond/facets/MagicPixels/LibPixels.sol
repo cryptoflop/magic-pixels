@@ -8,7 +8,6 @@ library LibPixels {
 
     struct Storage {
         uint8 PLATE_SIZE;
-        uint8 BATCH_SIZE;
         uint8 MAX_PIXEL;
         uint8 PIXEL_DEPTH;
 

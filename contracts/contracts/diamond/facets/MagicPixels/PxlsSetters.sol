@@ -17,10 +17,6 @@ contract PxlsSetters is Ownable {
     LibPixels.store().PLATE_SIZE = s;
   }
 
-  function setBatchSize(uint8 s) external onlyOwner {
-    LibPixels.store().BATCH_SIZE = s;
-  }
-
   function setMaxPixel(uint8 m) external onlyOwner {
     LibPixels.store().MAX_PIXEL = m;
   }

@@ -10,19 +10,19 @@ contract PxlsCore {
 	event Conjured(address indexed to, uint8[][] pixels);
 	event EthFound(address indexed to, uint256 amount);
 
-	/// @notice Generates random pixels
-	function conjure(uint256 batches) external payable {
+	/// @notice Conjures random pixels from the nether
+	function conjure(uint256 numPixels) external payable {
 		LibPixels.Storage storage s = LibPixels.store();
 
-		require(msg.value >= (s.PRICE * batches), "not enough eth.");
+		require(msg.value >= (s.PRICE * numPixels), "not enough eth.");
 
 		uint256 rnd = uint256(keccak256(abi.encodePacked(block.prevrandao, block.timestamp, tx.origin)));
 
-		uint8[][] memory conjured = new uint8[][](batches * s.BATCH_SIZE);
+		uint8[][] memory conjured = new uint8[][](numPixels);
 		uint8[][] storage pixels = s.pixelMap[msg.sender];
 
 		// conjure actual pixels
-		for (uint i = 0; i < batches * s.BATCH_SIZE; i++) {
+		for (uint i = 0; i < numPixels; i++) {
 			uint256 rndI = uint256(keccak256(abi.encode(rnd, i + 1)));
 
 			uint8 depth;
@@ -47,7 +47,7 @@ contract PxlsCore {
 		// check if eth was found
 		if (address(this).balance < 0.01 ether) { return; }
 		uint256 b = uint256(rnd % s.ETH_PROB);
-		for (uint i = 0; i < batches; i++) {
+		for (uint i = 0; i < (numPixels / 8); i++) {
 			uint256 w = uint256(uint256(keccak256(abi.encode(rnd, i * 321))) % s.ETH_PROB);
 			if (w == b) {
 				uint256 eth = address(this).balance / s.ETH_PERC;
