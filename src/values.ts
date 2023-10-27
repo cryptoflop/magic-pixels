@@ -1,4 +1,3 @@
-export const BATCH_SIZE = 20;
-export const BATCH_COST = 0.001;
+export const PIXEL_PRICE = 0.00006;
 
 export const NULL_ADDR = "0x0000000000000000000000000000000000000000"

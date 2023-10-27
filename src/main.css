@@ -18,6 +18,10 @@
   cursor: url('/cursor.png'), auto;
 }
 
+.cursor-default {
+  cursor: url('/cursor.png'), auto;
+}
+
 .cursor-pointer {
   cursor: url('/cursor-point.png'), auto;
 }

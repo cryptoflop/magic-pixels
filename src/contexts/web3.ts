@@ -4,7 +4,7 @@ import { parseAbiItem, parseEther, type PublicClient, type FallbackTransport, fo
 import { readable, writable } from "svelte/store";
 import { base } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
-import { BATCH_COST, NULL_ADDR } from "../values";
+import { PIXEL_PRICE, NULL_ADDR } from "../values";
 
 export type Plate = { pixels: number[][], delays: number[][] }
 export type P2PTrade = { id: `0x${string}`, seller: string, buyer: string, pixels: number[][], price: bigint }
@@ -199,13 +199,13 @@ export function createWeb3Ctx() {
 			return tradeId
 		},
 
-		async conjure(batches: number) {
+		async conjure(numPixels: number) {
 			const { hash } = await writeContract({
 				address: PXLS,
 				abi: [parseAbiItem('function conjure(uint256 batches) external payable')],
 				functionName: 'conjure',
-				args: [BigInt(batches)],
-				value: parseEther(BATCH_COST.toString()) * BigInt(batches)
+				args: [BigInt(numPixels)],
+				value: parseEther(PIXEL_PRICE.toString()) * BigInt(numPixels)
 			})
 
 			const { status, blockNumber } = await waitForTransaction({ hash, confirmations: import.meta.env.DEV ? 1 : 2 })
