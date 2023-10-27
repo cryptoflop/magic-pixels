@@ -74,7 +74,7 @@
 				qack.play();
 			}
 			if (i < steps - 1) {
-				await new Promise((r) => setTimeout(r, 200 / numPixels));
+				await new Promise((r) => setTimeout(r, 400 / numPixels));
 			} else {
 				conjuring = false;
 			}

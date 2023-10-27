@@ -4,7 +4,7 @@ import { cachedStore } from "../helpers/reactivity-helpers";
 
 import Nether from "../routes/Nether.svelte";
 import Forge from "../routes/Forge.svelte";
-import Treasury from "../routes/Treasury.svelte";
+import Treasury from "../routes/treasury/Treasury.svelte";
 import Auctions from "../routes/auctions/Auctions.svelte";
 import OpenTrade from "../routes/auctions/OpenTrade.svelte";
 import TradeOutlet from "../routes/auctions/TradeOutlet.svelte";
