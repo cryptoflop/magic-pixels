@@ -1,39 +1,41 @@
 <script lang="ts">
+	import { afterUpdate, beforeUpdate, getContext } from "svelte";
 	import Pixel from "../elements/Pixel.svelte";
+	import PixelizedButton from "../elements/PixelizedButton.svelte";
 	import { tooltip } from "../directives/tooltip";
 	import { EMPTY, fullPixelName } from "../helpers/color-utils";
 	import { rndBtwn } from "../helpers/utils";
-	import { afterUpdate, beforeUpdate, getContext } from "svelte";
+	import { PIXEL_PRICE } from "../values";
 	import type { createWeb3Ctx } from "../contexts/web3";
+	import { formatEther } from "viem";
 
 	import qackSrc from "../assets/quack.mp3";
 	import clickSrc from "../assets/click.mp3";
 	import sparkleSrc from "../assets/sparkle.mp3";
 	import { createAudio } from "../helpers/audio";
-	import { BATCH_COST, BATCH_SIZE } from "../values";
-	import { formatEther } from "viem";
 
 	const qack = createAudio(qackSrc, { volume: 0.2 });
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const usd = web3.usdPrice;
 
-	$: pixels = Array(batches * BATCH_SIZE)
+	let numPixelBase = 4;
+	$: numPixels = numPixelBase ** 2;
+
+	$: pixels = Array(numPixels)
 		.fill(1)
 		.map(() => [EMPTY]);
 
 	function clear() {
-		pixels = Array(batches * BATCH_SIZE)
+		pixels = Array(numPixels)
 			.fill(1)
 			.map(() => [EMPTY]);
 	}
 
-	let batches = 1;
-
 	const click = createAudio(clickSrc, { volume: 0.6 });
 
 	$: {
-		batches && 1;
+		numPixels && 1;
 		click.currentTime = 0;
 		if (click.paused) {
 			click.play();
@@ -42,11 +44,12 @@
 
 	let conjuring = false;
 	async function conjure() {
+		clear();
 		conjuring = true;
 
 		let conjured: number[][];
 		try {
-			const [c, a] = await web3.conjure(batches);
+			const [c, a] = await web3.conjure(numPixels);
 			conjured = c;
 			if (a > 0n) {
 				alert(`Congratualations, you found ${formatEther(a)} eth!`); // TODO: make this more fancy
@@ -56,45 +59,43 @@
 			return;
 		}
 
-		let i = -1;
-		function step() {
-			if (i >= 0) {
-				pixels[i] = conjured[i];
-				pixels = [...pixels];
-				qack.play();
-			}
-			if (i < BATCH_SIZE * batches - 1) {
-				setTimeout(step, 200 / batches);
-			} else {
-				conjuring = false;
-			}
-			i++;
-		}
-		step();
-
 		createAudio(sparkleSrc, {
 			autoPlay: true,
 			volume: 0.08,
 			playbackRate: 1.5,
 			disposable: true,
 		});
+
+		const steps = numPixels;
+		for (let i = 0; i < steps; i++) {
+			if (i >= 0) {
+				pixels[i] = conjured[i];
+				pixels = [...pixels];
+				qack.play();
+			}
+			if (i < steps - 1) {
+				await new Promise((r) => setTimeout(r, 200 / numPixels));
+			} else {
+				conjuring = false;
+			}
+		}
 	}
 
-	$: ethPrice = BATCH_COST * batches;
+	$: ethPrice = PIXEL_PRICE * numPixels;
 
 	let container: HTMLDivElement;
 
-	let lastNumBatches = 0;
+	let lastNumPixels = 0;
 	beforeUpdate(() => {
-		if (!container || batches == lastNumBatches) return;
+		if (!container || numPixels == lastNumPixels) return;
 		for (const el of container.children) {
 			el.getAnimations().forEach((a) => a.cancel());
 		}
 	});
 
 	afterUpdate(() => {
-		if (!container || batches == lastNumBatches) return;
-		lastNumBatches = batches;
+		if (!container || numPixels == lastNumPixels) return;
+		lastNumPixels = numPixels;
 		for (const el of container.children) {
 			const CHANGE = 1.2;
 			let currDeg = rndBtwn(-CHANGE, CHANGE);
@@ -127,7 +128,7 @@
 			class="grid gap-1 mx-auto"
 			bind:this={container}
 			style="grid-template-columns: repeat({Math.floor(
-				Math.sqrt(batches * BATCH_SIZE)
+				Math.sqrt(numPixels)
 			)},1fr);"
 		>
 			{#each pixels as pxl, i (i)}
@@ -147,16 +148,15 @@
 			{/each}
 		</div>
 
-		<div class="mt-4 grid">
-			{#if conjuring}
-				<div class="select-none text-lg text-center">Conjuring...</div>
-			{:else if pixels[BATCH_SIZE * batches - 1][0] != EMPTY}
-				<button class="select-none text-lg button" on:click={clear}>Ok</button>
-			{:else}
-				<button on:click={conjure} class="select-none text-lg button"
-					>Conjure pixels</button
-				>
-			{/if}
+		<div class="mt-4 mx-auto grid">
+			<PixelizedButton
+				class="text-lg"
+				action={conjure}
+				options={{ active: true, colored: true }}
+			>
+				<span slot="default">Conjure pixels</span>
+				<span slot="executing">Conjuring...</span>
+			</PixelizedButton>
 		</div>
 	</div>
 
@@ -172,7 +172,7 @@
 				>${(ethPrice * $usd).toFixed(2)}</span
 			>
 			<span>&ensp;=&ensp;</span>
-			<span>{batches * BATCH_SIZE} pixels</span>
+			<span>{numPixels} pixels</span>
 		</div>
 	</div>
 
@@ -184,13 +184,13 @@
 		<input
 			class="block my-auto ml-auto"
 			type="range"
-			min="1"
-			max="10"
-			step="1"
-			bind:value={batches}
+			min="4"
+			max="12"
+			step="2"
+			bind:value={numPixelBase}
 		/>
 		<div class="text-lg w-6">
-			x{batches}
+			x{numPixelBase}
 		</div>
 	</div>
 </div>

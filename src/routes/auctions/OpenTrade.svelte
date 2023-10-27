@@ -8,6 +8,7 @@
 	import PixelPalette from "../../elements/PixelPalette.svelte";
 	import { NULL_ADDR } from "../../values";
 	import { parseEther } from "viem";
+	import PixelizedButton from "../../elements/PixelizedButton.svelte";
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const acc = web3.account;
@@ -137,11 +138,12 @@
 			'opacity-0 pointer-events-none'}"
 	/>
 
-	<button
-		class="button ml-auto"
+	<PixelizedButton
+		class="ml-auto"
 		disabled={selectedPixels.length == 0}
-		on:click={openTrade}
+		action={openTrade}
 	>
-		Open Trade
-	</button>
+		<span slot="default">Open Trade</span>
+		<span slot="executing">Opening Trade...</span>
+	</PixelizedButton>
 </div>

@@ -9,6 +9,7 @@
 		pixelizeElement,
 		pixelsToSvg,
 	} from "../helpers/color-utils";
+	import PixelizedButton from "../elements/PixelizedButton.svelte";
 
 	const PLATE_DIMENSIONS = [8, 16, 32];
 
@@ -54,7 +55,9 @@
 		delays = {};
 	}
 	$: {
-		dimension && clear();
+		if (dimension) {
+			setTimeout(clear);
+		}
 	}
 	clear();
 
@@ -255,14 +258,17 @@
 		<span>&ensp;|&ensp;</span>
 		<button class="button -mt-0.5 text-lg" on:click={rnd}>Rnd</button>
 		<span>&ensp;|&ensp;</span>
-		<button
-			class="button -mt-0.5 text-lg"
+
+		<PixelizedButton
+			class="-mt-0.5 text-lg"
 			disabled={placedPixelsCount < dimension ** 2}
-			on:click={() => web3.mint(placedPixelIndices, delaysPacked)}
+			options={{ colored: true, density: 3 }}
+			action={async () => await new Promise((r) => setTimeout(r, 5000))}
 			on:mouseenter={() => (flash = true)}
 			on:mouseleave={() => (flash = false)}
 		>
-			Mint
-		</button>
+			<span slot="default">Mint</span>
+			<span slot="executing">Minting...</span>
+		</PixelizedButton>
 	</div>
 </div>
