@@ -13,6 +13,7 @@ library LibPixels {
 
         uint256 ETH_PROB; // 0.01%
         uint256 ETH_PERC; // 10% percentage not the pill 🙄
+				uint256 ETH_LAST_BLOCK; // last block eth was found
 
         uint256 PRICE;
 

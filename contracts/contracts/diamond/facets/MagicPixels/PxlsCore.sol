@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.22;
 
 import { LibPixels } from "./LibPixels.sol";
 
@@ -16,14 +16,14 @@ contract PxlsCore {
 
 		require(msg.value >= (s.PRICE * numPixels), "not enough eth.");
 
-		uint256 rnd = uint256(keccak256(abi.encodePacked(block.prevrandao, block.timestamp, tx.origin)));
+		uint256 rnd = uint256(keccak256(abi.encodePacked(block.prevrandao, block.timestamp, msg.sender)));
 
 		uint8[][] memory conjured = new uint8[][](numPixels);
 		uint8[][] storage pixels = s.pixelMap[msg.sender];
 
 		// conjure actual pixels
 		for (uint i = 0; i < numPixels; i++) {
-			uint256 rndI = uint256(keccak256(abi.encode(rnd, i + 1)));
+			uint256 rndI = uint256(keccak256(abi.encodePacked(rnd, i + 1)));
 
 			uint8 depth;
 			uint256 pd = rndI % 100_000;
@@ -36,7 +36,7 @@ contract PxlsCore {
 
 			uint8[] memory pixel = new uint8[](depth);
 			for (uint j = 0; j < depth; j++) {
-				pixel[j] = uint8(uint256(keccak256(abi.encode(rndI, j))) % s.MAX_PIXEL + 1);
+				pixel[j] = uint8(uint256(keccak256(abi.encodePacked(rndI, j))) % s.MAX_PIXEL + 1);
 			}
 			conjured[i] = pixel;
 			pixels.push(pixel);
@@ -46,13 +46,15 @@ contract PxlsCore {
 		
 		// check if eth was found
 		if (address(this).balance < 0.01 ether) { return; }
+		if (block.number - s.ETH_LAST_BLOCK < 10) { return; }
 		uint256 b = uint256(rnd % s.ETH_PROB);
 		for (uint i = 0; i < (numPixels / 8); i++) {
-			uint256 w = uint256(uint256(keccak256(abi.encode(rnd, i * 321))) % s.ETH_PROB);
+			uint256 w = uint256(uint256(keccak256(abi.encodePacked(rnd, i * 321))) % s.ETH_PROB);
 			if (w == b) {
 				uint256 eth = address(this).balance / s.ETH_PERC;
 				(bool success, ) = msg.sender.call{value: eth}("");
 				if (success) {
+					s.ETH_LAST_BLOCK = block.number;
 					emit EthFound(msg.sender, eth);
 					return;
 				}

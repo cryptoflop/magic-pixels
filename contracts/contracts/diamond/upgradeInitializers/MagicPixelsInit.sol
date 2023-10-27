@@ -22,8 +22,7 @@ contract MagicPixelsInit is DiamondInit, AuctionHouseInit {
 
         s.PRICE = 0.00006 ether;
 
-        uint24[2] memory t = [80_000, 100_000];
-        s.DEPTH_PROBS = t;
+        s.DEPTH_PROBS = [80_000, 100_000];
     }
 
 }
