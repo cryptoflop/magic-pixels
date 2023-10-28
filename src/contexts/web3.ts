@@ -1,4 +1,4 @@
-import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, multicall } from "@wagmi/core";
+import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, multicall, prepareWriteContract, type WalletClient } from "@wagmi/core";
 import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
 import { parseAbiItem, parseEther, type PublicClient, type FallbackTransport, formatUnits } from "viem";
 import { readable, writable } from "svelte/store";
@@ -15,6 +15,7 @@ export function createWeb3Ctx() {
 	const USDC = import.meta.env.VITE_USDC
 
 	let publicClient: PublicClient<FallbackTransport>
+	let walletClient: WalletClient
 
 	const ctx = {
 		account: cachedStore(writable<`0x${string}` | null>()),
@@ -31,6 +32,8 @@ export function createWeb3Ctx() {
 				publicClient: publicClientGetter
 			})
 			publicClient = pc
+
+			walletClient = await connectors[0]!.getWalletClient()
 
 			const { account } = await connect({ connector: connectors[0]! });
 			console.log(account)
@@ -197,6 +200,19 @@ export function createWeb3Ctx() {
 			})
 
 			return tradeId
+		},
+
+		async closeTrade(trade: P2PTrade) {
+			const { hash } = await writeContract({
+				address: PXLS,
+				abi: [parseAbiItem("function closeTrade(bytes32 id) external payable")],
+				functionName: "closeTrade",
+				args: [trade.id],
+				value: trade.price
+			});
+
+			const { status } = await waitForTransaction({ hash })
+			if (status == "reverted") throw "reverted"
 		},
 
 		async conjure(numPixels: number) {

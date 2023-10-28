@@ -7,7 +7,7 @@
 	import Pixel from "../../elements/Pixel.svelte";
 	import PixelPalette from "../../elements/PixelPalette.svelte";
 	import { NULL_ADDR } from "../../values";
-	import { parseEther } from "viem";
+	import { formatEther, parseEther } from "viem";
 	import PixelizedButton from "../../elements/PixelizedButton.svelte";
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
@@ -28,7 +28,20 @@
 
 	let type: "sell" | "buy" = "sell";
 
-	let price = "0,00";
+	let price = "";
+
+	let ether: BigInt | null = null;
+
+	$: {
+		try {
+			if (price.length == 0) {
+				throw "invalid length";
+			}
+			ether = parseEther(price);
+		} catch (err) {
+			ether = null;
+		}
+	}
 
 	let receiver = "";
 
@@ -80,6 +93,7 @@
 			<div class="grid">
 				<div>Receiver (optional)</div>
 				<input
+					placeholder={NULL_ADDR}
 					class="border-2 bg-transparent outline-none text-base/5 px-1 w-full"
 					bind:value={receiver}
 				/>
@@ -93,6 +107,7 @@
 			<div class="grid">
 				<div>Receiver (optional)</div>
 				<input
+					placeholder={NULL_ADDR}
 					class="border-2 bg-transparent outline-none text-base/5 px-1 w-full"
 					bind:value={receiver}
 				/>
@@ -102,6 +117,7 @@
 		<div class="grid">
 			<div>Price (eth)</div>
 			<input
+				placeholder="0.00"
 				class="border-2 bg-transparent outline-none text-base/5 px-1 mr-auto"
 				bind:value={price}
 			/>
@@ -140,7 +156,7 @@
 
 	<PixelizedButton
 		class="ml-auto"
-		disabled={selectedPixels.length == 0}
+		disabled={selectedPixels.length == 0 || ether === null}
 		action={openTrade}
 	>
 		<span slot="default">Open Trade</span>

@@ -40,7 +40,7 @@
 			<button
 				class="button"
 				use:tooltip={"Copy the link to this trade."}
-				on:click={() =>
+				on:click|stopPropagation={() =>
 					navigator.clipboard.writeText(
 						window.location.origin +
 							"/auctions/trade?id=" +
@@ -54,7 +54,7 @@
 
 	<div class="grid grid-cols-[repeat(12,1fr)] pt-0.5 p-4">
 		{#each trade.pixels as pxl}
-			<div class="relative">
+			<div class="relative cursor-default" on:click|stopPropagation>
 				<Pixel class="h-6 w-6" pixel={pxl} />
 				<div class="absolute inset-0" use:tooltip={fullPixelName(pxl)} />
 			</div>

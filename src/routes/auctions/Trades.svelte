@@ -28,7 +28,7 @@
 
 		{#each $trades ?? [] as trade}
 			<div
-				on:click={(e) => routing.goto("trade", { id: trade.id })}
+				on:click={() => routing.goto("trade", { id: trade.id.substring(2) })}
 				class="group"
 			>
 				<Trade {trade} class="group-hover:scale-95" />
