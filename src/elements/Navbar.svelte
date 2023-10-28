@@ -13,8 +13,8 @@
 		<button
 			class="button {v.toLowerCase() == $root && 'underline'}"
 			on:click={() =>
-				v.toLowerCase() != $root && routing.goto(v.toLowerCase(), true)}
-			>{v}</button
+				v.toLowerCase() != $root &&
+				routing.goto(v.toLowerCase(), undefined, true)}>{v}</button
 		>
 	{/each}
 </div>

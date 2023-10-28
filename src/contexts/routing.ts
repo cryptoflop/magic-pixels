@@ -57,7 +57,7 @@ export function createRoutingCtx() {
 			return () => unsub();
 		}),
 
-		goto(route: string, asRoot = false, param?: Param) {
+		goto(route: string, param?: Param, asRoot = false) {
 			window.history.pushState(param, route, (asRoot ? ('/' + route) : `${ctx.root.current}/${route}`) + (param ? formatParam(param) : ''))
 			ctx.route.set(route)
 			ctx.param.set(param)
@@ -72,7 +72,7 @@ export function createRoutingCtx() {
 				const [_, root, route] = window.location.pathname.split('/')
 				if (route) {
 					// we can "move back" to root since we are under root/route
-					ctx.goto(root, true)
+					ctx.goto(root, undefined, true)
 				}
 			}
 		}

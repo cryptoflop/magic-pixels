@@ -27,8 +27,11 @@
 		{/if}
 
 		{#each $trades ?? [] as trade}
-			<div class="hover:bg-white/10" on:click|self={(e) => console.log(e)}>
-				<Trade {trade} />
+			<div
+				on:click={(e) => routing.goto("trade", { id: trade.id })}
+				class="group"
+			>
+				<Trade {trade} class="group-hover:scale-95" />
 			</div>
 		{/each}
 	</div>
