@@ -25,7 +25,7 @@ export function pixelemitter(element: HTMLElement, options: EmitterOptions) {
 	})
 	pixels.forEach(p => pool.appendChild(p))
 
-	// pool.style.display = "none"
+	pool.style.display = "none"
 	pool.style.zIndex = "-1"
 	pool.style.position = "absolute"
 	pool.className = "inset-0"
@@ -65,7 +65,7 @@ export function pixelemitter(element: HTMLElement, options: EmitterOptions) {
 			const [xStart, xEnd, yStart, yEnd] = rndPoint();
 			el.animate([
 				{ transform: `translate(${xStart}px, ${yStart}px)`, backgroundColor: "transparent" },
-				{ backgroundColor: pixelColor(options.colored ? rndColorIdx() : WHITE) + (options.opacity ? Math.floor(options.opacity * 255).toString(16) : '') },
+				{ backgroundColor: pixelColor((options.colored ?? true) ? rndColorIdx() : WHITE) + (options.opacity ? Math.floor(options.opacity * 255).toString(16) : '') },
 				{ transform: `translate(${xEnd}px, ${yEnd}px)`, backgroundColor: "transparent" }
 			], {
 				duration: duration,
@@ -75,13 +75,18 @@ export function pixelemitter(element: HTMLElement, options: EmitterOptions) {
 		animate();
 	}
 
+	let stopId: number
+
 	function start() {
+		clearTimeout(stopId)
+		pool.style.display = "initial"
 		active = true
 		pixels.forEach((p) => animatePixel(p))
 	}
 
 	function stop() {
 		active = false
+		stopId = setTimeout(() => pool.style.display = "none", 800 * 2) as unknown as number
 	}
 
 	if (options.active) {
