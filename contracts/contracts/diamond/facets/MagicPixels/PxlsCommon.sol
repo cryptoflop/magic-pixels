@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+// SPDX-License-Identifier: UNKNOWN
+pragma solidity ^0.8.18;
 
 import { Ownable } from "../../Ownable.sol";
 import { LibPixels } from "../../libraries/LibPixels.sol";
@@ -14,6 +14,7 @@ contract PxlsCommon is Ownable {
 
 		mapping(bytes4 => uint32) storage pixels = store.pixelMap[addr];
 
+		if (pixels[""] == 0xffffff) {}
 		// uint8 MAX_PIXEL = store.MAX_PIXEL;
 		// for (uint8 i = store.MIN_PIXEL; i < MAX_PIXEL; i++) {
 		// 	uint8[] memory pxl = new uint8[](1);

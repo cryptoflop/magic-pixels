@@ -1,40 +1,44 @@
 import { expect } from 'chai'
-import { ethers } from 'hardhat'
+
+import { viem } from 'hardhat'
+import { decodeEventLog, parseEther } from 'viem'
+import { bytesToPixels, pixelsToBytes } from '../scripts/libraries/pixel-parser'
+
 import { deployPxls } from '../scripts/MagicPixels'
-import { IMagicPixels } from '../typechain-types'
 
 describe('PxlsCore', function () {
+	let publicClient: Awaited<ReturnType<typeof viem.getPublicClient>>
 
-	let pxlsAddress: string
-	let pxls: IMagicPixels
+	let pxlsAddress: `0x${string}`
 
 	before(async function() {
+		publicClient = await viem.getPublicClient()
 		pxlsAddress = await deployPxls()
-		pxls = await ethers.getContractAt('IMagicPixels', pxlsAddress)
 	})
 
   it('Should deploy', async function () {
+		const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
     expect(pxls).not.false
   })
 
 	it('Should set plates address', async function () {
-		await pxls.setMagicPlates("0x0000000000000000000000000000000000000000")
+		const pxls = await viem.getContractAt("PxlsSetters", pxlsAddress)
+		await pxls.write.setMagicPlates(["0x4Cd569dD59F84b83cbd97EC87FCF050d612f99E3"])
 	})
 
-	it('Should conjure 144 pixels', async function () {
-		const tx = await pxls.conjure(144, { value: ethers.parseEther("0.009") })
-		await tx.wait()
+	it('Should conjure 256 pixels', async function () {
+		const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
 
-		let gas = await ethers.provider.estimateGas({
-			from: tx.from,
-			to: tx.to,
-			data: tx.data,
-			value: tx.value
-		});
-		
-		console.log(gas)
+		const conjureTx = await pxls.write.conjure([256n], { value: parseEther("0.15") })
+		const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
+		const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 
-		// TODO: check for real (pixelsOf)
+		const pixels = bytesToPixels(conjured.args.pixels)
+		expect(pixels.length).eq(256, "Conjured pixels length mismatch.")
+		const bytes = pixelsToBytes(pixels)
+		expect(bytes).eq(conjured.args.pixels, "Pixels encoding mismatch.")
+
+		// TODO: maybe check actual pixels...
 	})
 
 })

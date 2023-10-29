@@ -66,6 +66,10 @@ library LibDiamond {
         require(msg.sender == diamondStorage().contractOwner, "LibDiamond: Must be contract owner");
     }
 
+		function enforceDiamondItself() internal view {
+        require(msg.sender == diamondStorage().diamondAddress, "LibDiamond: Must be the diamond");
+    }
+
     event DiamondCut(IDiamondCut.FacetCut[] _diamondCut, address _init, bytes _calldata);
 
     // Internal function version of diamondCut

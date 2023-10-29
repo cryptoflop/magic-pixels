@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNKNOWN
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.18;
 
 import { LibAuctionHouse } from "../../libraries/LibAuctionHouse.sol";
 import { LibPixels } from "../../libraries/LibPixels.sol";
@@ -27,10 +27,6 @@ contract AuctionHouse {
 		return LibAuctionHouse.store().trades[id];
 	}
 
-	function getTrades(address seller) external view returns (bytes32[] memory) {
-		return LibAuctionHouse.store().tradesBySeller[seller];
-	}
-
 	
 	function openTrade(
 		address receiver,
@@ -53,7 +49,6 @@ contract AuctionHouse {
 			s.trades[id] = LibAuctionHouse.Trade(receiver, tx.origin, pixels, price);
 		}
 
-		s.tradesBySeller[tx.origin].push(id);
 		emit TradeOpened(tx.origin, id);
 	}
 
@@ -70,6 +65,8 @@ contract AuctionHouse {
 
 			(bool success, ) = tx.origin.call{value: trade.price}("");
 			if (!success) revert PaymentFailed();
+
+			emit TradeClosed(tx.origin, trade.seller, trade.pixels);
 		} else {
 			// close as buyer
 			if (msg.value != trade.price) revert IncorrectValue();
@@ -82,10 +79,11 @@ contract AuctionHouse {
 			if (!success) revert PaymentFailed();
 			
 			movePixels(trade.pixels, trade.seller, tx.origin);
+
+			emit TradeClosed(trade.seller, tx.origin, trade.pixels);
 		}
 	
 		deleteTrade(id);
-		emit TradeClosed(trade.seller, tx.origin, trade.pixels);
 	}
 
 	function cancelTrade(bytes32 id) external {
@@ -100,24 +98,6 @@ contract AuctionHouse {
 
 	function deleteTrade(bytes32 id) internal {
 		LibAuctionHouse.Storage storage s = LibAuctionHouse.store();
-		bytes32[] storage bySelf = s.tradesBySeller[tx.origin];
-		
-		uint256 idx;
-		for (uint256 i = 0; i < bySelf.length; i++) {
-			if (bySelf[i] == id) {
-				idx = i;
-				break;
-			}
-			if ((i + 1) == bySelf.length) {
-				revert Unauthorized();
-			}
-		}
-
-		if (bySelf.length > 1) {
-			bySelf[idx] = bySelf[bySelf.length - 1];
-		}
-		bySelf.pop();
-
 		delete s.trades[id];
 	}
 

@@ -1,5 +1,6 @@
 import type { HardhatUserConfig } from 'hardhat/config'
 import '@nomicfoundation/hardhat-toolbox'
+import "@nomicfoundation/hardhat-viem";
 
 import '@openzeppelin/hardhat-upgrades';
 
@@ -21,7 +22,7 @@ const config: HardhatUserConfig = {
 		}
   },
   solidity: {
-    version: '0.8.21',
+    version: '0.8.18',
     settings: {
       optimizer: {
         enabled: true,

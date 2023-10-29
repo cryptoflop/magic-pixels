@@ -1,24 +1,32 @@
-import { ethers } from 'hardhat'
+import { viem } from 'hardhat'
+
+import { decodeEventLog, parseEther } from 'viem'
+import { bytesToPixelBytes } from './libraries/pixel-parser'
 
 import { deployPxls } from './MagicPixels'
 import { deployPlts } from './MagicPlates'
 import { openTrade } from './trade'
 
+
 export async function deploy () {
-	const pxlsAddress = await deployPxls()
-	const pxls = await ethers.getContractAt('IMagicPixels', pxlsAddress)
+	const [acc1, acc2] = await viem.getWalletClients()
+	const publicClient = await viem.getPublicClient()
+
+	const pxlsAddress = await deployPxls() as `0x${string}`
+	const pxSetters = await viem.getContractAt('PxlsSetters', pxlsAddress)
 	console.log("Pixels: " + pxlsAddress)
-	const pltsAddress = await deployPlts()
-	const plts = await ethers.getContractAt('MagicPlates', pltsAddress)
+	const pltsAddress = await deployPlts() as `0x${string}`
+	const plts = await viem.getContractAt('MagicPlates', pltsAddress)
 	console.log("Plates: " + pltsAddress)
 
 	console.log("Deployed")
 
-  await pxls.setMagicPlates(pltsAddress)
-  await plts.setMagicPixels(pxlsAddress)
+  await pxSetters.write.setMagicPlates([pltsAddress])
+  await plts.write.setMagicPixels([pxlsAddress])
 
-  await plts.setColors(
+  await plts.write.setColors([
     [
+				'000000', // idx 0 is never used
 				'ffffff',
         'f1f5f9',
         'e2e8f0',
@@ -211,27 +219,23 @@ export async function deploy () {
         '881337',
 				'000000'
     ].map((c) => '%23' + c),
-  )
+  ])
+	console.log("Colors set")
 
-  const tx = await pxls.conjure(300, { value: ethers.parseEther("0.15") })
-  const rc = await tx.wait(1)
-  // console.log(rc!.logs[0])
+	const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
 
-  await pxls.mint(
-      Array(256)
-          .fill(1)
-          .map((_, i) => i)
-          .reverse(),
-				[]
-  )
+  const conjureTx = await pxls.write.conjure([256n], { value: parseEther("0.15") })
+	const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
+	const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
+
+  const mintTx = await pxls.write.mint([bytesToPixelBytes(conjured.args.pixels), []])
+	await publicClient.waitForTransactionReceipt({ hash: mintTx })
+
   console.log('Minted')
-
-  // console.log(await plts.tokenURI(0, { gasLimit: 999999999999999999n }))
 	
-	// const id = await openTrade(pxlsAddress)	
-	// const ah = await ethers.getContractAt('AuctionHouse', pxlsAddress)
-	// await ah.closeTrade(id, false)
-
+	await openTrade(acc1, pxlsAddress, "0x0000000000000000000000000000000000000000")
+	const id = await openTrade(acc2, pxlsAddress, "0x0000000000000000000000000000000000000000")
+	console.log('Test trade: ' + id)
 }
 
 deploy().catch((error) => {

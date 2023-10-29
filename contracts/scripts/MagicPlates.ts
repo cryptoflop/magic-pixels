@@ -12,7 +12,7 @@ export async function deployPlts () {
   // const pltsv2 = await upgrades.upgradeProxy(PLTS_ADDRESS, MagicPlatesV2);
   // console.log("MagicPlates upgraded");
 
-	return await plts.getAddress()
+	return await plts.getAddress() as `0x${string}`
 }
 
 if (require.main === module) {
@@ -23,5 +23,3 @@ if (require.main === module) {
       process.exit(1)
     })
 }
-
-exports.deployPlts = deployPlts

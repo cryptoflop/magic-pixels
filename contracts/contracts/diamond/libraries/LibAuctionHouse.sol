@@ -13,7 +13,6 @@ library LibAuctionHouse {
 
 	struct Storage {
 		mapping(bytes32 => Trade) trades;
-		mapping(address => bytes32[]) tradesBySeller;
 	}
 
 	function store() internal pure returns (Storage storage s) {

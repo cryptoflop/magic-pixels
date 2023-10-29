@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+// SPDX-License-Identifier: UNKNOWN
+pragma solidity ^0.8.18;
 
 import { IMagicPlates } from "../facets/MagicPlates/IMagicPlates.sol";
 
@@ -33,7 +33,7 @@ library LibPixels {
 	}
 
 	/// @notice encodes a pixel with up to 4 colors into bytes
-	function encode(uint8[] memory pxl) public pure returns(bytes4 result) {
+	function encode(uint8[] memory pxl) internal pure returns(bytes4 result) {
 		return bytes4(
 			(uint32(pxl.length > 0 ? pxl[0] : 0) << 24) |
 			(uint32(pxl.length > 1 ? pxl[1] : 0) << 16) |
@@ -43,7 +43,7 @@ library LibPixels {
 	}
 
 	/// @notice decodes bytes into a pixel with up to 4 colors
-	function decode(bytes4 pxl) public pure returns (uint8[] memory result) {
+	function decode(bytes4 pxl) internal pure returns (uint8[] memory result) {
 		uint count = 0;
 		for (uint i = 0; i < 4; i++) {
 			if (uint8(uint8(bytes1(pxl << (i * 8)))) != 0) {
@@ -55,6 +55,13 @@ library LibPixels {
 
 		for (uint i = 0; i < count; i++) {
 			result[i] = uint8(bytes1(pxl << (i * 8)));
+		}
+	}
+
+	/// @notice packs the bytes of a pixel into a byte array at the given positon
+	function packIntoAt(bytes memory data, bytes4 pxl, uint256 at) internal pure {
+		assembly {
+			mstore(add(add(data, 0x20), mul(at, 0x01)), pxl)
 		}
 	}
 
