@@ -2,19 +2,18 @@
 pragma solidity ^0.8.0;
 
 import { DiamondInit } from "./DiamondInit.sol";
-import { AuctionHouseInit } from "./AuctionHouseInit.sol";
+import { LibPixels } from "../libraries/LibPixels.sol";
 
-import { LibPixels } from "../facets/MagicPixels/LibPixels.sol";
+contract MagicPixelsInit is DiamondInit {    
 
-contract MagicPixelsInit is DiamondInit, AuctionHouseInit {    
-
-    function init() public override(DiamondInit, AuctionHouseInit) {
+    function init() public override {
         super.init();
-        
+
         LibPixels.Storage storage s = LibPixels.store();
 
         s.PLATE_SIZE = 16;
-        s.MAX_PIXEL = 190;
+				s.MIN_PIXEL = 1;
+        s.MAX_PIXEL = 191;
         s.PIXEL_DEPTH = 2;
         
         s.ETH_PROB = 10000;

@@ -8,17 +8,20 @@ export default defineConfig({
     hardhat({
       project: '.',
       include: [
-        'NGUFCrowdsale.json',
-        'NeverGibUpFrenV1.json'
-      ],
-      deployments: {
-        NGUFCrowdsale: {
-          1: '0xc981ec845488b8479539e6B22dc808Fb824dB00a'
-        },
-        NeverGibUpFrenV1: {
-          1: '0x5207CA53386E1b462316EC9726B9e150de82Bc14'
-        },
-      },
+				'PxlsCommon.json',
+				'PxlsCore.json',
+				'AuctionHouse.json',
+
+        'MagicPlates.json'
+      ]
+      // deployments: {
+      //   PXLS: {
+      //     1: '0x123'
+      //   },
+      //   PLTS: {
+      //     1: '0x321'
+      //   },
+      // }
     })
   ]
 })

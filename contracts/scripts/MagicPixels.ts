@@ -10,7 +10,7 @@ export async function deployPxls() {
   const magicPixelsInit = await MagicPixelsInit.deploy()
   await magicPixelsInit.waitForDeployment()
 
-  const diamondAddress = await deployDiamond(['PxlsCommon', 'PxlsSetters', 'PxlsCore', 'AuctionHouse'], magicPixelsInit as unknown as Contract)
+  const diamondAddress = await deployDiamond(['PxlsCommon', 'PxlsCore', 'PxlsSetters', 'PxlsRng', 'AuctionHouse'], magicPixelsInit as unknown as Contract)
 	// const diamondCutFacet = await ethers.getContractAt('DiamondCutFacet', diamondAddress)
 
 	// const pxls = await ethers.getContractAt('IMagicPixels', diamondAddress)
@@ -36,5 +36,3 @@ if (require.main === module) {
       process.exit(1)
     })
 }
-
-exports.deployPxls = deployPxls

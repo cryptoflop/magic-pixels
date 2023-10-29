@@ -10,8 +10,6 @@
 		"randomp": "npx hardhat run --network localhost scripts/nguf-randomp.ts"
 	},
 	"devDependencies": {
-		"@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
-		"@nomicfoundation/hardhat-network-helpers": "^1.0.9",
 		"@nomicfoundation/hardhat-toolbox": "^3.0.0",
 		"@openzeppelin/contracts": "^4.9.3",
 		"@openzeppelin/contracts-upgradeable": "^4.9.3",
@@ -22,8 +20,8 @@
 		"@wagmi/cli": "^1.5.2",
 		"chai": "^4.3.7",
 		"dotenv": "^16.3.1",
-		"ethers": "^6.7.1",
-		"hardhat": "^2.17.4",
+		"ethers": "^6.1.0",
+		"hardhat": "^2.18.3",
 		"ts-node": "^10.9.1"
 	}
 }

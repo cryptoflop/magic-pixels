@@ -2,6 +2,7 @@ import { ethers } from 'hardhat'
 
 import { deployPxls } from './MagicPixels'
 import { deployPlts } from './MagicPlates'
+import { openTrade } from './trade'
 
 export async function deploy () {
 	const pxlsAddress = await deployPxls()
@@ -225,23 +226,12 @@ export async function deploy () {
   )
   console.log('Minted')
 
-  console.log(await plts.tokenURI(0, { gasLimit: 999999999999999999n }))
-	// console.log(await plts.underlyingPixels(0))
-  // const router = await ethers.getContractAt('IUniswapV2Router02', '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D')
-  // const weth = await ethers.getContractAt('ERC20', await router.WETH())
-  // const usdt = await ethers.getContractAt('ERC20', '0xdac17f958d2ee523a2206206994597c13d831ec7')
+  // console.log(await plts.tokenURI(0, { gasLimit: 999999999999999999n }))
+	
+	// const id = await openTrade(pxlsAddress)	
+	// const ah = await ethers.getContractAt('AuctionHouse', pxlsAddress)
+	// await ah.closeTrade(id, false)
 
-  // // router.getReserves
-  // const amounts = (await router.getAmountsOut(
-  //   ethers.BigNumber.from(1000).mul(ethers.BigNumber.from(10).pow(6)),
-  //   [ usdt.address, weth.address, neverGibUpFren.address])
-  // )
-
-  // console.log(
-  //   ethers.utils.formatUnits(amounts[0], await usdt.decimals()),
-  //   ethers.utils.formatUnits(amounts[1], await weth.decimals()),
-  //   ethers.utils.formatUnits(amounts[2], await neverGibUpFren.decimals())
-  // )
 }
 
 deploy().catch((error) => {

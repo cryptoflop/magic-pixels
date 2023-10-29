@@ -1,7 +1,7 @@
 /* global ethers */
 /* eslint prefer-const: "off" */
 
-import type { Contract, FunctionFragment } from 'ethers'
+import type { Contract } from 'ethers'
 import { ethers } from 'hardhat'
 
 const { getSelectors, FacetCutAction } = require('./libraries/diamond.js')

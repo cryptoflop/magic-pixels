@@ -1,25 +1,32 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.22;
+// SPDX-License-Identifier: UNKNOWN
+pragma solidity ^0.8.21;
 
-import { LibPixels } from "./LibPixels.sol";
+import "./PxlsRng.sol";
+import { LibDiamond } from "../../libraries/LibDiamond.sol";
+import { LibPixels } from "../../libraries/LibPixels.sol";
 
 contract PxlsCore {
 
+	error Unauthorized();
+	error InvalidIndicies();
+	error InsufficientValue();
+	error InsufficientPixels();
+
   constructor() {}
 
-	event Conjured(address indexed to, uint8[][] pixels);
+	event Conjured(address indexed to, bytes4[] pixels);
 	event EthFound(address indexed to, uint256 amount);
 
-	/// @notice Conjures random pixels from the nether
+	/// @notice Conjures random pixels from the nether | 8,666,031 gas for 144 pxl
 	function conjure(uint256 numPixels) external payable {
 		LibPixels.Storage storage s = LibPixels.store();
 
-		require(msg.value >= (s.PRICE * numPixels), "not enough eth.");
+		if (msg.value < (s.PRICE * numPixels)) revert InsufficientValue();
 
-		uint256 rnd = uint256(keccak256(abi.encodePacked(block.prevrandao, block.timestamp, msg.sender)));
+		uint256 rnd = PxlsRng(LibDiamond.diamondStorage().diamondAddress).rnd(msg.sender);
 
-		uint8[][] memory conjured = new uint8[][](numPixels);
-		uint8[][] storage pixels = s.pixelMap[msg.sender];
+		bytes4[] memory conjured = new bytes4[](numPixels);
+		mapping(bytes4 => uint32) storage pixels = s.pixelMap[msg.sender];
 
 		// conjure actual pixels
 		for (uint i = 0; i < numPixels; i++) {
@@ -38,8 +45,10 @@ contract PxlsCore {
 			for (uint j = 0; j < depth; j++) {
 				pixel[j] = uint8(uint256(keccak256(abi.encodePacked(rndI, j))) % s.MAX_PIXEL + 1);
 			}
-			conjured[i] = pixel;
-			pixels.push(pixel);
+
+			bytes4 pxlId = LibPixels.encode(pixel);
+			conjured[i] = pxlId;
+			++pixels[pxlId];
 		}
 
 		emit Conjured(msg.sender, conjured);
@@ -64,68 +73,38 @@ contract PxlsCore {
 
 	struct Delay { uint256 idx; uint16 delay; }
 	/// @notice Uses pixels to mint a MagicPixels nft
-	function mint(uint256[] calldata indices, uint256[] calldata delays) external {
+	function mint(bytes4[] calldata indices, uint256[] calldata delays) external {
 		LibPixels.Storage storage s = LibPixels.store();
 
-		uint8[][] storage pixels = s.pixelMap[msg.sender];
+		mapping(bytes4 => uint32) storage pixels = s.pixelMap[msg.sender];
 		
-		require(pixels.length >= indices.length, "not enough pixels.");
-
 		uint8[][] memory plate = new uint8[][](indices.length);
 
 		for (uint i = 0; i < indices.length; i++) {
-			uint256 idx = indices[i];
-			require(idx >= 0 && idx < pixels.length, "pixel out of range.");
-			plate[i] = pixels[idx];
-		}
-
-		// pop used pixels
-		quickSort(indices, 0, indices.length - 1); // we need the indices in a desc order
-		for (uint i = 0; i < indices.length; i++) {
-			uint256 idx = indices[i];
-			uint256 len = pixels.length - 1;
-			if (idx < len) {
-				pixels[idx] = pixels[len];
-			}
-			pixels.pop();
+			bytes4 pxlId = indices[i];
+			plate[i] = LibPixels.decode(pxlId);
+			--pixels[pxlId];
 		}
 
 		s.nft.mint(msg.sender, plate, delays);
 	}
 	
-	/// @dev restores pixels from a burned nft
+	/// @dev restores pixels from a shattered plate
 	function restore(address to, uint8[][] calldata plate) external {
 		LibPixels.Storage storage s = LibPixels.store();
-		require(msg.sender == address(s.nft), "not allowed.");
+		if (msg.sender != address(s.nft)) revert Unauthorized();
 
-		uint8[][] storage pixels = s.pixelMap[to];    
+		mapping(bytes4 => uint32) storage pixels = s.pixelMap[to];   
+
+		bytes4[] memory restored = new bytes4[](plate.length);
 
 		for (uint i = 0; i < plate.length; i++) {
-			pixels.push(plate[i]);
+			bytes4 pxlId = LibPixels.encode(plate[i]);
+			++pixels[pxlId];
+			restored[i] = pxlId;
 		}
 
-		emit Conjured(to, plate);
-	}
-	
-
-	function quickSort(uint[] memory arr, uint256 left, uint256 right) internal pure {
-		uint256 i = left;
-		uint256 j = right;
-		if (i == j) return;
-		uint256 pivot = arr[uint256(left + (right - left) / 2)];
-		while (i <= j) {
-			while (arr[uint256(i)] > pivot) i++;
-			while (pivot > arr[uint256(j)]) j--;
-			if (i <= j) {
-				(arr[uint256(i)], arr[uint256(j)]) = (arr[uint256(j)], arr[uint256(i)]);
-				i++;
-				j--;
-			}
-		}
-		if (left < j)
-			quickSort(arr, left, j);
-		if (i < right)
-			quickSort(arr, i, right);
+		emit Conjured(to, restored);
 	}
 
 }

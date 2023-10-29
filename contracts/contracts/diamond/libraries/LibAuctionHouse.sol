@@ -7,7 +7,7 @@ library LibAuctionHouse {
 	struct Trade {
 		address seller;
 		address buyer;
-		uint8[][] pixels;
+		bytes4[] pixels;
 		uint256 price;
 	}
 

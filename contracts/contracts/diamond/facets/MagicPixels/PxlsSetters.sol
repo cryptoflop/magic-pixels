@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import { Ownable } from "../../Ownable.sol";
-import { LibPixels } from "./LibPixels.sol";
+import { LibPixels } from "../../libraries/LibPixels.sol";
 import { IMagicPlates } from "../MagicPlates/IMagicPlates.sol";
 
 contract PxlsSetters is Ownable {
