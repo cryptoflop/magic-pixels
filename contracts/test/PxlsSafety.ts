@@ -1,8 +1,6 @@
 import { expect } from 'chai'
 
 import { viem } from 'hardhat'
-import { decodeEventLog, parseEther } from 'viem'
-import { bytesToPixels, pixelsToBytes } from '../scripts/libraries/pixel-parser'
 
 import { deployPxls } from '../scripts/MagicPixels'
 
