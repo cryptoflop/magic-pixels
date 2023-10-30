@@ -1,7 +1,7 @@
 import { ethers, viem } from 'hardhat'
 import { encodeFunctionData, type Abi, type GetContractReturnType } from 'viem'
 
-import { getSelectors, FacetCutAction } from './libraries/diamond';
+const { getSelectors, FacetCutAction } = require('./libraries/diamond-old');
 
 export async function deployDiamond(facets?: string[], init?: GetContractReturnType<Abi>) {
   const accounts = await ethers.getSigners()
@@ -32,12 +32,15 @@ export async function deployDiamond(facets?: string[], init?: GetContractReturnT
     'OwnershipFacet'
   ].concat(facets ?? [])
   const cut = []
-  for (const facetName of FacetNames) {
-    const facet = await viem.deployContract(facetName)
+  for (const FacetName of FacetNames) {
+    const Facet = await ethers.getContractFactory(FacetName)
+		const facet = await Facet.deploy()
+		await facet.waitForDeployment()
+		const address = await facet.getAddress()
     cut.push({
-      facetAddress: facet.address,
+      facetAddress: address,
       action: FacetCutAction.Add,
-      functionSelectors: getSelectors(facet.abi)
+      functionSelectors: getSelectors(facet)
     })
   }
 
