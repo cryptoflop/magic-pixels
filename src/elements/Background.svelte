@@ -35,7 +35,7 @@
 			}
 
 			function getColorStops() {
-				return [BLACK, rndColorIdx(), BLACK]
+				return [BLACK, rndColorIdx(true), BLACK]
 					.map((color) => pixelColor(color))
 					.map((s) => ({ backgroundColor: s }));
 			}

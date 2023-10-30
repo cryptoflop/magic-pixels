@@ -65,7 +65,7 @@ export function pixelemitter(element: HTMLElement, options: EmitterOptions) {
 			const [xStart, xEnd, yStart, yEnd] = rndPoint();
 			el.animate([
 				{ transform: `translate(${xStart}px, ${yStart}px)`, backgroundColor: "transparent" },
-				{ backgroundColor: pixelColor((options.colored ?? true) ? rndColorIdx() : WHITE) + (options.opacity ? Math.floor(options.opacity * 255).toString(16) : '') },
+				{ backgroundColor: pixelColor((options.colored ?? true) ? rndColorIdx(true) : WHITE) + (options.opacity ? Math.floor(options.opacity * 255).toString(16) : '') },
 				{ transform: `translate(${xEnd}px, ${yEnd}px)`, backgroundColor: "transparent" }
 			], {
 				duration: duration,
