@@ -117,34 +117,9 @@ export function createWeb3Ctx() {
 					return
 				}
 
-				const tradeIds = await readContract({
-					address: PXLS,
-					abi: [parseAbiItem("function getTrades(address seller) view returns(bytes32[])")],
-					functionName: "getTrades",
-					args: [acc],
-				});
+				// TODO: 
 
-				if (tradeIds.length === 0) {
-					set([])
-					return
-				}
-
-				const trades = (await multicall({
-					contracts: tradeIds.map(id => ({
-						address: PXLS,
-						abi: [parseAbiItem("function getTrade(bytes32 id) view returns((address, address, uint8[][], uint256))")],
-						functionName: "getTrade",
-						args: [id]
-					})),
-				})).filter(d => d.result).map(d => d.result!).map((t, i) => ({
-					id: tradeIds[i],
-					seller: t[0],
-					buyer: t[1],
-					pixels: t[2].map(p => p.map(pi => pi)),
-					price: t[3]
-				}))
-
-				set(trades)
+				set([])
 			})
 		})),
 
@@ -203,6 +178,14 @@ export function createWeb3Ctx() {
 		},
 
 		async closeTrade(trade: P2PTrade) {
+			// const ptx = await prepareWriteContract({
+			// 	address: PXLS,
+			// 	abi: [parseAbiItem("function closeTrade(bytes32 id) external payable")],
+			// 	functionName: "closeTrade",
+			// 	args: [trade.id],
+			// 	value: trade.price
+			// })
+
 			const { hash } = await writeContract({
 				address: PXLS,
 				abi: [parseAbiItem("function closeTrade(bytes32 id) external payable")],
@@ -213,6 +196,16 @@ export function createWeb3Ctx() {
 
 			const { status } = await waitForTransaction({ hash })
 			if (status == "reverted") throw "reverted"
+
+			// await walletClient.writeContract({
+			// 	address: PXLS,
+			// 	abi: [parseAbiItem("function closeTrade(bytes32 id) external payable")],
+			// 	functionName: "closeTrade",
+			// 	args: [trade.id],
+			// 	value: trade.price,
+			// 	chain: base,
+			// 	gas: 10000000n
+			// })
 		},
 
 		async conjure(numPixels: number) {
