@@ -20,7 +20,7 @@
 	<rect xmlns="http://www.w3.org/2000/svg" width="10" height="1" x="3" y="15" opacity="0.1" fill="black"></rect>
 
 	<rect xmlns="http://www.w3.org/2000/svg" width="1" height="1" x="4" y="1" opacity="1" fill="#875fe3"></rect>
-	<rect xmlns="http://www.w3.org/2000/svg" width="2" height="2" x="10" y="12" opacity="1" fill="#ffffff"></rect>
+	<rect xmlns="http://www.w3.org/2000/svg" width="2" height="2" x="10" y="12" opacity="1" fill="#f9a8d4"></rect>
 	<rect xmlns="http://www.w3.org/2000/svg" width="2" height="2" x="12" y="6" opacity="1" fill="#7dd3fc"></rect>
 	<rect xmlns="http://www.w3.org/2000/svg" width="2" height="2" x="2" y="4" opacity="1" fill="#f43f5e"></rect>
 	<rect xmlns="http://www.w3.org/2000/svg" width="1" height="1" x="10" y="2" opacity="1" fill="#16a34a"></rect>
