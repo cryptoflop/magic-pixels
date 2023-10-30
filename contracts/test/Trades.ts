@@ -47,7 +47,7 @@ describe('Trades', function () {
 		
 		const id = await openTrade(acc1, pxlsAddress, acc2.account.address)
 
-		expect(await ah.write.closeTrade([id, false], { account: acc1.account }), "dedicated receiver trade didn't fail.").to.throw
+		await expect(ah.write.closeTrade([id, false], { account: acc1.account }), "dedicated receiver trade didn't fail.").to.be.rejected
 
 		const closeTx = await ah.write.closeTrade([id, false], { account: acc2.account })
 		const closeRcpt = await publicClient.waitForTransactionReceipt({ hash: closeTx })
