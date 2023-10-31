@@ -15,10 +15,13 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Conjured
+        - Minted
       abis:
         - name: PxlsCore
           file: ./abis/PxlsCore.json
       eventHandlers:
         - event: Conjured(address,bytes)
           handler: handleConjured
+        - event: Minted(address,bytes)
+          handler: handleMinted
       file: ./src/pxls-core.ts

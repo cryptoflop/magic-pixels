@@ -17,9 +17,11 @@ import { createConjuredEvent } from "./pxls-core-utils"
 
 describe("Describe entity assertions", () => {
   beforeAll(() => {
-    let to = Address.fromString("0x0000000000000000000000000000000000000001")
+    let conjurer = Address.fromString(
+      "0x0000000000000000000000000000000000000001"
+    )
     let pixels = Bytes.fromI32(1234567890)
-    let newConjuredEvent = createConjuredEvent(to, pixels)
+    let newConjuredEvent = createConjuredEvent(conjurer, pixels)
     handleConjured(newConjuredEvent)
   })
 
@@ -37,7 +39,7 @@ describe("Describe entity assertions", () => {
     assert.fieldEquals(
       "Conjured",
       "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "to",
+      "conjurer",
       "0x0000000000000000000000000000000000000001"
     )
     assert.fieldEquals(

@@ -1,8 +1,0 @@
-type Conjured @entity(immutable: true) {
-  id: Bytes!
-  to: Bytes! # address
-  pixels: Bytes! # bytes
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}

@@ -10,7 +10,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "to",
+        "name": "conjurer",
         "type": "address"
       },
       {
@@ -21,6 +21,25 @@
       }
     ],
     "name": "Conjured",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "minter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "pixels",
+        "type": "bytes"
+      }
+    ],
+    "name": "Minted",
     "type": "event"
   },
   {

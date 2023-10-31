@@ -15,7 +15,8 @@ contract PxlsCore {
 
   constructor() {}
 
-	event Conjured(address to, bytes pixels);
+	event Conjured(address conjurer, bytes pixels);
+	event Minted(address minter, bytes pixels);
 
 	/// @notice Conjures random pixels from the nether | 8,666,031 gas for 144 pxl
 	function conjure(uint256 numPixels) external payable {
