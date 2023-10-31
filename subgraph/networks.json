@@ -1,0 +1,16 @@
+{
+	"mainnet": {
+		"PxlsCore": {
+			"address": "0x95691c79b44bbd0b4dd11e36f90d3057e7416d1e",
+			"startBlock": 24995031
+		},
+		"AuctionHouse": {
+			"address": "0x95691c79b44bbd0b4dd11e36f90d3057e7416d1e",
+			"startBlock": 24995031
+		},
+		"MagicPlates": {
+			"address": "0x95691c79b44bbd0b4dd11e36f90d3057e7416d1e",
+			"startBlock": 24995031
+		}
+	}
+}

@@ -1,5 +1,4 @@
 specVersion: 0.0.5
-description: Gravatar for Ethereum
 schema:
   file: ./schema.graphql
 dataSources:
@@ -7,21 +6,65 @@ dataSources:
     name: Pixels
     network: testnet
     source:
-      address: '0x95691c79b44bbd0b4dd11e36f90d3057e7416d1e'
-      abi: Gravity
-      startBlock: 8317290
+      address: "0x95691c79b44bbd0b4dd11e36f90d3057e7416d1e"
+      abi: PxlsCore
+      startBlock: 24995031
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - Gravatar
+        - Conjured
+        - Minted
       abis:
-        - name: Gravity
-          file: ./abis/Gravity.json
+        - name: PxlsCore
+          file: ./abis/PxlsCore.json
       eventHandlers:
-        - event: NewGravatar(uint256,address,string,string)
-          handler: handleNewGravatar
-        - event: UpdatedGravatar(uint256,address,string,string)
-          handler: handleUpdatedGravatar
-      file: ./src/mapping.ts
+        - event: Conjured(address,bytes)
+          handler: handleConjured
+        - event: Minted(address,bytes)
+          handler: handleMinted
+      file: ./src/pxls-core.ts
+  - kind: ethereum/contract
+    name: Trades
+    network: testnet
+    source:
+      address: "0x95691c79b44bbd0b4dd11e36f90d3057e7416d1e"
+      abi: AuctionHouse
+      startBlock: 24995031
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - TradeClosed
+        - TradeOpened
+      abis:
+        - name: AuctionHouse
+          file: ./abis/AuctionHouse.json
+      eventHandlers:
+        - event: TradeClosed(indexed address,indexed address,bytes4[])
+          handler: handleTradeClosed
+        - event: TradeOpened(indexed address,bytes32)
+          handler: handleTradeOpened
+      file: ./src/auction-house.ts
+  - kind: ethereum/contract
+    name: MagicPlates
+    network: testnet
+    source:
+      address: "0x443407f3c3DD57fE479c0B025196C1915c82F7B2"
+      abi: MagicPlates
+      startBlock: 24995031
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+      abis:
+        - name: MagicPlates
+          file: ./abis/MagicPlates.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/magic-plates.ts

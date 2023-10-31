@@ -1,28 +1,25 @@
 {
-	"name": "subgraph",
-	"version": "0.1.0",
-	"license": "MIT",
+	"name": "pixels",
+	"license": "UNLICENSED",
 	"scripts": {
+		"codegen": "graph codegen",
+		"build": "graph build",
+		"test": "graph test",
 		"build-contract": "solc contracts/Gravity.sol --abi -o abis --overwrite && solc contracts/Gravity.sol --bin -o bin --overwrite",
 		"create-testnet": "graph create example --node https://graph.testnet.mantle.xyz/deploy/",
 		"create-local": "graph create example --node http://127.0.0.1:8020",
 		"remove-testnet": "graph remove example --node https://graph.testnet.mantle.xyz/deploy/",
 		"remove-local": "graph remove example --node http://localhost:8020",
-		"codegen": "graph codegen",
-		"build": "graph build",
 		"deploy-testnet": "graph deploy example --ipfs https://ipfs.testnet.mantle.xyz --node https://graph.testnet.mantle.xyz/deploy",
 		"deploy-local": "graph deploy example --ipfs http://127.0.0.1:5001 --node http://127.0.0.1:8020",
 		"redeploy-local": "yarn remove-local && yarn create-local && yarn deploy-local",
 		"redeploy": "yarn remove-testnet && yarn create-testnet && yarn deploy-testnet"
 	},
-	"devDependencies": {
-		"@graphprotocol/graph-cli": "^0.60.0",
-		"@graphprotocol/graph-ts": "^0.31.0"
-	},
 	"dependencies": {
-		"babel-polyfill": "^6.26.0",
-		"babel-register": "^6.26.0",
-		"truffle": "^5.0.4",
-		"truffle-contract": "^4.0.5"
+		"@graphprotocol/graph-cli": "0.60.0",
+		"@graphprotocol/graph-ts": "0.30.0"
+	},
+	"devDependencies": {
+		"matchstick-as": "0.5.0"
 	}
 }
