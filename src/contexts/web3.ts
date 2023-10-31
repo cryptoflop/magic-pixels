@@ -2,11 +2,14 @@ import { configureChains, createConfig, connect, disconnect, InjectedConnector, 
 import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
 import { parseAbiItem, parseEther, type PublicClient, type FallbackTransport, formatUnits } from "viem";
 import { readable, writable } from "svelte/store";
-import { base } from "viem/chains";
+import { base, mantleTestnet } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
 import { PIXEL_PRICE, NULL_ADDR } from "../values";
 
-export type Plate = { pixels: number[][], delays: number[][] }
+import { magicPlatesABI } from "../../contracts/generated";
+
+type Delay = { idx: number, delay: number }
+export type Plate = { pixels: number[][], delays: Delay[] }
 export type P2PTrade = { id: `0x${string}`, seller: string, buyer: string, pixels: number[][], price: bigint }
 
 export function createWeb3Ctx() {
@@ -22,7 +25,7 @@ export function createWeb3Ctx() {
 
 		async connect() {
 			const { chains, publicClient: publicClientGetter } = configureChains(
-				[base],
+				[mantleTestnet],
 				[jsonRpcProvider({ rpc: (_) => ({ http: import.meta.env.VITE_RPC_URL }), })],
 			)
 
@@ -45,14 +48,15 @@ export function createWeb3Ctx() {
 			ctx.account.set(null)
 		},
 
-		usdPrice: consistentStore(readable<number>(1700, (set) => {
+		usdPrice: consistentStore(readable<number>(0.378, (set) => {
 			readContract({
 				address: USDC,
-				abi: [parseAbiItem("function latestAnswer() public view returns(uint256)")],
-				functionName: "latestAnswer"
+				abi: [parseAbiItem("function getPrice(bytes32 id) public view returns((int64, uint64, int32, uint))")],
+				functionName: "getPrice",
+				args: [import.meta.env.VITE_MNT_UDC_ID]
 			}).then(r => {
-				const price = Number(formatUnits(r, 8));
-				set(Number(price));
+				const mntUsdPrice = Number(r[0]) * Math.pow(10, -8)
+				set(mntUsdPrice);
 			});
 		})),
 
@@ -81,30 +85,12 @@ export function createWeb3Ctx() {
 					return
 				}
 
-				const numNfts = await readContract({
+				const plates = (await readContract({
 					address: PLTS,
-					abi: [parseAbiItem("function balanceOf(address owner) view returns (uint256)")],
-					functionName: "balanceOf",
+					abi: magicPlatesABI,
+					functionName: "platesOf",
 					args: [acc],
-				});
-
-				const tokenIds = (await multicall({
-					contracts: Array(Number(numNfts)).fill(1).map((_, i) => ({
-						address: PLTS,
-						abi: [parseAbiItem("function tokenOfOwnerByIndex(address owner, uint256 idx) view returns (uint256)")],
-						functionName: "tokenOfOwnerByIndex",
-						args: [acc, BigInt(i)],
-					})),
-				})).filter(d => d.result !== undefined).map(d => d.result!)
-
-				const plates = (await multicall({
-					contracts: tokenIds.map(i => ({
-						address: PLTS,
-						abi: [parseAbiItem("function underlyingPixels(uint256 id) view returns (uint8[][], (uint256, uint16)[])")],
-						functionName: "underlyingPixels",
-						args: [i],
-					})),
-				})).filter(d => d.result !== undefined).map(d => d.result as unknown as [number[][], number[][]]).map(d => ({ pixels: d[0], delays: d[1] }))
+				})).map(p => ({ pixels: p.pixels.map(pxl => pxl.map(i => i)), delays: p.delays.map(d => ({ idx: Number(d.idx), delay: d.delay })) }));
 
 				set(plates)
 			})
@@ -286,7 +272,7 @@ export function createWeb3Ctx() {
 					m.pop();
 				}
 
-				ctx.plates.update(c => c.concat([{ pixels: plate, delays }]))
+				ctx.plates.update(c => c.concat([{ pixels: plate, delays: delays.map(d => ({ idx: d[0], delay: d[1] })) }]))
 
 				return m
 			})

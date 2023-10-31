@@ -97,7 +97,7 @@
 		if (!container || numPixels == lastNumPixels) return;
 		lastNumPixels = numPixels;
 		for (const el of container.children) {
-			const CHANGE = 1.2;
+			const CHANGE = 1.4;
 			let currDeg = rndBtwn(-CHANGE, CHANGE);
 			let currPos = rndBtwn(-CHANGE, CHANGE);
 			const anim = () => {
@@ -125,7 +125,7 @@
 <div class="grid grid-rows-[1fr,min-content,min-content] pb-8">
 	<div class="grid m-auto">
 		<div
-			class="grid gap-1 mx-auto"
+			class="grid gap-2 mx-auto"
 			bind:this={container}
 			style="grid-template-columns: repeat({Math.floor(
 				Math.sqrt(numPixels)
@@ -166,9 +166,9 @@
 		}`}
 	>
 		<div class="flex mx-auto">
-			<div>{ethPrice.toFixed(3)}eth</div>
+			<div>{ethPrice.toFixed(2)}mnt</div>
 			<span>&ensp;=&ensp;</span>
-			<span use:tooltip={`1 eth = $${$usd.toFixed(2)}`}
+			<span use:tooltip={`1mnt = $${$usd.toFixed(2)}`}
 				>${(ethPrice * $usd).toFixed(2)}</span
 			>
 			<span>&ensp;=&ensp;</span>
