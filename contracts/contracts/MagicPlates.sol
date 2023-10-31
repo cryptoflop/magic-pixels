@@ -22,7 +22,7 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
 
     CountersUpgradeable.Counter private _tokenIdCounter;
 
-    struct Delay { uint256 idx; uint16 delay;}
+    struct Delay { uint256 idx; uint16 delay; }
 
     mapping(uint256 => uint8[][]) private plates;
     mapping(uint256 => Delay[]) private pixelDelays;
@@ -64,6 +64,25 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
         fee = f;
     }
 
+		/// Getters
+
+    struct Plate { uint8[][] pixels; Delay[] delays; }
+
+    function platesOf(address owner) external view returns(Plate[] memory plts) {
+        uint256 num = super.balanceOf(owner);
+        
+        plts = new Plate[](num);
+
+        for (uint256 i = 0; i < num; i++) {
+					uint256 id = super.tokenOfOwnerByIndex(owner, i);
+					plts[i] = plateById(id);
+				}
+    }
+
+		/// @dev Returns the pixels that the plate is made of.
+		function plateById(uint256 tokenId) public view returns (Plate memory plate) {
+			return Plate(plates[tokenId], pixelDelays[tokenId]);
+		}
 
     /// Public
 
@@ -98,17 +117,7 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
         delete pixelDelays[tokenId];
     }
 
-
-    /// @dev Returns the pixels that the plate is made of.
-    function underlyingPixels(uint256 tokenId)
-        public
-        view
-        returns (uint8[][] memory, Delay[] memory)
-    {
-        return (plates[tokenId], pixelDelays[tokenId]);
-    }
-
-    /// @dev Super gas guzzler, but this is a call function. If you need the pixel data use "underlyingPixels".
+    /// @dev Super gas guzzler, but this is a call function. If you need the pixel data use "plateById".
     function tokenURI(uint256 tokenId)
         public
         view

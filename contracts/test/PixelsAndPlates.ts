@@ -222,7 +222,8 @@ describe('PixelsAndPlates', function () {
 		])
 	})
 
-	it('Should conjure, mint, get the tokenURI and the underlying pixels', async function () {
+	it('Should conjure, mint, and check the plate', async function () {
+		const [acc] = await viem.getWalletClients()
 		const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
 		const plts = await viem.getContractAt("MagicPlates", pltsAddress)
 
@@ -238,7 +239,7 @@ describe('PixelsAndPlates', function () {
 		// TODO: check if pixels are the correct color...
 		
 		const pixels = bytesToPixels(conjured.args.pixels)
-		const [underlyingPixels] = await plts.read.underlyingPixels([0n]) // TODO: check delays?
+		const { pixels: underlyingPixels } = await plts.read.plateById([0n]) // TODO: check delays?
 		expect(pixels.length, "conjured / underlaying pixel length mismatch.").eq(underlyingPixels.length)
 
 		let allPixelsMatchInOrder = true
@@ -254,6 +255,10 @@ describe('PixelsAndPlates', function () {
 			}
 		}
 		expect(allPixelsMatchInOrder, "conjured/minted pixels don't match underlying.").to.be.true
+
+		const plates = await plts.read.platesOf([acc.account.address])
+
+		expect(plates[0].pixels.length, "plateById/platesOf pixels length mismatch.").eq(underlyingPixels.length)
 	})
 
 })

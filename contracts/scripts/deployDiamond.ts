@@ -1,23 +1,17 @@
-import { ethers, viem } from 'hardhat'
+import { viem } from 'hardhat'
 import { encodeFunctionData, type Abi, type GetContractReturnType } from 'viem'
 
-const { getSelectors, FacetCutAction } = require('./libraries/diamond-old');
+import { getSelectors, FacetCutAction } from './libraries/diamond';
 
 export async function deployDiamond(facets?: string[], init?: GetContractReturnType<Abi>) {
-  const accounts = await ethers.getSigners()
-  const contractOwner = accounts[0]
+	const publicClient = await viem.getPublicClient()
+  const [contractOwner] = await viem.getWalletClients()
 
   // deploy DiamondCutFacet
-  const DiamondCutFacet = await ethers.getContractFactory('DiamondCutFacet')
-  const diamondCutFacet = await DiamondCutFacet.deploy()
-  await diamondCutFacet.waitForDeployment()
-	const diamondCutFacetAddress = await diamondCutFacet.getAddress()
+  const diamondCutFacet = await viem.deployContract('DiamondCutFacet')
 
   // deploy Diamond
-  const Diamond = await ethers.getContractFactory('Diamond')
-  const diamond = await Diamond.deploy(contractOwner.address, diamondCutFacetAddress)
-  await diamond.waitForDeployment()
-	const diamondAddress = await diamond.getAddress()
+  const diamond = await viem.deployContract('Diamond', [contractOwner.account.address, diamondCutFacet.address])
 
   // deploy DiamondInit
   // DiamondInit provides a function that is called when the diamond is upgraded to initialize state variables
@@ -32,30 +26,26 @@ export async function deployDiamond(facets?: string[], init?: GetContractReturnT
     'OwnershipFacet'
   ].concat(facets ?? [])
   const cut = []
-  for (const FacetName of FacetNames) {
-    const Facet = await ethers.getContractFactory(FacetName)
-		const facet = await Facet.deploy()
-		await facet.waitForDeployment()
-		const address = await facet.getAddress()
+  for (const facetName of FacetNames) {
+    const facet = await viem.deployContract(facetName)
     cut.push({
-      facetAddress: address,
+      facetAddress: facet.address,
       action: FacetCutAction.Add,
-      functionSelectors: getSelectors(facet)
+      functionSelectors: getSelectors(facet.abi)
     })
   }
 
   // upgrade diamond with facets
-  const diamondCut = await ethers.getContractAt('IDiamondCut', diamondAddress.toString())
-  let tx
-  let receipt
+  const diamondCut = await viem.getContractAt('IDiamondCut', diamond.address)
+
   // call to init function
   let functionCall = encodeFunctionData({ abi: diamondInit!.abi, functionName: "init" })
-  tx = await diamondCut.diamondCut(cut, diamondInitAddress, functionCall)
-  receipt = await tx.wait()
-  if (!receipt?.status) {
-    throw Error(`Diamond upgrade failed: ${tx.hash}`)
+  const tx = await diamondCut.write.diamondCut([cut, diamondInitAddress, functionCall])
+  const receipt = await publicClient.waitForTransactionReceipt({ hash: tx })
+  if (receipt.status === "reverted") {
+    throw Error(`Diamond upgrade failed: ${tx}`)
   }
-  return diamondAddress
+  return diamond.address
 }
 
 // We recommend this pattern to be able to use async/await everywhere

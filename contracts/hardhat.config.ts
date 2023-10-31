@@ -13,12 +13,17 @@ const config: HardhatUserConfig = {
     },
 		tenderly: {
       url: process.env['RPC_TENDERLY'],
-      accounts: [process.env['TESTI_PK']!, "ed5503c89d022a64b2ebee67ab0447159e5e2354d6fd902fe00ddf497602f414"],
+      accounts: [process.env['TENDERLY_PK']!, "ed5503c89d022a64b2ebee67ab0447159e5e2354d6fd902fe00ddf497602f414"],
 			chainId: 8453
     },
 		base: {
 			url: process.env['RPC_BASE'],
 			chainId: 8453
+		},
+		mantest: {
+			url: process.env['RPC_MANTLE_TEST'],
+      accounts: [process.env['MANTLE_PK1']!, process.env['MANTLE_PK2']!],
+			chainId: 5001
 		}
   },
   solidity: {

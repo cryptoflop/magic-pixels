@@ -27,8 +27,8 @@ export const auctionHouseABI = [
       },
       {
         name: 'pixels',
-        internalType: 'uint8[][]',
-        type: 'uint8[][]',
+        internalType: 'bytes4[]',
+        type: 'bytes4[]',
         indexed: false,
       },
     ],
@@ -58,7 +58,10 @@ export const auctionHouseABI = [
   {
     stateMutability: 'payable',
     type: 'function',
-    inputs: [{ name: 'id', internalType: 'bytes32', type: 'bytes32' }],
+    inputs: [
+      { name: 'id', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'isSell', internalType: 'bool', type: 'bool' },
+    ],
     name: 'closeTrade',
     outputs: [],
   },
@@ -75,25 +78,18 @@ export const auctionHouseABI = [
         components: [
           { name: 'seller', internalType: 'address', type: 'address' },
           { name: 'buyer', internalType: 'address', type: 'address' },
-          { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
+          { name: 'pixels', internalType: 'bytes4[]', type: 'bytes4[]' },
           { name: 'price', internalType: 'uint256', type: 'uint256' },
         ],
       },
     ],
   },
   {
-    stateMutability: 'view',
-    type: 'function',
-    inputs: [{ name: 'seller', internalType: 'address', type: 'address' }],
-    name: 'getTrades',
-    outputs: [{ name: '', internalType: 'bytes32[]', type: 'bytes32[]' }],
-  },
-  {
     stateMutability: 'payable',
     type: 'function',
     inputs: [
       { name: 'receiver', internalType: 'address', type: 'address' },
-      { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
+      { name: 'pixels', internalType: 'bytes4[]', type: 'bytes4[]' },
       { name: 'price', internalType: 'uint256', type: 'uint256' },
       { name: 'isSell', internalType: 'bool', type: 'bool' },
     ],
@@ -317,6 +313,56 @@ export const magicPlatesABI = [
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
   },
   {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'plateById',
+    outputs: [
+      {
+        name: 'plate',
+        internalType: 'struct MagicPlates.Plate',
+        type: 'tuple',
+        components: [
+          { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
+          {
+            name: 'delays',
+            internalType: 'struct MagicPlates.Delay[]',
+            type: 'tuple[]',
+            components: [
+              { name: 'idx', internalType: 'uint256', type: 'uint256' },
+              { name: 'delay', internalType: 'uint16', type: 'uint16' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'platesOf',
+    outputs: [
+      {
+        name: 'plts',
+        internalType: 'struct MagicPlates.Plate[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
+          {
+            name: 'delays',
+            internalType: 'struct MagicPlates.Delay[]',
+            type: 'tuple[]',
+            components: [
+              { name: 'idx', internalType: 'uint256', type: 'uint256' },
+              { name: 'delay', internalType: 'uint16', type: 'uint16' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [],
@@ -453,24 +499,6 @@ export const magicPlatesABI = [
     name: 'transferOwnership',
     outputs: [],
   },
-  {
-    stateMutability: 'view',
-    type: 'function',
-    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
-    name: 'underlyingPixels',
-    outputs: [
-      { name: '', internalType: 'uint8[][]', type: 'uint8[][]' },
-      {
-        name: '',
-        internalType: 'struct MagicPlates.Delay[]',
-        type: 'tuple[]',
-        components: [
-          { name: 'idx', internalType: 'uint256', type: 'uint256' },
-          { name: 'delay', internalType: 'uint16', type: 'uint16' },
-        ],
-      },
-    ],
-  },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -489,7 +517,7 @@ export const pxlsCommonABI = [
     type: 'function',
     inputs: [{ name: 'addr', internalType: 'address', type: 'address' }],
     name: 'pixelsOf',
-    outputs: [{ name: '', internalType: 'uint8[][]', type: 'uint8[][]' }],
+    outputs: [{ name: 'result', internalType: 'uint8[][]', type: 'uint8[][]' }],
   },
   {
     stateMutability: 'nonpayable',
@@ -514,29 +542,10 @@ export const pxlsCoreABI = [
     type: 'event',
     anonymous: false,
     inputs: [
-      { name: 'to', internalType: 'address', type: 'address', indexed: true },
-      {
-        name: 'pixels',
-        internalType: 'uint8[][]',
-        type: 'uint8[][]',
-        indexed: false,
-      },
+      { name: 'to', internalType: 'address', type: 'address', indexed: false },
+      { name: 'pixels', internalType: 'bytes', type: 'bytes', indexed: false },
     ],
     name: 'Conjured',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      { name: 'to', internalType: 'address', type: 'address', indexed: true },
-      {
-        name: 'amount',
-        internalType: 'uint256',
-        type: 'uint256',
-        indexed: false,
-      },
-    ],
-    name: 'EthFound',
   },
   {
     stateMutability: 'payable',
@@ -549,7 +558,7 @@ export const pxlsCoreABI = [
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
-      { name: 'indices', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'indices', internalType: 'bytes4[]', type: 'bytes4[]' },
       { name: 'delays', internalType: 'uint256[]', type: 'uint256[]' },
     ],
     name: 'mint',

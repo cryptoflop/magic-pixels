@@ -1,4 +1,4 @@
-import { type Abi, getFunctionSelector } from "viem"
+import { type Abi, type Hex, getFunctionSelector } from "viem"
 
 export const FacetCutAction = { Add: 0, Replace: 1, Remove: 2 }
 
@@ -9,5 +9,5 @@ export function getSelectors(abi: Abi) {
 			acc.push(getFunctionSelector(f))
     }
     return acc
-  }, [] as string[])
+  }, [] as Hex[])
 }
