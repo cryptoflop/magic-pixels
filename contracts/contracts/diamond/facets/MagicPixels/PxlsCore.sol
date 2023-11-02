@@ -58,22 +58,18 @@ contract PxlsCore {
 		emit Conjured(msg.sender, conjured);
 	}
 
-	struct Delay { uint256 idx; uint16 delay; }
 	/// @notice Uses pixels to mint a MagicPixels nft
-	function mint(bytes4[] calldata indices, uint256[] calldata delays) external {
+	function mint(uint8[][] memory pixels, uint256[][] memory delays) external {
 		LibPixels.Storage storage s = LibPixels.store();
 
-		mapping(bytes4 => uint32) storage pixels = s.pixelMap[msg.sender];
-		
-		uint8[][] memory plate = new uint8[][](indices.length);
+		mapping(bytes4 => uint32) storage pixelsOfOwner = s.pixelMap[msg.sender];
 
-		for (uint i = 0; i < indices.length; i++) {
-			bytes4 pxlId = indices[i];
-			plate[i] = LibPixels.decode(pxlId);
-			--pixels[pxlId];
+		// subtract pixels
+		for (uint i = 0; i < pixels.length; i++) {
+			--pixelsOfOwner[LibPixels.encode(pixels[i])];
 		}
 
-		s.nft.mint(msg.sender, plate, delays);
+		s.nft.mint(msg.sender, pixels, delays);
 	}
 	
 	/// @dev restores pixels from a shattered plate

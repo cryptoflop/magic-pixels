@@ -13,7 +13,7 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-import "./diamond/facets/MagicPixels/IMagicPixels.sol";
+import "./diamond/facets/MagicPixels/PxlsCore.sol";
 
 import "hardhat/console.sol";
 
@@ -31,7 +31,7 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
 
     uint96 private fee; // royalty fee
 
-    IMagicPixels public mgcpxl;
+    PxlsCore public pxls;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -49,9 +49,9 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
 
     /// Setters
 
-    function setMagicPixels(address adr) external onlyOwner {
-        mgcpxl = IMagicPixels(payable(adr));
-        _setDefaultRoyalty(adr, fee);
+    function setMagicPixels(address addr) external onlyOwner {
+        pxls = PxlsCore(payable(addr));
+        _setDefaultRoyalty(addr, fee);
     }
 
     function setColors(string[] calldata colors) external onlyOwner {
@@ -87,19 +87,19 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
     /// Public
 
     /// @notice Mints a MagicPlate nft that will be made up of the given pixels.
-    function mint(address to, uint8[][] memory plate, uint256[] calldata delays) external {
-        require(msg.sender == address(mgcpxl), "not allowed.");
+    function mint(address to, uint8[][] memory pixels, uint256[][] calldata delays) external {
+        require(msg.sender == address(pxls), "not allowed.");
 
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         
-        plates[tokenId] = plate;
+        plates[tokenId] = pixels;
 
 				if (delays.length > 0) {
         	Delay[] storage d = pixelDelays[tokenId];
 					for (uint i = 0; i < (delays.length - 1); i += 2) {
-							d.push(Delay(delays[i], uint16(delays[i + 1])));
+							d.push(Delay(delays[i][0], uint16(delays[i][1])));
 					}
 				}
     }
@@ -112,7 +112,7 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
     {
         address to = ownerOf(tokenId);
         super._burn(tokenId);
-        mgcpxl.restore(to, plates[tokenId]);
+        pxls.restore(to, plates[tokenId]);
         delete plates[tokenId];
         delete pixelDelays[tokenId];
     }

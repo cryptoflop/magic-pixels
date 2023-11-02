@@ -3,14 +3,14 @@ pragma solidity ^0.8.18;
 
 import { Ownable } from "../../Ownable.sol";
 import { LibPixels } from "../../libraries/LibPixels.sol";
-import { IMagicPlates } from "../MagicPlates/IMagicPlates.sol";
+import "../../../MagicPlates.sol";
 
 contract PxlsSetters is Ownable {
     
   constructor() {}
 
   function setMagicPlates(address a) external onlyOwner {
-    LibPixels.store().nft = IMagicPlates(a);
+    LibPixels.store().nft = MagicPlates(a);
   }
 
   function setPlateSize(uint8 s) external onlyOwner {

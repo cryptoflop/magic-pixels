@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNKNOWN
 pragma solidity ^0.8.18;
 
-import { IMagicPlates } from "../facets/MagicPlates/IMagicPlates.sol";
+import "../../MagicPlates.sol";
 
 library LibPixels {
 	bytes32 constant STORAGE_POSITION = keccak256("diamond.pixels.storage");
@@ -22,7 +22,7 @@ library LibPixels {
 
 		mapping(address => mapping(bytes4 => uint32)) pixelMap;
 
-		IMagicPlates nft;
+		MagicPlates nft;
 	}
 
 	function store() internal pure returns (Storage storage s) {

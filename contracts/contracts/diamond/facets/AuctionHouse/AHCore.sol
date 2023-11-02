@@ -16,8 +16,9 @@ contract AuctionHouse {
 
 	constructor() {}
 
-	event TradeOpened(address indexed creator, bytes32 id);
+	event TradeOpened(address indexed creator, address indexed receiver, bytes32 id);
 	event TradeClosed(
+		bytes32 id,
 		address indexed seller,
 		address indexed buyer,
 		bytes4[] pixels
@@ -49,7 +50,7 @@ contract AuctionHouse {
 			s.trades[id] = LibAuctionHouse.Trade(receiver, tx.origin, pixels, price);
 		}
 
-		emit TradeOpened(tx.origin, id);
+		emit TradeOpened(tx.origin, receiver, id);
 	}
 
 	function closeTrade(bytes32 id, bool isSell) external payable {
@@ -66,7 +67,7 @@ contract AuctionHouse {
 			(bool success, ) = tx.origin.call{value: trade.price}("");
 			if (!success) revert PaymentFailed();
 
-			emit TradeClosed(tx.origin, trade.seller, trade.pixels);
+			emit TradeClosed(id, tx.origin, trade.buyer, trade.pixels);
 		} else {
 			// close as buyer
 			if (msg.value != trade.price) revert IncorrectValue();
@@ -80,7 +81,7 @@ contract AuctionHouse {
 			
 			movePixels(trade.pixels, trade.seller, tx.origin);
 
-			emit TradeClosed(trade.seller, tx.origin, trade.pixels);
+			emit TradeClosed(id, trade.seller, tx.origin, trade.pixels);
 		}
 	
 		deleteTrade(id);

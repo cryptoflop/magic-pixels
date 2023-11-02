@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-import { IMagicPixels } from "../MagicPixels/IMagicPixels.sol";
+import "../MagicPixels/PxlsCore.sol";
 
 library LibPlates {
 	bytes32 constant STORAGE_POSITION = keccak256("diamond.plates.storage");
@@ -22,7 +22,7 @@ library LibPlates {
 
 		uint96 fee;
 
-		IMagicPixels mgcpxl;
+		PxlsCore mgcpxl;
 	}
 
 	function store() internal pure returns (Storage storage s) {
