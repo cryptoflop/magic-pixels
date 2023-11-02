@@ -43,28 +43,8 @@ dataSources:
         - name: AuctionHouse
           file: ./abis/AuctionHouse.json
       eventHandlers:
-        - event: TradeClosed(indexed address,indexed address,bytes4[])
-          handler: handleTradeClosed
-        - event: TradeOpened(indexed address,bytes32)
+        - event: TradeOpened(indexed address,indexed address,bytes32)
           handler: handleTradeOpened
+        - event: TradeClosed(bytes32,indexed address,indexed address,bytes4[])
+          handler: handleTradeClosed
       file: ./src/auction-house.ts
-  - kind: ethereum/contract
-    name: MagicPlates
-    network: testnet
-    source:
-      address: "0x443407f3c3DD57fE479c0B025196C1915c82F7B2"
-      abi: MagicPlates
-      startBlock: 24995031
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - Transfer
-      abis:
-        - name: MagicPlates
-          file: ./abis/MagicPlates.json
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleTransfer
-      file: ./src/magic-plates.ts

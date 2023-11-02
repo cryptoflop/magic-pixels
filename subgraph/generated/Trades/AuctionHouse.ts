@@ -23,16 +23,20 @@ export class TradeClosed__Params {
     this._event = event;
   }
 
-  get seller(): Address {
-    return this._event.parameters[0].value.toAddress();
+  get id(): Bytes {
+    return this._event.parameters[0].value.toBytes();
   }
 
-  get buyer(): Address {
+  get seller(): Address {
     return this._event.parameters[1].value.toAddress();
   }
 
+  get buyer(): Address {
+    return this._event.parameters[2].value.toAddress();
+  }
+
   get pixels(): Array<Bytes> {
-    return this._event.parameters[2].value.toBytesArray();
+    return this._event.parameters[3].value.toBytesArray();
   }
 }
 
@@ -53,8 +57,12 @@ export class TradeOpened__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
+  get receiver(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
   get id(): Bytes {
-    return this._event.parameters[1].value.toBytes();
+    return this._event.parameters[2].value.toBytes();
   }
 }
 

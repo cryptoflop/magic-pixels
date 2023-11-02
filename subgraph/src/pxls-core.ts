@@ -1,5 +1,5 @@
 import { BigInt } from "@graphprotocol/graph-ts"
-import { Conjured as ConjuredEvent, Minted as MintedEvent } from "../generated/PxlsCore/PxlsCore"
+import { Conjured as ConjuredEvent, Minted as MintedEvent } from "../generated/Pixels/PxlsCore"
 import { Pixels, PixelBalance } from "../generated/schema"
 
 const MAX_PIXEL_LENGTH = 4
@@ -40,14 +40,6 @@ export function handleConjured(event: ConjuredEvent): void {
 export function handleMinted(event: MintedEvent): void {
   const minterId = event.params.minter.toHex()
 
-	// load pixels of minter
-	let pixels = Pixels.load(minterId)
-	
-	if (!pixels) {
-		pixels = new Pixels(event.params.minter.toHex());
-    pixels.balances = [];
-	}
-
 	const bytes = event.params.pixels.toHex().substring(2)
 
 	for (let i = 0; i < (bytes.length / 4); i++) {
@@ -57,15 +49,8 @@ export function handleMinted(event: MintedEvent): void {
 
 		const pixelBalance = PixelBalance.load(id)! // this should never be null since you can only mint if you have all pixels
 
-		if (pixelBalance.amount.equals(ONE)) {
-			const idx = pixels.balances.indexOf(id)!
-			pixels.balances.splice(idx, 1);
-		} else {
-			// decrease pixel balance by 1
-			pixelBalance.amount = pixelBalance.amount.minus(ONE)
-			pixelBalance.save();
-		}
+		// decrease pixel balance by 1
+		pixelBalance.amount = pixelBalance.amount.minus(ONE)
+		pixelBalance.save();
 	}
-
-	pixels.save()
 }
