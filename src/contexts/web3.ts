@@ -2,11 +2,12 @@ import { configureChains, createConfig, connect, disconnect, InjectedConnector, 
 import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
 import { parseAbiItem, parseEther, type PublicClient, type FallbackTransport, formatUnits } from "viem";
 import { readable, writable } from "svelte/store";
-import { base, mantleTestnet } from "viem/chains";
+import { mantleTestnet } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
-import { PIXEL_PRICE, NULL_ADDR } from "../values";
+import { bytesToPixels } from "../../contracts/scripts/libraries/pixel-parser"
+import { PIXEL_PRICE } from "../values";
 
-import { magicPlatesABI } from "../../contracts/generated";
+import { pxlsCoreABI, magicPlatesABI } from "../../contracts/generated";
 
 type Delay = { idx: number, delay: number }
 export type Plate = { pixels: number[][], delays: Delay[] }
@@ -197,7 +198,7 @@ export function createWeb3Ctx() {
 		async conjure(numPixels: number) {
 			const { hash } = await writeContract({
 				address: PXLS,
-				abi: [parseAbiItem('function conjure(uint256 batches) external payable')],
+				abi: pxlsCoreABI,
 				functionName: 'conjure',
 				args: [BigInt(numPixels)],
 				value: parseEther(PIXEL_PRICE.toString()) * BigInt(numPixels)
@@ -206,9 +207,10 @@ export function createWeb3Ctx() {
 			const { status, blockNumber } = await waitForTransaction({ hash, confirmations: import.meta.env.DEV ? 1 : 2 })
 			if (status == "reverted") throw "reverted"
 
-			const ethFoundLogs = await publicClient.getLogs({
+			const conjuredLogs = await publicClient.getContractEvents({
 				address: PXLS,
-				event: parseAbiItem('event EthFound(address indexed to, uint256 amount)'),
+				abi: pxlsCoreABI,
+				eventName: "Conjured",
 				args: {
 					to: ctx.account.current
 				},
@@ -216,20 +218,22 @@ export function createWeb3Ctx() {
 				toBlock: blockNumber
 			})
 
-			const ethFound = ethFoundLogs[0]?.args.amount ?? BigInt(0)
-
-			const conjuredLogs = await publicClient.getLogs({
-				address: PXLS,
-				event: parseAbiItem('event Conjured(address indexed to, uint8[][] pixels)'),
-				args: {
-					to: ctx.account.current
-				},
-				fromBlock: blockNumber,
-				toBlock: blockNumber
-			})
-
-			const pixels = conjuredLogs[0].args.pixels! as number[][]
+			const pixels = bytesToPixels(conjuredLogs[0].args.pixels!)
 			ctx.pixels.update(c => c.concat(pixels))
+
+			// TODO
+			// const ethFoundLogs = await publicClient.getLogs({
+			// 	address: PXLS,
+			// 	event: parseAbiItem('event EthFound(address indexed to, uint256 amount)'),
+			// 	args: {
+			// 		to: ctx.account.current
+			// 	},
+			// 	fromBlock: blockNumber,
+			// 	toBlock: blockNumber
+			// })
+
+			// const ethFound = ethFoundLogs[0]?.args.amount ?? BigInt(0)
+			const ethFound = BigInt(0)
 
 			return [pixels, ethFound] as const
 		},
