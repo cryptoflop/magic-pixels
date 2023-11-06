@@ -5,7 +5,7 @@
 	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
 	const root = routing.root;
 
-	const views = ["Nether", "Forge", "Treasury", "Auctions"];
+	const views = ["Nether", "Forge", "Treasury", "Market"];
 </script>
 
 <div class="flex space-x-6 mx-auto select-none text-lg">
