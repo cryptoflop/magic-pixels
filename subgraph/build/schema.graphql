@@ -20,11 +20,12 @@ type Minted @entity(immutable: true) {
 
 type PixelBalance @entity(immutable: false) {
   id: ID!
+	pixel: Bytes! # bytes4
   amount: BigInt!
 }
 
 type Account @entity(immutable: false) {
-	id: ID!
+	id: ID! # address
 	balances: [PixelBalance!]!
 }
 

@@ -266,6 +266,19 @@ export class PixelBalance extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get pixel(): Bytes {
+    let value = this.get("pixel");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set pixel(value: Bytes) {
+    this.set("pixel", Value.fromBytes(value));
+  }
+
   get amount(): BigInt {
     let value = this.get("amount");
     if (!value || value.kind == ValueKind.NULL) {

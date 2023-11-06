@@ -1,4 +1,4 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt, Bytes } from "@graphprotocol/graph-ts"
 import { Conjured as ConjuredEvent, Minted as MintedEvent } from "../generated/Pixels/PxlsCore"
 import { Account, PixelBalance } from "../generated/schema"
 
@@ -17,13 +17,14 @@ export function handleConjured(event: ConjuredEvent): void {
 	const pixelBytes = event.params.pixels.toHex().substring(2)
 
 	for (let i = 0; i < (pixelBytes.length / (MAX_PIXEL_LENGTH * 2)); i++) {
-		const pxlId = pixelBytes.slice(i * MAX_PIXEL_LENGTH, i * MAX_PIXEL_LENGTH + (MAX_PIXEL_LENGTH * 2))
+		const pxlId = pixelBytes.slice(i * (MAX_PIXEL_LENGTH * 2), i * (MAX_PIXEL_LENGTH * 2) + (MAX_PIXEL_LENGTH * 2))
 		
 		const id = conjurerId + pxlId
 
 		let pixelBalance = PixelBalance.load(id);
 		if (!pixelBalance) { 
 			pixelBalance = new PixelBalance(id);
+			pixelBalance.pixel = Bytes.fromHexString(pxlId)
 			pixelBalance.amount = BigInt.fromI32(0);
 			pixels.balances = pixels.balances.concat([id]);
 		}
