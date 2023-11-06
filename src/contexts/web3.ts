@@ -68,14 +68,18 @@ export function createWeb3Ctx() {
 					return
 				}
 
-				const pixels = (await readContract({
-					address: PXLS,
-					abi: [parseAbiItem("function pixelsOf(address addr) external view returns (uint8[][] memory)")],
-					functionName: "pixelsOf",
-					args: [acc],
-				})) as number[][];
+				// const myQuery = gql`
+				// 	query AllPixelsByAddress {
+				// 		account(id: "${acc}") {
+				// 			balances(where: {amount_gt: "0"}) {
+				// 				pixel
+				// 				amount
+				// 			}
+				// 		}
+				// 	}
+				// `
 
-				set(pixels)
+				set([])
 			})
 		})),
 

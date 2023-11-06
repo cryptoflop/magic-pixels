@@ -6,9 +6,10 @@
 		"dev": "vite",
 		"build": "vite build",
 		"preview": "vite preview",
-		"check": "svelte-check --tsconfig ./tsconfig.json"
+		"build-subgraph-client": "graphclient build --dir ./src/helpers/subgraph"
 	},
 	"devDependencies": {
+		"@graphprotocol/client-cli": "^3.0.0",
 		"@sveltejs/vite-plugin-svelte": "^2.4.6",
 		"@tsconfig/svelte": "^5.0.0",
 		"autoprefixer": "^10.4.15",
