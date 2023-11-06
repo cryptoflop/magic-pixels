@@ -46,7 +46,7 @@ library LibPixels {
 	function decode(bytes4 pxl) internal pure returns (uint8[] memory result) {
 		uint count = 0;
 		for (uint i = 0; i < 4; i++) {
-			if (uint8(uint8(bytes1(pxl << (i * 8)))) != 0) {
+			if (uint8(bytes1(pxl << (i * 8))) != 0) {
 				count++;
 			}
 		}

@@ -2,7 +2,7 @@ import { expect } from 'chai'
 
 import { ethers, viem } from 'hardhat'
 import { decodeEventLog, parseEther } from 'viem'
-import { bytesToPixelBytes, bytesToPixels } from '../scripts/libraries/pixel-parser'
+import { bytesToPixels } from '../scripts/libraries/pixel-parser'
 
 import { deployPxls } from '../scripts/MagicPixels'
 import { deployPlts } from '../scripts/MagicPlates'
@@ -231,7 +231,7 @@ describe('PixelsAndPlates', function () {
 		const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 		const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 	
-		await pxls.write.mint([bytesToPixelBytes(conjured.args.pixels), []]) // TODO: use delays
+		await pxls.write.mint([bytesToPixels(conjured.args.pixels), []]) // TODO: use delays
 		
 		const svgDataURI = await (await ethers.getContractAt("MagicPlates", pltsAddress)).tokenURI(0, { gasLimit: 999999999999999999n }) // viem fails in this case, ethers doesn't...
 		expect(svgDataURI, "invalid svg data uri").includes("data:image/svg+xml")

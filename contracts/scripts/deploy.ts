@@ -1,7 +1,7 @@
 import { viem } from 'hardhat'
 
 import { decodeEventLog, parseEther } from 'viem'
-import { bytesToPixelBytes } from './libraries/pixel-parser'
+import { bytesToPixels } from './libraries/pixel-parser'
 
 import { deployPxls } from './MagicPixels'
 import { deployPlts } from './MagicPlates'
@@ -228,7 +228,7 @@ export async function deploy () {
 	const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 	const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 
-  const mintTx = await pxls.write.mint([bytesToPixelBytes(conjured.args.pixels), []])
+  const mintTx = await pxls.write.mint([bytesToPixels(conjured.args.pixels), []])
 	await publicClient.waitForTransactionReceipt({ hash: mintTx })
 
   console.log('Minted')

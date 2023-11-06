@@ -13,6 +13,7 @@ export const auctionHouseABI = [
     type: 'event',
     anonymous: false,
     inputs: [
+      { name: 'id', internalType: 'bytes32', type: 'bytes32', indexed: false },
       {
         name: 'seller',
         internalType: 'address',
@@ -40,6 +41,12 @@ export const auctionHouseABI = [
     inputs: [
       {
         name: 'creator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'receiver',
         internalType: 'address',
         type: 'address',
         indexed: true,
@@ -272,21 +279,12 @@ export const magicPlatesABI = [
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
   },
   {
-    stateMutability: 'view',
-    type: 'function',
-    inputs: [],
-    name: 'mgcpxl',
-    outputs: [
-      { name: '', internalType: 'contract IMagicPixels', type: 'address' },
-    ],
-  },
-  {
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
       { name: 'to', internalType: 'address', type: 'address' },
-      { name: 'plate', internalType: 'uint8[][]', type: 'uint8[][]' },
-      { name: 'delays', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
+      { name: 'delays', internalType: 'uint256[][]', type: 'uint256[][]' },
     ],
     name: 'mint',
     outputs: [],
@@ -363,6 +361,13 @@ export const magicPlatesABI = [
     ],
   },
   {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'pxls',
+    outputs: [{ name: '', internalType: 'contract PxlsCore', type: 'address' }],
+  },
+  {
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [],
@@ -432,7 +437,7 @@ export const magicPlatesABI = [
   {
     stateMutability: 'nonpayable',
     type: 'function',
-    inputs: [{ name: 'adr', internalType: 'address', type: 'address' }],
+    inputs: [{ name: 'addr', internalType: 'address', type: 'address' }],
     name: 'setMagicPixels',
     outputs: [],
   },
@@ -542,10 +547,29 @@ export const pxlsCoreABI = [
     type: 'event',
     anonymous: false,
     inputs: [
-      { name: 'to', internalType: 'address', type: 'address', indexed: false },
+      {
+        name: 'conjurer',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
       { name: 'pixels', internalType: 'bytes', type: 'bytes', indexed: false },
     ],
     name: 'Conjured',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'minter',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      { name: 'pixels', internalType: 'bytes', type: 'bytes', indexed: false },
+    ],
+    name: 'Minted',
   },
   {
     stateMutability: 'payable',
@@ -558,8 +582,8 @@ export const pxlsCoreABI = [
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
-      { name: 'indices', internalType: 'bytes4[]', type: 'bytes4[]' },
-      { name: 'delays', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
+      { name: 'delays', internalType: 'uint256[][]', type: 'uint256[][]' },
     ],
     name: 'mint',
     outputs: [],
