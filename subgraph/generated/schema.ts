@@ -280,7 +280,7 @@ export class PixelBalance extends Entity {
   }
 }
 
-export class Pixels extends Entity {
+export class Account extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -288,22 +288,22 @@ export class Pixels extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save Pixels entity without an ID");
+    assert(id != null, "Cannot save Account entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type Pixels must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type Account must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("Pixels", id.toString(), this);
+      store.set("Account", id.toString(), this);
     }
   }
 
-  static loadInBlock(id: string): Pixels | null {
-    return changetype<Pixels | null>(store.get_in_block("Pixels", id));
+  static loadInBlock(id: string): Account | null {
+    return changetype<Account | null>(store.get_in_block("Account", id));
   }
 
-  static load(id: string): Pixels | null {
-    return changetype<Pixels | null>(store.get("Pixels", id));
+  static load(id: string): Account | null {
+    return changetype<Account | null>(store.get("Account", id));
   }
 
   get id(): string {

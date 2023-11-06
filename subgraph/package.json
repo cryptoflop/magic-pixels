@@ -1,18 +1,19 @@
 {
-	"name": "pixels",
+	"name": "magic-pixels",
+	"version": "0.0.1",
 	"license": "UNLICENSED",
 	"scripts": {
 		"codegen": "graph codegen",
 		"build": "graph build",
 		"test": "graph test",
-		"create-testnet": "graph create example --node https://graph.testnet.mantle.xyz/deploy/",
-		"create-local": "graph create example --node http://127.0.0.1:8020",
-		"remove-testnet": "graph remove example --node https://graph.testnet.mantle.xyz/deploy/",
-		"remove-local": "graph remove example --node http://localhost:8020",
+		"create-testnet": "graph create magic-pixels --node https://graph.testnet.mantle.xyz/deploy/",
+		"create-local": "graph create magic-pixels --node http://127.0.0.1:8020",
+		"remove-testnet": "graph remove magic-pixels --node https://graph.testnet.mantle.xyz/deploy/",
+		"remove-local": "graph remove magic-pixels --node http://localhost:8020",
 		"deploy-testnet": "graph deploy magic-pixels --ipfs https://ipfs.testnet.mantle.xyz --node https://graph.testnet.mantle.xyz/deploy",
-		"deploy-local": "graph deploy example --ipfs http://127.0.0.1:5001 --node http://127.0.0.1:8020",
+		"deploy-local": "graph deploy magic-pixels --ipfs http://127.0.0.1:5001 --node http://127.0.0.1:8020",
 		"redeploy-local": "npm run remove-local && npm run create-local && yarn deploy-local",
-		"redeploy": "npm run remove-testnet && npm run create-testnet && yarn deploy-testnet"
+		"redeploy-testnet": "npm run remove-testnet && npm run create-testnet && npm run deploy-testnet"
 	},
 	"dependencies": {
 		"@graphprotocol/graph-cli": "0.60.0",

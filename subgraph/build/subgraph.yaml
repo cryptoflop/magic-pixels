@@ -1,6 +1,6 @@
 specVersion: 0.0.5
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: Pixels
@@ -18,13 +18,13 @@ dataSources:
         - Minted
       abis:
         - name: PxlsCore
-          file: ./abis/PxlsCore.json
+          file: Pixels\abis\PxlsCore.json
       eventHandlers:
         - event: Conjured(address,bytes)
           handler: handleConjured
         - event: Minted(address,bytes)
           handler: handleMinted
-      file: ./src/pxls-core.ts
+      file: Pixels\Pixels.wasm
   - kind: ethereum/contract
     name: Trades
     network: testnet
@@ -41,10 +41,10 @@ dataSources:
         - TradeOpened
       abis:
         - name: AuctionHouse
-          file: ./abis/AuctionHouse.json
+          file: Trades\abis\AuctionHouse.json
       eventHandlers:
         - event: TradeOpened(indexed address,indexed address,bytes32)
           handler: handleTradeOpened
         - event: TradeClosed(bytes32,indexed address,indexed address,bytes4[])
           handler: handleTradeClosed
-      file: ./src/auction-house.ts
+      file: Trades\Trades.wasm
