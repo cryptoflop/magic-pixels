@@ -1,4 +1,4 @@
-import { hexToBytes, numberToHex } from "viem"
+import { hexToBytes, numberToHex, type Hex } from "viem"
 
 const MAX_PIXEL_LENGTH = 4
 
@@ -26,4 +26,12 @@ export function bytesToPixels(bytes: `0x${string}`) {
 		}
 		return arr
 	}, [] as number[][]).map(pxl => pxl.filter(idx => idx > 0))
+}
+
+export function encodePixel(pxl: number[]) {
+	return ("0x" + Array(MAX_PIXEL_LENGTH).fill(1).map((_, i) => numberToHex(pxl[i] ?? 0, { size: 1 })).join("")) as Hex
+}
+
+export function decodePixel(bytes: Hex) {
+	return Array.from(hexToBytes(bytes)).filter(v => v > 0)
 }
