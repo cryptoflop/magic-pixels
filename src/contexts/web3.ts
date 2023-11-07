@@ -1,6 +1,6 @@
 import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, getPublicClient } from "@wagmi/core";
 import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
-import { parseAbiItem, parseEther, type Hex } from "viem";
+import { parseAbiItem, parseEther, type Hex, type Address } from "viem";
 import { readable, writable } from "svelte/store";
 import { mantleTestnet } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
@@ -14,6 +14,16 @@ import { execute, AllPixelsByAccountDocument, AccountLastBlockDocument } from ".
 type Delay = { idx: number, delay: number }
 export type Plate = { pixels: number[][], delays: Delay[] }
 export type P2PTrade = { id: `0x${string}`, seller: string, buyer: string, pixels: number[][], price: bigint }
+
+function savePixels(pixels: number[][], blockNumber: bigint, addr: Address) {
+	localStorage.setItem("pixels_" + addr, JSON.stringify(pixels))
+	localStorage.setItem("pixels_last_block_" + addr, blockNumber.toString())
+}
+
+function getPixels(addr: Address): number[][] {
+	return JSON.parse(localStorage.getItem("pixels_" + addr)!)
+}
+
 
 export function createWeb3Ctx() {
 	const PXLS = import.meta.env.VITE_PXLS
@@ -67,7 +77,7 @@ export function createWeb3Ctx() {
 				const rlb = await execute(AccountLastBlockDocument, { account: acc.toLowerCase() })
 				const lastBlock = BigInt(rlb.data?.account?.last_block ?? "0")
 
-				const storedLastBlock = BigInt(localStorage.getItem("pixels_last_block") ?? "0")
+				const storedLastBlock = BigInt(localStorage.getItem("pixels_last_block_" + acc) ?? "0")
 
 				if (lastBlock > storedLastBlock) {
 					// TODO: rework using a map instread of an array for pixel balances
@@ -78,11 +88,9 @@ export function createWeb3Ctx() {
 						return prev.concat(Array(Number(curr.amount)).fill(1).map(() => pxl))
 					}, [] as number[][])
 					set(pixelBalances)
-					localStorage.setItem("pixels", JSON.stringify(pixelBalances))
-					localStorage.setItem("pixels_last_block", lastBlock.toString())
+					savePixels(pixelBalances, lastBlock, acc)
 				} else {
-					const pixelBalances = JSON.parse(localStorage.getItem("pixels")!)
-					set(pixelBalances)
+					set(getPixels(acc))
 				}
 			})
 		})),
@@ -229,8 +237,7 @@ export function createWeb3Ctx() {
 			const pixels = bytesToPixels(conjuredLogs[0].args.pixels!)
 			ctx.pixels.update(c => {
 				const merged = c.concat(pixels)
-				localStorage.setItem("pixels", JSON.stringify(merged))
-				localStorage.setItem("pixels_last_block", blockNumber.toString())
+				savePixels(merged, blockNumber, ctx.account.current!)
 				return merged
 			})
 
@@ -262,8 +269,6 @@ export function createWeb3Ctx() {
 			const { status, blockNumber } = await waitForTransaction({ hash })
 			if (status == "reverted") throw "reverted"
 
-			localStorage.setItem("pixels_last_block", blockNumber.toString())
-
 			const mintedLogs = await getPublicClient().getLogs({
 				address: PLTS,
 				event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)'),
@@ -293,8 +298,7 @@ export function createWeb3Ctx() {
 
 				ctx.plates.update(c => c.concat([{ pixels: plate, delays: delays.map(d => ({ idx: d[0], delay: d[1] })) }]))
 
-				localStorage.setItem("pixels", JSON.stringify(m))
-				localStorage.setItem("pixels_last_block", blockNumber.toString())
+				savePixels(m, blockNumber, ctx.account.current!)
 
 				return m
 			})
