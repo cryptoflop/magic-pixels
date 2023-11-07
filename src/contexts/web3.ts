@@ -1,13 +1,15 @@
-import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, multicall, prepareWriteContract, type WalletClient } from "@wagmi/core";
+import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, getPublicClient } from "@wagmi/core";
 import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
-import { parseAbiItem, parseEther, type PublicClient, type FallbackTransport, formatUnits } from "viem";
+import { parseAbiItem, parseEther, type Hex } from "viem";
 import { readable, writable } from "svelte/store";
 import { mantleTestnet } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
-import { bytesToPixels } from "../../contracts/scripts/libraries/pixel-parser"
+import { bytesToPixels, decodePixel } from "../../contracts/scripts/libraries/pixel-parser"
 import { PIXEL_PRICE } from "../values";
 
 import { pxlsCoreABI, magicPlatesABI } from "../../contracts/generated";
+
+import { execute, AllPixelsByAccountDocument, AccountLastBlockDocument } from "../../subgraph/.graphclient"
 
 type Delay = { idx: number, delay: number }
 export type Plate = { pixels: number[][], delays: Delay[] }
@@ -18,9 +20,6 @@ export function createWeb3Ctx() {
 	const PLTS = import.meta.env.VITE_PLTS
 	const USDC = import.meta.env.VITE_USDC
 
-	let publicClient: PublicClient<FallbackTransport>
-	let walletClient: WalletClient
-
 	const ctx = {
 		account: cachedStore(writable<`0x${string}` | null>()),
 
@@ -30,14 +29,11 @@ export function createWeb3Ctx() {
 				[jsonRpcProvider({ rpc: (_) => ({ http: import.meta.env.VITE_RPC_URL }), })],
 			)
 
-			const { publicClient: pc, connectors } = createConfig({
+			const { connectors } = createConfig({
 				autoConnect: true,
 				connectors: [new InjectedConnector({ chains })],
 				publicClient: publicClientGetter
 			})
-			publicClient = pc
-
-			walletClient = await connectors[0]!.getWalletClient()
 
 			const { account } = await connect({ connector: connectors[0]! });
 			console.log(account)
@@ -68,18 +64,26 @@ export function createWeb3Ctx() {
 					return
 				}
 
-				// const myQuery = gql`
-				// 	query AllPixelsByAddress {
-				// 		account(id: "${acc}") {
-				// 			balances(where: {amount_gt: "0"}) {
-				// 				pixel
-				// 				amount
-				// 			}
-				// 		}
-				// 	}
-				// `
+				const rlb = await execute(AccountLastBlockDocument, { account: acc.toLowerCase() })
+				const lastBlock = BigInt(rlb.data?.account?.last_block ?? "0")
 
-				set([])
+				const storedLastBlock = BigInt(localStorage.getItem("pixels_last_block") ?? "0")
+
+				if (lastBlock > storedLastBlock) {
+					// TODO: rework using a map instread of an array for pixel balances
+					const result = await execute(AllPixelsByAccountDocument, { account: acc.toLowerCase(), first: 18050, skip: 0 })
+					const data: { pixel: Hex, amount: string }[] = result.data?.account?.balances ?? []
+					const pixelBalances = data.reduce((prev, curr) => {
+						const pxl = decodePixel(curr.pixel)
+						return prev.concat(Array(Number(curr.amount)).fill(1).map(() => pxl))
+					}, [] as number[][])
+					set(pixelBalances)
+					localStorage.setItem("pixels", JSON.stringify(pixelBalances))
+					localStorage.setItem("pixels_last_block", lastBlock.toString())
+				} else {
+					const pixelBalances = JSON.parse(localStorage.getItem("pixels")!)
+					set(pixelBalances)
+				}
 			})
 		})),
 
@@ -142,7 +146,7 @@ export function createWeb3Ctx() {
 			const { status, blockNumber } = await waitForTransaction({ hash })
 			if (status == "reverted") throw "reverted"
 
-			const logs = await publicClient.getLogs({
+			const logs = await getPublicClient().getLogs({
 				address: PXLS,
 				event: parseAbiItem('event TradeOpened(address indexed creator, bytes32 id)'),
 				args: {
@@ -211,7 +215,7 @@ export function createWeb3Ctx() {
 			const { status, blockNumber } = await waitForTransaction({ hash, confirmations: import.meta.env.DEV ? 1 : 2 })
 			if (status == "reverted") throw "reverted"
 
-			const conjuredLogs = await publicClient.getContractEvents({
+			const conjuredLogs = await getPublicClient().getContractEvents({
 				address: PXLS,
 				abi: pxlsCoreABI,
 				eventName: "Conjured",
@@ -223,7 +227,12 @@ export function createWeb3Ctx() {
 			})
 
 			const pixels = bytesToPixels(conjuredLogs[0].args.pixels!)
-			ctx.pixels.update(c => c.concat(pixels))
+			ctx.pixels.update(c => {
+				const merged = c.concat(pixels)
+				localStorage.setItem("pixels", JSON.stringify(merged))
+				localStorage.setItem("pixels_last_block", blockNumber.toString())
+				return merged
+			})
 
 			// TODO
 			// const ethFoundLogs = await publicClient.getLogs({
@@ -253,7 +262,9 @@ export function createWeb3Ctx() {
 			const { status, blockNumber } = await waitForTransaction({ hash })
 			if (status == "reverted") throw "reverted"
 
-			const mintedLogs = await publicClient.getLogs({
+			localStorage.setItem("pixels_last_block", blockNumber.toString())
+
+			const mintedLogs = await getPublicClient().getLogs({
 				address: PLTS,
 				event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)'),
 				args: {
@@ -281,6 +292,9 @@ export function createWeb3Ctx() {
 				}
 
 				ctx.plates.update(c => c.concat([{ pixels: plate, delays: delays.map(d => ({ idx: d[0], delay: d[1] })) }]))
+
+				localStorage.setItem("pixels", JSON.stringify(m))
+				localStorage.setItem("pixels_last_block", blockNumber.toString())
 
 				return m
 			})
