@@ -1,5 +1,0 @@
-sources:
-  - name: magic-pixels
-    handler:
-      graphql:
-        endpoint: https://graph.testnet.mantle.xyz/subgraphs/name/magic-pixels
