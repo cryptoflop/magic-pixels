@@ -14,6 +14,8 @@ export function handleConjured(event: ConjuredEvent): void {
     pixels.balances = [];
 	}
 
+	pixels.last_block = event.block.number
+
 	const pixelBytes = event.params.pixels.toHex().substring(2)
 
 	for (let i = 0; i < (pixelBytes.length / (MAX_PIXEL_LENGTH * 2)); i++) {
@@ -54,4 +56,8 @@ export function handleMinted(event: MintedEvent): void {
 		pixelBalance.amount = pixelBalance.amount.minus(BigInt.fromI32(1)) // this should never go below zero since you would not be able to mint
 		pixelBalance.save();
 	}
+
+	const pixels = Account.load(minterId)!
+	pixels.last_block = event.block.number
+	pixels.save()
 }

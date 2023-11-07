@@ -332,6 +332,19 @@ export class Account extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get last_block(): BigInt {
+    let value = this.get("last_block");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set last_block(value: BigInt) {
+    this.set("last_block", Value.fromBigInt(value));
+  }
+
   get balances(): Array<string> {
     let value = this.get("balances");
     if (!value || value.kind == ValueKind.NULL) {

@@ -1,0 +1,12 @@
+sources:
+  - name: magic-pixels
+    handler:
+      graphql:
+        endpoint: https://graph.testnet.mantle.xyz/subgraphs/name/magic-pixels
+    transforms:
+      - autoPagination:
+          validateSchema: true
+          limitOfRecords: 100
+documents:
+  - ./queries/pixels.graphql
+  - ./queries/pixels-last-block.graphql

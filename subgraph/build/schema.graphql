@@ -26,6 +26,7 @@ type PixelBalance @entity(immutable: false) {
 
 type Account @entity(immutable: false) {
 	id: ID! # address
+	last_block: BigInt!
 	balances: [PixelBalance!]!
 }
 

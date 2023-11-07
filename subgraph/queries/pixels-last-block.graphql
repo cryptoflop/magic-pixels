@@ -1,0 +1,5 @@
+query AccountLastBlock($account: ID!) {
+	account(id: $account) {
+		last_block
+	}
+}
