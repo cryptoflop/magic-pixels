@@ -44,8 +44,15 @@ contract PxlsCore {
 			}
 
 			uint8[] memory pixel = new uint8[](depth);
+			uint8 last = 0;
 			for (uint j = 0; j < depth; j++) {
-				pixel[j] = uint8(uint256(keccak256(abi.encodePacked(rndI, j))) % s.MAX_PIXEL + 1);
+				// this formular respects a couple of things:
+				// - a uint8 thats random based on a seed
+				// - a uint8 higher than the preceeding one
+				// - a uint8 between MIN_PIXEL - MAX_PIXEL (both inclusive)
+				// - a uint8 that can't be MAX_PIXEL if it's not the last entry
+				last = last + uint8((uint256(keccak256(abi.encodePacked(rndI, j)))) % ((s.MAX_PIXEL - ((depth - 1) - j)) - last)) + s.MIN_PIXEL;
+				pixel[j] = last;
 			}
 
 			bytes4 pxlId = LibPixels.encode(pixel);
