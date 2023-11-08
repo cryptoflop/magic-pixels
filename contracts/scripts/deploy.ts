@@ -226,7 +226,7 @@ export async function deploy () {
 
   const conjureTx = await pxls.write.conjure([256n], { value: parseEther("0.15") })
 	const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
-	const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
+	const conjured = decodeEventLog({ ...conjureRcpt.logs[conjureRcpt.logs.length > 1 ? 1: 0], abi: pxls.abi, eventName: "Conjured" })
 
   const mintTx = await pxls.write.mint([bytesToPixels(conjured.args.pixels), []])
 	await publicClient.waitForTransactionReceipt({ hash: mintTx })

@@ -321,6 +321,7 @@ export const magicPlatesABI = [
         internalType: 'struct MagicPlates.Plate',
         type: 'tuple',
         components: [
+          { name: 'id', internalType: 'uint256', type: 'uint256' },
           { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
           {
             name: 'delays',
@@ -346,6 +347,7 @@ export const magicPlatesABI = [
         internalType: 'struct MagicPlates.Plate[]',
         type: 'tuple[]',
         components: [
+          { name: 'id', internalType: 'uint256', type: 'uint256' },
           { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
           {
             name: 'delays',

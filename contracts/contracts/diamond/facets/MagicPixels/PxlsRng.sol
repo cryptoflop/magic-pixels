@@ -5,7 +5,7 @@ contract PxlsRng {
 
   constructor() {}
 
-	/// @notice Returns a rnd number, for the start this is random/secure enough, later on oracles could be used
+	/// @notice Returns a rnd number, this is random/secure enough, oracles could be used though
 	function rnd(address sender) view external returns(uint256) {
 		return uint256(keccak256(abi.encodePacked(block.prevrandao, block.timestamp, sender)));
 	}

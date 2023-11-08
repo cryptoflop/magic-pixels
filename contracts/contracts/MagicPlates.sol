@@ -66,7 +66,7 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
 
 		/// Getters
 
-    struct Plate { uint8[][] pixels; Delay[] delays; }
+    struct Plate { uint256 id; uint8[][] pixels; Delay[] delays; }
 
     function platesOf(address owner) external view returns(Plate[] memory plts) {
         uint256 num = super.balanceOf(owner);
@@ -81,7 +81,7 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
 
 		/// @dev Returns the pixels that the plate is made of.
 		function plateById(uint256 tokenId) public view returns (Plate memory plate) {
-			return Plate(plates[tokenId], pixelDelays[tokenId]);
+			return Plate(tokenId, plates[tokenId], pixelDelays[tokenId]);
 		}
 
     /// Public

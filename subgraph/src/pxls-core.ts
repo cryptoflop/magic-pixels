@@ -4,6 +4,18 @@ import { Account, PixelBalance } from "../generated/schema"
 
 const MAX_PIXEL_LENGTH = 4
 
+function chopBytes(bytes: Bytes): string[] {
+	const pixelBytes = bytes.toHex().substring(2)
+
+	const chopped: string[] = []
+	for (let i = 0; i < (pixelBytes.length / (MAX_PIXEL_LENGTH * 2)); i++) {
+		const pxlId = pixelBytes.slice(i * (MAX_PIXEL_LENGTH * 2), i * (MAX_PIXEL_LENGTH * 2) + (MAX_PIXEL_LENGTH * 2))
+		chopped.push(pxlId)
+	}
+
+	return chopped
+}
+
 export function handleConjured(event: ConjuredEvent): void {
 	const conjurerId = event.params.conjurer.toHex()
 
@@ -16,11 +28,9 @@ export function handleConjured(event: ConjuredEvent): void {
 
 	pixels.last_block = event.block.number
 
-	const pixelBytes = event.params.pixels.toHex().substring(2)
-
-	for (let i = 0; i < (pixelBytes.length / (MAX_PIXEL_LENGTH * 2)); i++) {
-		const pxlId = pixelBytes.slice(i * (MAX_PIXEL_LENGTH * 2), i * (MAX_PIXEL_LENGTH * 2) + (MAX_PIXEL_LENGTH * 2))
-		
+	const pixelIds = chopBytes(event.params.pixels)
+	for (let i = 0; i < pixelIds.length; i++)  {
+		const pxlId = pixelIds[i]
 		const id = conjurerId + pxlId
 
 		let pixelBalance = PixelBalance.load(id);
@@ -43,11 +53,9 @@ export function handleConjured(event: ConjuredEvent): void {
 export function handleMinted(event: MintedEvent): void {
   const minterId = event.params.minter.toHex()
 
-	const pixelBytes = event.params.pixels.toHex().substring(2)
-
-	for (let i = 0; i < (pixelBytes.length / (MAX_PIXEL_LENGTH * 2)); i++) {
-		const pxlId = pixelBytes.slice(i * MAX_PIXEL_LENGTH, i * MAX_PIXEL_LENGTH + (MAX_PIXEL_LENGTH * 2))
-		
+	const pixelIds = chopBytes(event.params.pixels)
+	for (let i = 0; i < pixelIds.length; i++)  {
+		const pxlId = pixelIds[i]
 		const id = minterId + pxlId
 
 		const pixelBalance = PixelBalance.load(id)! // this should never be null since you can only mint if you have all pixels

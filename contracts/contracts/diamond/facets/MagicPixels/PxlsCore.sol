@@ -71,12 +71,18 @@ contract PxlsCore {
 
 		mapping(bytes4 => uint32) storage pixelsOfOwner = s.pixelMap[msg.sender];
 
+		bytes memory used = new bytes(pixels.length * 4);
+
 		// subtract pixels
 		for (uint i = 0; i < pixels.length; i++) {
-			--pixelsOfOwner[LibPixels.encode(pixels[i])];
+			bytes4 pxlId = LibPixels.encode(pixels[i]);
+			LibPixels.packIntoAt(used, pxlId, i * 4);
+			--pixelsOfOwner[pxlId];
 		}
 
 		s.nft.mint(msg.sender, pixels, delays);
+
+		emit Minted(msg.sender, used);
 	}
 	
 	/// @dev restores pixels from a shattered plate

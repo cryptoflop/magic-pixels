@@ -6,6 +6,7 @@
 		"codegen": "graph codegen",
 		"build": "graph build",
 		"test": "graph test",
+		"build-client": "graphclient build",
 		"create-testnet": "graph create magic-pixels --node https://graph.testnet.mantle.xyz/deploy/",
 		"create-local": "graph create magic-pixels --node http://127.0.0.1:8020",
 		"remove-testnet": "graph remove magic-pixels --node https://graph.testnet.mantle.xyz/deploy/",
