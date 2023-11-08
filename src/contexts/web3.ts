@@ -5,14 +5,15 @@ import { readable, writable } from "svelte/store";
 import { mantleTestnet } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
 import { bytesToPixels, decodePixel } from "../../contracts/scripts/libraries/pixel-parser"
-import { PIXEL_PRICE } from "../values";
+import { NULL_ADDR, PIXEL_PRICE } from "../values";
 
-import { pxlsCoreABI, magicPlatesABI } from "../../contracts/generated";
+import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI } from "../../contracts/generated";
 
 import { execute, AllPixelsByAccountDocument, AccountLastBlockDocument } from "../../subgraph/.graphclient"
+import { comparePixel } from "../helpers/color-utils";
 
 type Delay = { idx: number, delay: number }
-export type Plate = { pixels: number[][], delays: Delay[] }
+export type Plate = { id: bigint, pixels: number[][], delays: Delay[] }
 export type P2PTrade = { id: `0x${string}`, seller: string, buyer: string, pixels: number[][], price: bigint }
 
 function savePixels(pixels: number[][], blockNumber: bigint, addr: Address) {
@@ -21,7 +22,7 @@ function savePixels(pixels: number[][], blockNumber: bigint, addr: Address) {
 }
 
 function getPixels(addr: Address): number[][] {
-	return JSON.parse(localStorage.getItem("pixels_" + addr)!)
+	return JSON.parse(localStorage.getItem("pixels_" + addr) ?? "[]")
 }
 
 
@@ -74,6 +75,8 @@ export function createWeb3Ctx() {
 					return
 				}
 
+				set(getPixels(acc)) // optimistically load pixels from storage 
+
 				const rlb = await execute(AccountLastBlockDocument, { account: acc.toLowerCase() })
 				const lastBlock = BigInt(rlb.data?.account?.last_block ?? "0")
 
@@ -89,8 +92,6 @@ export function createWeb3Ctx() {
 					}, [] as number[][])
 					set(pixelBalances)
 					savePixels(pixelBalances, lastBlock, acc)
-				} else {
-					set(getPixels(acc))
 				}
 			})
 		})),
@@ -107,7 +108,7 @@ export function createWeb3Ctx() {
 					abi: magicPlatesABI,
 					functionName: "platesOf",
 					args: [acc],
-				})).map(p => ({ pixels: p.pixels.map(pxl => pxl.map(i => i)), delays: p.delays.map(d => ({ idx: Number(d.idx), delay: d.delay })) }));
+				})).map(p => ({ id: p.id, pixels: p.pixels.map(pxl => pxl.map(i => i)), delays: p.delays.map(d => ({ idx: Number(d.idx), delay: d.delay })) }));
 
 				set(plates)
 			})
@@ -223,7 +224,7 @@ export function createWeb3Ctx() {
 			const { status, blockNumber } = await waitForTransaction({ hash, confirmations: import.meta.env.DEV ? 1 : 2 })
 			if (status == "reverted") throw "reverted"
 
-			const conjuredLogs = await getPublicClient().getContractEvents({
+			const conjuredEvents = await getPublicClient().getContractEvents({
 				address: PXLS,
 				abi: pxlsCoreABI,
 				eventName: "Conjured",
@@ -234,76 +235,77 @@ export function createWeb3Ctx() {
 				toBlock: blockNumber
 			})
 
-			const pixels = bytesToPixels(conjuredLogs[0].args.pixels!)
+			const pixels = bytesToPixels(conjuredEvents[0].args.pixels!)
 			ctx.pixels.update(c => {
 				const merged = c.concat(pixels)
 				savePixels(merged, blockNumber, ctx.account.current!)
 				return merged
 			})
 
-			// TODO
-			// const ethFoundLogs = await publicClient.getLogs({
-			// 	address: PXLS,
-			// 	event: parseAbiItem('event EthFound(address indexed to, uint256 amount)'),
-			// 	args: {
-			// 		to: ctx.account.current
-			// 	},
-			// 	fromBlock: blockNumber,
-			// 	toBlock: blockNumber
-			// })
-
-			// const ethFound = ethFoundLogs[0]?.args.amount ?? BigInt(0)
-			const ethFound = BigInt(0)
-
-			return [pixels, ethFound] as const
-		},
-
-		async mint(indices: number[], delays: number[][]) {
-			const { hash } = await writeContract({
+			const unexpectedFindEvents = await getPublicClient().getContractEvents({
 				address: PXLS,
-				abi: [parseAbiItem('function mint(uint256[] calldata indices, uint256[] calldata delays) external')],
-				functionName: 'mint',
-				args: [indices.map(i => BigInt(i)), delays.flat().map(i => BigInt(i))]
-			})
-
-			const { status, blockNumber } = await waitForTransaction({ hash })
-			if (status == "reverted") throw "reverted"
-
-			const mintedLogs = await getPublicClient().getLogs({
-				address: PLTS,
-				event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)'),
+				abi: pxlsNetherABI,
+				eventName: "UnexpectedFind",
 				args: {
-					from: '0x0000000000000000000000000000000000000000',
 					to: ctx.account.current
 				},
 				fromBlock: blockNumber,
 				toBlock: blockNumber
 			})
 
-			ctx.pixels.update(c => {
-				const plate: number[][] = []
+			const ethFound = unexpectedFindEvents[0]?.args.amount ?? BigInt(0)
 
-				const m = [...c]
-				const indicesSorted = indices.sort((a, b) => b - a)
-				// pop used pixels
-				for (let i = 0; i < indicesSorted.length; i++) {
-					const idx = indicesSorted[i];
-					const len = m.length - 1;
-					if (idx < len) {
-						m[idx] = m[len];
-						plate.push(m[idx])
-					}
-					m.pop();
-				}
+			return [pixels, ethFound] as const
+		},
 
-				ctx.plates.update(c => c.concat([{ pixels: plate, delays: delays.map(d => ({ idx: d[0], delay: d[1] })) }]))
-
-				savePixels(m, blockNumber, ctx.account.current!)
-
-				return m
+		async mint(pixels: number[][], delays: number[][]) {
+			const { hash } = await writeContract({
+				address: PXLS,
+				abi: pxlsCoreABI,
+				functionName: 'mint',
+				args: [pixels, delays.map(delay => delay.map(d => BigInt(d)))]
 			})
 
-			return mintedLogs[0].args.tokenId!
+			const { status, blockNumber } = await waitForTransaction({ hash })
+			if (status == "reverted") throw "reverted"
+
+			ctx.pixels.update(c => {
+				pixels.forEach(pxl => {
+					c.splice(c.findIndex(p => comparePixel(p, pxl)), 1)
+				})
+				const n = [...c]
+				savePixels(n, blockNumber, ctx.account.current!)
+				return n
+			})
+
+			const mintedEvents = await getPublicClient().getContractEvents({
+				address: PLTS,
+				abi: magicPlatesABI,
+				eventName: "Transfer",
+				args: {
+					from: NULL_ADDR,
+					to: ctx.account.current!
+				},
+				fromBlock: blockNumber,
+				toBlock: blockNumber
+			})
+
+			const tokenId = mintedEvents[0].args.tokenId!
+
+			const plate = (await readContract({
+				address: PLTS,
+				abi: magicPlatesABI,
+				functionName: "plateById",
+				args: [tokenId],
+			}))
+
+			ctx.plates.update(c => c.concat([{
+				id: plate.id,
+				pixels: plate.pixels.map(pxl => pxl.map(i => i)),
+				delays: plate.delays.map(d => ({ idx: Number(d.idx), delay: d.delay }))
+			}]))
+
+			return tokenId
 		},
 
 		async burn() {
