@@ -599,3 +599,36 @@ export const pxlsCoreABI = [
     outputs: [],
   },
 ] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PxlsNether
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const pxlsNetherABI = [
+  { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'UnexpectedFind',
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'examiner', internalType: 'address', type: 'address' },
+      { name: 'thoroughness', internalType: 'uint256', type: 'uint256' },
+      { name: 'rnd', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'examineNether',
+    outputs: [],
+  },
+] as const
