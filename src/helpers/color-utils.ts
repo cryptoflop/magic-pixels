@@ -99,14 +99,14 @@ export function formatDelay(delay: number) {
 	return str.substring(0, 1) + "." + str.substring(1);
 }
 
-export function pixelsToSvg(pixels: PixelData[], delays: number[][], asDataUri = true) {
+export function pixelsToSvg(pixels: PixelData[], delays: Delay[], asDataUri = true) {
 	const dimension = Math.sqrt(pixels.length);
 	let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
                 shape-rendering="optimizeSpeed" viewBox="0 0 ${dimension} ${dimension}">`;
 	for (let i = 0; i < pixels.length; i++) {
 		const pixel = pixels[i]
 		svg += `<rect width="1" height="1" x="${i % dimension}" y="${Math.ceil((i + 1) / dimension) - 1}" fill="${pixelColor(pixel[0])}">
-      <animate attributeName="fill" dur="${pixel.length + 1}s" repeatCount="indefinite" begin="${formatDelay(delays.find(v => v[0] == i)?.[1] || 0)}s"
+      <animate attributeName="fill" dur="${pixel.length + 1}s" repeatCount="indefinite" begin="${formatDelay(delays.find(v => v.idx == BigInt(i))?.delay || 0)}s"
       values="${pixel.concat([pixel[0]]).map(p => pixelColor(p))
 				.join(';')}" />
     </rect>`;

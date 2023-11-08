@@ -45,10 +45,10 @@
 
 	$: placedPixels = placedPixelIndices.map((i) => $pixels[i]);
 
-	$: delaysPacked = Object.keys(delays).map((k) => [
-		Number(k),
-		delays[Number(k)],
-	]);
+	$: delaysPacked = Object.keys(delays).map((k) => ({
+		idx: BigInt(k),
+		delay: delays[Number(k)],
+	}));
 
 	function clear() {
 		placedPixelIndices = Array(dimension ** 2).fill(-1);
@@ -263,7 +263,10 @@
 			class="-mt-0.5 text-lg"
 			disabled={placedPixelsCount < dimension ** 2}
 			options={{ colored: true, density: 3 }}
-			action={async () => await new Promise((r) => setTimeout(r, 5000))}
+			action={async () => {
+				await web3.mint(placedPixels, delaysPacked);
+				clear();
+			}}
 			on:mouseenter={() => (flash = true)}
 			on:mouseleave={() => (flash = false)}
 		>

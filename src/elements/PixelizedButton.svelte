@@ -25,7 +25,11 @@
 
 		executing = true;
 
-		await action();
+		try {
+			await action();
+		} catch (err) {
+			console.error(err);
+		}
 
 		executing = false;
 	}

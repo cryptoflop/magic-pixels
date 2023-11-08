@@ -261,4 +261,16 @@ describe('PixelsAndPlates', function () {
 		expect(plates[0].pixels.length, "plateById/platesOf pixels length mismatch.").eq(underlyingPixels.length)
 	})
 
+	it('Should mint 8x8 plate', async function() {
+		const [acc] = await viem.getWalletClients()
+		const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
+		const plts = await viem.getContractAt("MagicPlates", pltsAddress)
+
+		const conjureTx = await pxls.write.conjure([64n], { value: parseEther("0.15") })
+		const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
+		const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
+		
+		await pxls.write.mint([bytesToPixels(conjured.args.pixels), []]) // TODO: use delays
+	})
+
 })

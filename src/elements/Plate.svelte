@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { pixelsToSvg } from "../helpers/color-utils";
+	import { pixelsToSvg } from "../helpers/color-utils";
 
-  let className = "";
-  export { className as class };
+	let className = "";
+	export { className as class };
 
-  export let plate: { pixels: number[][]; delays: number[][] };
+	export let plate: Plate;
 </script>
 
 <img class={className} src={plate && pixelsToSvg(plate.pixels, plate.delays)} />

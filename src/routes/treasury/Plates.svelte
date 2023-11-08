@@ -14,9 +14,13 @@
 	{#each $plates as plate}
 		<div class="group cursor-pointer">
 			<div class="border-2 group-hover:scale-95">
-				<div class="px-1 flex justify-between">
-					<div>Test name lol</div>
-					<div class="text-xs mt-[5px]">16x16</div>
+				<div class="px-1.5 flex justify-between">
+					<div>#{plate.id}</div>
+					<div class="text-xs mt-[5px]">
+						{`${Math.sqrt(plate.pixels.length)}x${Math.sqrt(
+							plate.pixels.length
+						)}`}
+					</div>
 				</div>
 				<Plate class="w-36" {plate} />
 			</div>

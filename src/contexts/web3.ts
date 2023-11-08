@@ -4,17 +4,13 @@ import { parseAbiItem, parseEther, type Hex, type Address } from "viem";
 import { readable, writable } from "svelte/store";
 import { mantleTestnet } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
-import { bytesToPixels, decodePixel } from "../../contracts/scripts/libraries/pixel-parser"
+import { bytesToPixels, decodePixel, pixelsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
 import { NULL_ADDR, PIXEL_PRICE } from "../values";
 
 import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI } from "../../contracts/generated";
 
 import { execute, AllPixelsByAccountDocument, AccountLastBlockDocument } from "../../subgraph/.graphclient"
 import { comparePixel } from "../helpers/color-utils";
-
-type Delay = { idx: number, delay: number }
-export type Plate = { id: bigint, pixels: number[][], delays: Delay[] }
-export type P2PTrade = { id: `0x${string}`, seller: string, buyer: string, pixels: number[][], price: bigint }
 
 function savePixels(pixels: number[][], blockNumber: bigint, addr: Address) {
 	localStorage.setItem("pixels_" + addr, JSON.stringify(pixels))
@@ -24,7 +20,6 @@ function savePixels(pixels: number[][], blockNumber: bigint, addr: Address) {
 function getPixels(addr: Address): number[][] {
 	return JSON.parse(localStorage.getItem("pixels_" + addr) ?? "[]")
 }
-
 
 export function createWeb3Ctx() {
 	const PXLS = import.meta.env.VITE_PXLS
@@ -108,7 +103,7 @@ export function createWeb3Ctx() {
 					abi: magicPlatesABI,
 					functionName: "platesOf",
 					args: [acc],
-				})).map(p => ({ id: p.id, pixels: p.pixels.map(pxl => pxl.map(i => i)), delays: p.delays.map(d => ({ idx: Number(d.idx), delay: d.delay })) }));
+				})).map(p => ({ id: p.id, pixels: p.pixels.map(pxl => pxl.map(i => i)), delays: p.delays.map(d => ({ idx: d.idx, delay: d.delay })) }));
 
 				set(plates)
 			})
@@ -258,16 +253,29 @@ export function createWeb3Ctx() {
 			return [pixels, ethFound] as const
 		},
 
-		async mint(pixels: number[][], delays: number[][]) {
+		async mint(pixels: number[][], delays: Delay[]) {
 			const { hash } = await writeContract({
 				address: PXLS,
 				abi: pxlsCoreABI,
 				functionName: 'mint',
-				args: [pixels, delays.map(delay => delay.map(d => BigInt(d)))]
+				args: [pixels, delays.map(delay => [delay.idx, BigInt(delay.delay)] as const)]
 			})
 
 			const { status, blockNumber } = await waitForTransaction({ hash })
 			if (status == "reverted") throw "reverted"
+
+			const mintedPxlsEvents = await getPublicClient().getContractEvents({
+				address: PXLS,
+				abi: pxlsCoreABI,
+				eventName: "Minted",
+				args: {
+					to: ctx.account.current!
+				},
+				fromBlock: blockNumber,
+				toBlock: blockNumber
+			})
+
+			console.log(bytesToPixels(mintedPxlsEvents[0].args.pixels!), pixels)
 
 			ctx.pixels.update(c => {
 				pixels.forEach(pxl => {
@@ -302,7 +310,7 @@ export function createWeb3Ctx() {
 			ctx.plates.update(c => c.concat([{
 				id: plate.id,
 				pixels: plate.pixels.map(pxl => pxl.map(i => i)),
-				delays: plate.delays.map(d => ({ idx: Number(d.idx), delay: d.delay }))
+				delays: plate.delays.map(d => ({ idx: d.idx, delay: d.delay }))
 			}]))
 
 			return tokenId
