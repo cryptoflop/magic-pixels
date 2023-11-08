@@ -6,7 +6,7 @@ dataSources:
     name: Pixels
     network: testnet
     source:
-      address: "0x35312141604d2542198c04910246989bf2c7f34c"
+      address: "0x8316038d4e44b47d81efaac620878eaa59e23dd5"
       abi: PxlsCore
       startBlock: 25360276
     mapping:
@@ -18,7 +18,7 @@ dataSources:
         - Minted
       abis:
         - name: PxlsCore
-          file: ./abis/PxlsCore.json
+          file: ../contracts/artifacts/contracts/diamond/facets/MagicPixels/PxlsCore.sol/PxlsCore.json
       eventHandlers:
         - event: Conjured(address,bytes)
           handler: handleConjured
@@ -29,7 +29,7 @@ dataSources:
     name: Trades
     network: testnet
     source:
-      address: "0x35312141604d2542198c04910246989bf2c7f34c"
+      address: "0x8316038d4e44b47d81efaac620878eaa59e23dd5"
       abi: AuctionHouse
       startBlock: 25360276
     mapping:
@@ -41,7 +41,7 @@ dataSources:
         - TradeOpened
       abis:
         - name: AuctionHouse
-          file: ./abis/AuctionHouse.json
+          file: ../contracts/artifacts/contracts/diamond/facets/AuctionHouse/AHCore.sol/AuctionHouse.json
       eventHandlers:
         - event: TradeOpened(indexed address,indexed address,bytes32)
           handler: handleTradeOpened
