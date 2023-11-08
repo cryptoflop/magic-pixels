@@ -9,6 +9,7 @@ export default defineConfig({
       project: '.',
       include: [
 				'PxlsCommon.json',
+				'PxlsNether.json',
 				'PxlsCore.json',
 				'AuctionHouse.json',
 
