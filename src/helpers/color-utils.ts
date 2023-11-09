@@ -67,7 +67,7 @@ export function pixelColor(idx: number) {
 	return colorPallet[groupIdx][palletIdx]
 }
 
-export function pixelizeElement(el: HTMLElement, pixel: PixelData) {
+export function pixelizeElement(el: HTMLElement, pixel: Pixel) {
 	if (pixel.length === 1) {
 		el.style.background = pixelColor(pixel[0]);
 	} else {
@@ -85,7 +85,7 @@ export function pixelizeElement(el: HTMLElement, pixel: PixelData) {
 	}
 }
 
-export function comparePixel(a: PixelData, b: PixelData) {
+export function comparePixel(a: Pixel, b: Pixel) {
 	for (let i = 0; i < a.length; i++) {
 		if (a[i] !== b[i]) {
 			return false
@@ -99,7 +99,7 @@ export function formatDelay(delay: number) {
 	return str.substring(0, 1) + "." + str.substring(1);
 }
 
-export function pixelsToSvg(pixels: PixelData[], delays: Delay[], asDataUri = true) {
+export function pixelsToSvg(pixels: Pixel[], delays: Delay[], asDataUri = true) {
 	const dimension = Math.sqrt(pixels.length);
 	let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
                 shape-rendering="optimizeSpeed" viewBox="0 0 ${dimension} ${dimension}">`;

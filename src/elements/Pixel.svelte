@@ -14,7 +14,7 @@
 		pixelizeElement(el, pixel);
 	}
 
-	let prev: PixelData;
+	let prev: Pixel;
 
 	onMount(() => {
 		prev = pixel;

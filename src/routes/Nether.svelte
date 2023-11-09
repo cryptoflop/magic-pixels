@@ -13,6 +13,7 @@
 	import clickSrc from "../assets/click.mp3";
 	import sparkleSrc from "../assets/sparkle.mp3";
 	import { createAudio } from "../helpers/audio";
+	import { decodePixel } from "../../contracts/scripts/libraries/pixel-parser";
 
 	const qack = createAudio(qackSrc, { volume: 0.2 });
 
@@ -50,11 +51,12 @@
 		let conjured: number[][];
 		try {
 			const [c, a] = await web3.conjure(numPixels);
-			conjured = c;
+			conjured = c.map((id) => decodePixel(id));
 			if (a > 0n) {
 				alert(`Congratualations, you found ${formatEther(a)} eth!`); // TODO: make this more fancy
 			}
-		} catch {
+		} catch (err) {
+			console.error(err);
 			conjuring = false;
 			return;
 		}

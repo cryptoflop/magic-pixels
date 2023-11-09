@@ -4,21 +4,22 @@ import { parseAbiItem, parseEther, type Hex, type Address } from "viem";
 import { readable, writable } from "svelte/store";
 import { mantleTestnet } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
-import { bytesToPixels, decodePixel, pixelsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
+import { bytesToPixelIds, bytesToPixels, decodePixel } from "../../contracts/scripts/libraries/pixel-parser"
 import { NULL_ADDR, PIXEL_PRICE } from "../values";
 
 import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI } from "../../contracts/generated";
 
 import { execute, AllPixelsByAccountDocument, AccountLastBlockDocument } from "../../subgraph/.graphclient"
 import { comparePixel } from "../helpers/color-utils";
+import PixelBalances from "../helpers/pixel-balances";
 
-function savePixels(pixels: number[][], blockNumber: bigint, addr: Address) {
-	localStorage.setItem("pixels_" + addr, JSON.stringify(pixels))
+function savePixels(balances: PixelBalances, blockNumber: bigint, addr: Address) {
+	localStorage.setItem("pixels_" + addr, balances.toString())
 	localStorage.setItem("pixels_last_block_" + addr, blockNumber.toString())
 }
 
-function getPixels(addr: Address): number[][] {
-	return JSON.parse(localStorage.getItem("pixels_" + addr) ?? "[]")
+function getPixels(addr: Address) {
+	return new PixelBalances(new Map(JSON.parse(localStorage.getItem("pixels_" + addr) ?? "[]")))
 }
 
 export function createWeb3Ctx() {
@@ -63,28 +64,28 @@ export function createWeb3Ctx() {
 			});
 		})),
 
-		pixels: consistentStore(writable<number[][]>([], (set) => {
+		pixels: consistentStore(writable<PixelBalances>(new PixelBalances(), (set) => {
 			ctx.account.subscribe(async acc => {
 				if (!acc) {
-					set([])
+					set(new PixelBalances())
 					return
 				}
 
 				set(getPixels(acc)) // optimistically load pixels from storage 
 
-				const rlb = await execute(AccountLastBlockDocument, { account: acc.toLowerCase() })
-				const lastBlock = BigInt(rlb.data?.account?.last_block ?? "0")
+				const lastBlockRes = await execute(AccountLastBlockDocument, { account: acc.toLowerCase() })
+				const lastBlock = BigInt(lastBlockRes.data?.account?.last_block ?? "0")
 
 				const storedLastBlock = BigInt(localStorage.getItem("pixels_last_block_" + acc) ?? "0")
 
 				if (lastBlock > storedLastBlock) {
-					// TODO: rework using a map instread of an array for pixel balances
+					// if out of sync fetch pixel balances from subgraph
 					const result = await execute(AllPixelsByAccountDocument, { account: acc.toLowerCase(), first: 18050, skip: 0 })
 					const data: { pixel: Hex, amount: string }[] = result.data?.account?.balances ?? []
 					const pixelBalances = data.reduce((prev, curr) => {
-						const pxl = decodePixel(curr.pixel)
-						return prev.concat(Array(Number(curr.amount)).fill(1).map(() => pxl))
-					}, [] as number[][])
+						prev.set(curr.pixel, Number(curr.amount))
+						return prev
+					}, new PixelBalances())
 					set(pixelBalances)
 					savePixels(pixelBalances, lastBlock, acc)
 				}
@@ -207,7 +208,7 @@ export function createWeb3Ctx() {
 			// })
 		},
 
-		async conjure(numPixels: number) {
+		async conjure(numPixels: number): Promise<[PixelId[], bigint]> {
 			const { hash } = await writeContract({
 				address: PXLS,
 				abi: pxlsCoreABI,
@@ -230,11 +231,12 @@ export function createWeb3Ctx() {
 				toBlock: blockNumber
 			})
 
-			const pixels = bytesToPixels(conjuredEvents[0].args.pixels!)
+			const pixelIds = bytesToPixelIds(conjuredEvents[0].args.pixels!)
 			ctx.pixels.update(c => {
-				const merged = c.concat(pixels)
-				savePixels(merged, blockNumber, ctx.account.current!)
-				return merged
+				pixelIds.forEach(id => c.increase(id))
+				const updated = c.copy()
+				savePixels(updated, blockNumber, ctx.account.current!)
+				return updated
 			})
 
 			const unexpectedFindEvents = await getPublicClient().getContractEvents({
@@ -250,40 +252,25 @@ export function createWeb3Ctx() {
 
 			const ethFound = unexpectedFindEvents[0]?.args.amount ?? BigInt(0)
 
-			return [pixels, ethFound] as const
+			return [pixelIds, ethFound]
 		},
 
-		async mint(pixels: number[][], delays: Delay[]) {
+		async mint(pixels: PixelId[], delays: Delay[]) {
 			const { hash } = await writeContract({
 				address: PXLS,
 				abi: pxlsCoreABI,
 				functionName: 'mint',
-				args: [pixels, delays.map(delay => [delay.idx, BigInt(delay.delay)] as const)]
+				args: [pixels.map(id => decodePixel(id)), delays.map(delay => [delay.idx, delay.delay] as const)]
 			})
 
 			const { status, blockNumber } = await waitForTransaction({ hash })
 			if (status == "reverted") throw "reverted"
 
-			const mintedPxlsEvents = await getPublicClient().getContractEvents({
-				address: PXLS,
-				abi: pxlsCoreABI,
-				eventName: "Minted",
-				args: {
-					to: ctx.account.current!
-				},
-				fromBlock: blockNumber,
-				toBlock: blockNumber
-			})
-
-			console.log(bytesToPixels(mintedPxlsEvents[0].args.pixels!), pixels)
-
 			ctx.pixels.update(c => {
-				pixels.forEach(pxl => {
-					c.splice(c.findIndex(p => comparePixel(p, pxl)), 1)
-				})
-				const n = [...c]
-				savePixels(n, blockNumber, ctx.account.current!)
-				return n
+				pixels.forEach(id => c.decrease(id))
+				const updated = c.copy()
+				savePixels(updated, blockNumber, ctx.account.current!)
+				return updated
 			})
 
 			const mintedEvents = await getPublicClient().getContractEvents({

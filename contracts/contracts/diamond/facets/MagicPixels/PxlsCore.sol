@@ -66,7 +66,7 @@ contract PxlsCore {
 	}
 
 	/// @notice Uses pixels to mint a MagicPixels nft
-	function mint(uint8[][] memory pixels, uint256[][] memory delays) external {
+	function mint(uint8[][] memory pixels, uint32[][] memory delays) external {
 		LibPixels.Storage storage s = LibPixels.store();
 
 		mapping(bytes4 => uint32) storage pixelsOfOwner = s.pixelMap[msg.sender];

@@ -15,7 +15,7 @@
 		<div class="group cursor-pointer">
 			<div class="border-2 group-hover:scale-95">
 				<div class="px-1.5 flex justify-between">
-					<div>#{plate.id}</div>
+					<div>#{plate.id.toString()}</div>
 					<div class="text-xs mt-[5px]">
 						{`${Math.sqrt(plate.pixels.length)}x${Math.sqrt(
 							plate.pixels.length

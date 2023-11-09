@@ -3,7 +3,7 @@ import { hexToBytes, numberToHex, type Hex } from "viem"
 const MAX_PIXEL_LENGTH = 4
 
 /** Takes a bytes array and returns an array of bytes in the length of a pixel @see MAX_PIXEL_LENGTH */
-export function bytesToPixelBytes(bytes: `0x${string}`) {
+export function bytesToPixelIds(bytes: `0x${string}`) {
 	return bytes.substring(2).split("").reduce((arr, _, i, chars) => {
 		if (i % (MAX_PIXEL_LENGTH * 2) === 0) {
 			arr.push(("0x" + Array(MAX_PIXEL_LENGTH * 2).fill(1).map((_, j) => chars[i + j]).join("")) as `0x${string}`)
@@ -29,7 +29,7 @@ export function bytesToPixels(bytes: `0x${string}`) {
 }
 
 export function encodePixel(pxl: number[]) {
-	return ("0x" + Array(MAX_PIXEL_LENGTH).fill(1).map((_, i) => numberToHex(pxl[i] ?? 0, { size: 1 })).join("")) as Hex
+	return ("0x" + Array(MAX_PIXEL_LENGTH).fill(1).map((_, i) => numberToHex(pxl[i] ?? 0, { size: 1 }).substring(2)).join("")) as Hex
 }
 
 export function decodePixel(bytes: Hex) {

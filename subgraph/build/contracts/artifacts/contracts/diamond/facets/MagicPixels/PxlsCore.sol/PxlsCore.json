@@ -83,9 +83,9 @@
         "type": "uint8[][]"
       },
       {
-        "internalType": "uint256[][]",
+        "internalType": "uint32[][]",
         "name": "delays",
-        "type": "uint256[][]"
+        "type": "uint32[][]"
       }
     ],
     "name": "mint",

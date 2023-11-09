@@ -22,7 +22,7 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
 
     CountersUpgradeable.Counter private _tokenIdCounter;
 
-    struct Delay { uint256 idx; uint16 delay; }
+    struct Delay { uint32 idx; uint16 delay; }
 
     mapping(uint256 => uint8[][]) private plates;
     mapping(uint256 => Delay[]) private pixelDelays;
@@ -74,20 +74,20 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
         plts = new Plate[](num);
 
         for (uint256 i = 0; i < num; i++) {
-					uint256 id = super.tokenOfOwnerByIndex(owner, i);
-					plts[i] = plateById(id);
-				}
+            uint256 id = super.tokenOfOwnerByIndex(owner, i);
+            plts[i] = plateById(id);
+        }
     }
 
-		/// @dev Returns the pixels that the plate is made of.
-		function plateById(uint256 tokenId) public view returns (Plate memory plate) {
-			return Plate(tokenId, plates[tokenId], pixelDelays[tokenId]);
-		}
+    /// @dev Returns the pixels that the plate is made of.
+    function plateById(uint256 tokenId) public view returns (Plate memory plate) {
+        return Plate(tokenId, plates[tokenId], pixelDelays[tokenId]);
+    }
 
     /// Public
 
     /// @notice Mints a MagicPlate nft that will be made up of the given pixels.
-    function mint(address to, uint8[][] memory pixels, uint256[][] calldata delays) external {
+    function mint(address to, uint8[][] memory pixels, uint32[][] calldata delays) external {
         require(msg.sender == address(pxls), "not allowed.");
 
         uint256 tokenId = _tokenIdCounter.current();
@@ -96,12 +96,12 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
         
         plates[tokenId] = pixels;
 
-				if (delays.length > 0) {
+        if (delays.length > 0) {
         	Delay[] storage d = pixelDelays[tokenId];
-					for (uint i = 0; i < (delays.length - 1); i += 2) {
-							d.push(Delay(delays[i][0], uint16(delays[i][1])));
-					}
-				}
+            for (uint i = 0; i < (delays.length - 1); i += 2) {
+                d.push(Delay(delays[i][0], uint16(delays[i][1])));
+            }
+        }
     }
 
 

@@ -284,7 +284,7 @@ export const magicPlatesABI = [
     inputs: [
       { name: 'to', internalType: 'address', type: 'address' },
       { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
-      { name: 'delays', internalType: 'uint256[][]', type: 'uint256[][]' },
+      { name: 'delays', internalType: 'uint32[][]', type: 'uint32[][]' },
     ],
     name: 'mint',
     outputs: [],
@@ -328,7 +328,7 @@ export const magicPlatesABI = [
             internalType: 'struct MagicPlates.Delay[]',
             type: 'tuple[]',
             components: [
-              { name: 'idx', internalType: 'uint256', type: 'uint256' },
+              { name: 'idx', internalType: 'uint32', type: 'uint32' },
               { name: 'delay', internalType: 'uint16', type: 'uint16' },
             ],
           },
@@ -354,7 +354,7 @@ export const magicPlatesABI = [
             internalType: 'struct MagicPlates.Delay[]',
             type: 'tuple[]',
             components: [
-              { name: 'idx', internalType: 'uint256', type: 'uint256' },
+              { name: 'idx', internalType: 'uint32', type: 'uint32' },
               { name: 'delay', internalType: 'uint16', type: 'uint16' },
             ],
           },
@@ -585,7 +585,7 @@ export const pxlsCoreABI = [
     type: 'function',
     inputs: [
       { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
-      { name: 'delays', internalType: 'uint256[][]', type: 'uint256[][]' },
+      { name: 'delays', internalType: 'uint32[][]', type: 'uint32[][]' },
     ],
     name: 'mint',
     outputs: [],

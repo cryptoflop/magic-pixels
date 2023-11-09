@@ -4,12 +4,20 @@
 	import PixelPalette from "../elements/PixelPalette.svelte";
 	import {
 		EMPTY,
-		comparePixel,
 		formatDelay,
 		pixelizeElement,
 		pixelsToSvg,
 	} from "../helpers/color-utils";
 	import PixelizedButton from "../elements/PixelizedButton.svelte";
+	import {
+		decodePixel,
+		encodePixel,
+	} from "../../contracts/scripts/libraries/pixel-parser";
+
+	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
+	const pixels = web3.pixels;
+
+	$: pixelsArr = $pixels.toArray();
 
 	const PLATE_DIMENSIONS = [8, 16, 32];
 
@@ -23,35 +31,20 @@
 
 	$: size = PIXEL_SIZES[dimension as keyof typeof PIXEL_SIZES];
 
-	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
-	const pixels = web3.pixels;
-
-	(window as any).give = (pxl: number[], amount: number) => {
-		pixels.update((pxls) => {
-			for (let i = 0; i < amount; i++) {
-				pxls.push(pxl);
-			}
-			return [...pxls];
-		});
-	};
-
-	let placedPixelIndices: number[];
-
+	let placedPixels: PixelId[] = [];
 	let delays: { [key: number]: number } = {};
 
 	let flash = false;
 
 	let hovering = -1;
 
-	$: placedPixels = placedPixelIndices.map((i) => $pixels[i]);
-
 	$: delaysPacked = Object.keys(delays).map((k) => ({
-		idx: BigInt(k),
+		idx: Number(k),
 		delay: delays[Number(k)],
 	}));
 
 	function clear() {
-		placedPixelIndices = Array(dimension ** 2).fill(-1);
+		placedPixels = Array(dimension ** 2).fill("");
 		delays = {};
 	}
 	$: {
@@ -62,28 +55,33 @@
 	clear();
 
 	function rnd() {
-		placedPixelIndices = Array(dimension ** 2)
+		placedPixels = Array(dimension ** 2)
 			.fill(1)
 			.map((_, i) => i)
-			.map((idx, i) => (i >= $pixels.length ? -1 : idx))
+			.map((idx, i) => (i >= pixelsArr.length ? "" : pixelsArr[idx]) as PixelId)
 			.sort(() => 0.5 - Math.random());
 	}
 
-	$: placedPixelsCount = placedPixelIndices.filter((p) => p >= 0).length;
+	$: placedPixelsCount = placedPixels.filter((p) => p).length;
 
-	$: availablePixels = $pixels.filter(
-		(_, i) => placedPixelIndices.findIndex((idx) => idx == i) == -1
-	); // removed placed pixels
+	$: availablePixels = pixelsArr.reduce(
+		(state, id) => {
+			const idx = state.toSub.indexOf(id);
+			if (idx >= 0) {
+				state.toSub.splice(idx, 1);
+			} else {
+				state.res.push(id);
+			}
+			return state;
+		},
+		{ toSub: placedPixels.filter((id) => id), res: [] as PixelId[] }
+	).res;
 
-	let filteredPixels: PixelData[] = [];
+	let filteredPixels: Pixel[] = [];
 
-	let grabbed: number | null;
-	function grab(pxl: PixelData, e: MouseEvent) {
-		grabbed = $pixels.findIndex(
-			(p, i) =>
-				comparePixel(pxl, p) &&
-				placedPixelIndices.findIndex((idx) => idx == i) == -1
-		);
+	let grabbed: PixelId | null;
+	function grab(pxl: Pixel, e: MouseEvent) {
+		grabbed = encodePixel(pxl);
 
 		document.body.classList.add("cursor-grabbing");
 
@@ -118,15 +116,14 @@
 
 	function drop(i: number) {
 		if (grabbed == null) {
-			placedPixelIndices[i] = -1;
-			placedPixelIndices = [...placedPixelIndices];
+			placedPixels[i] = "" as PixelId;
 			delete delays[i];
 			delays = { ...delays };
 		} else {
-			placedPixelIndices[i] = grabbed;
-			placedPixelIndices = [...placedPixelIndices];
+			placedPixels[i] = grabbed;
 			grabbed = null;
 		}
+		placedPixels = [...placedPixels];
 	}
 
 	function updateHover(e: MouseEvent & { layerX?: number; layerY?: number }) {
@@ -135,10 +132,10 @@
 			const idx =
 				Math.floor(e.offsetY / size) * dimension + Math.floor(e.offsetX / size);
 			if (idx == hovering) return;
-			if (placedPixelIndices[idx] == -1) {
-				hovering = -1;
-			} else {
+			if (placedPixels[idx]) {
 				hovering = idx;
+			} else {
+				hovering = -1;
 			}
 		} else {
 			hovering = -1;
@@ -158,13 +155,15 @@
 
 	function onHoverWheel(e: WheelEvent) {
 		if (hovering < 0) return;
+		const pxl = decodePixel(placedPixels[hovering]!);
+		if (pxl.length < 2) return;
 		if (!localStorage.getItem("delayHint"))
 			localStorage.setItem("delayHint", "true");
 		const v = delays[hovering] || 0;
 		const dir =
 			(e.deltaY > 0 ? 1 : -1) *
 			(shiftPressed ? Math.abs((v % 10) + (e.deltaY > 0 ? -10 : 0)) || 10 : 1);
-		const max = $pixels[placedPixelIndices[hovering]].length * 100;
+		const max = pxl.length * 100;
 		if (dir < 0 && v + dir < 0) {
 			delays[hovering] = max + dir;
 		} else {
@@ -187,7 +186,7 @@
 	class="grid grid-cols-[min-content,min-content] grid-rows-[1fr,min-content] gap-x-4 gap-y-2 m-auto"
 >
 	<PixelPalette
-		pixels={availablePixels}
+		pixels={availablePixels.map((id) => decodePixel(id))}
 		cols={5}
 		on:mousedown={(e) => grab(e.detail.pxl, e.detail.ev)}
 		bind:filtered={filteredPixels}
@@ -221,7 +220,7 @@
 			height="{dimension * size}px"
 			width="{dimension * size}px"
 			src={pixelsToSvg(
-				placedPixels.map((p) => p ?? [EMPTY]),
+				placedPixels.map((p) => (p ? decodePixel(p) : [EMPTY])),
 				delaysPacked
 			)}
 		/>
@@ -239,7 +238,7 @@
 		</div>
 
 		<div class="flex mx-auto text-xs mt-1">
-			{#if hovering >= 0 && $pixels[placedPixelIndices[hovering]]?.length > 1}
+			{#if hovering >= 0 && placedPixels[hovering] && decodePixel(placedPixels[hovering]).length > 1}
 				<div class="">{formatDelay(delays[hovering] || 0)}s</div>
 				{#if !localStorage.getItem("delayHint")}
 					<div class="relative fade-in">

@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { bytesToPixelBytes, bytesToPixels, pixelsToBytes } from '../scripts/libraries/pixel-parser'
+import { bytesToPixelIds, bytesToPixels, pixelsToBytes } from '../scripts/libraries/pixel-parser'
 
 describe('PixelParsing', function () {
 
@@ -10,7 +10,7 @@ describe('PixelParsing', function () {
 		expect(pixels.length).eq(256, "bytesToPixels length mismatch.")
 		const bytes = pixelsToBytes(pixels)
 		expect(bytes).eq(data, "pixelsToBytes mismatch.")
-		const bytes4Arr = bytesToPixelBytes(bytes)
+		const bytes4Arr = bytesToPixelIds(bytes)
 		expect(bytes4Arr.length).eq(256, "bytesToPixelBytes length mismatch.")
 
 		const bytesFinal = ("0x" + bytes4Arr.map(bytes4 => bytes4.substring(2)).join("")) as `0x${string}`
