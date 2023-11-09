@@ -10,7 +10,7 @@ import OpenTrade from "../routes/market/OpenTrade.svelte";
 import TradeOutlet from "../routes/market/TradeOutlet.svelte";
 
 export function createRoutingCtx() {
-	const index = 'auctions'
+	const index = 'nether'
 
 	const routes: { [key: string]: ComponentType } = {
 		nether: Nether,

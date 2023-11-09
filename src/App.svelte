@@ -13,7 +13,7 @@
 	import atmosphereSrc from "./assets/atmoshpere.mp3";
 	import discordImg from "./assets/dc.png";
 
-	createAudio(atmosphereSrc, { autoPlay: true, loop: true, volume: 0.2 });
+	createAudio(atmosphereSrc, { autoPlay: true, loop: true, volume: 0.1 });
 
 	setContext("web3", createWeb3Ctx());
 
