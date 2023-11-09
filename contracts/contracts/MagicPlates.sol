@@ -134,27 +134,23 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
             uint8[] memory pixel = plate[i];
 
 						if (pixel.length == 1) {
-
-							inner = string.concat(inner, string(abi.encodePacked(
+							// singlecolor
+							inner = string.concat(inner, string.concat(
 									"%3Crect%20width%3D%221%22%20height%3D%221%22%20x%3D%22", // "<rect width=\"1\" height=\"1\" x=\""
 									Strings.toString(i % dim), "%22%20y%3D%22", // "\" y=\""
 									Strings.toString((((i + dim) / dim) - 1)), "%22%20fill%3D%22", // "\" fill=\""
 									pixelColors[pixel[0]], "%22%2F%3E" // "\"/>"
-							)));
-
+							));
 						} else {
-
-							bytes memory delayStr = bytes("0.00");
+							// multicolor
+							string memory delayStr;
 							if (delays.length > 0) {
-								uint16 delay = 0;
+								uint32 delay = 0;
 								for (uint j = 0; j < delays.length; j++) {
 										if (delays[j].idx == i) { delay = delays[j].delay; break; }
 								}
-								bytes memory delayBytes = bytes(Strings.toString(delay));
-								for (uint j = 0; j < delayBytes.length; j++) {
-										if (j == 2) { delayStr[0] = delayBytes[0]; break; }
-										delayStr[(delayStr.length - 1) - j] = delayBytes[(delayBytes.length - 1) - j];
-								}
+								uint32 secs = delay % 60;
+        				delayStr = string.concat(Strings.toString(delay / 60), ".", secs < 10 ? "0" : "", Strings.toString(secs));
 							}
 
 							string memory colors;
@@ -165,7 +161,7 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
 									}
 							}
 
-							inner = string.concat(inner, string(abi.encodePacked(
+							inner = string.concat(inner, string.concat(
 									"%3Crect%20width%3D%221%22%20height%3D%221%22%20x%3D%22", // "<rect width=\"1\" height=\"1\" x=\""
 									Strings.toString(i % dim), "%22%20y%3D%22", // "\" y=\""
 									Strings.toString((((i + dim) / dim) - 1)), "%22%20fill%3D%22", // "\" fill=\""
@@ -173,12 +169,12 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
 									"%3Canimate%20attributeName%3D%22fill%22%20dur%3D%22", // "<animate attributeName=\"fill\" dur=\""
 									Strings.toString(pixel.length + 1),
 									"s%22%20repeatCount%3D%22indefinite%22%20begin%3D%22", // "s\" repeatCount=\"indefinite\" begin=\""
-									string(delayStr), "s%22%20", // "s\" "
+									delayStr, "s%22%20", // "s\" "
 									"values%3D%22", // "values=\"" 
 									colors,
 									"%22%20%2F%3E", // "\" />"
 									"%3C%2Frect%3E" // "</rect>"
-							)));
+							));
 						}
         }
 

@@ -91,8 +91,8 @@ export function comparePixel(a: Pixel, b: Pixel) {
 }
 
 export function formatDelay(delay: number) {
-	let str = delay.toString().padStart(3, "0");
-	return str.substring(0, 1) + "." + str.substring(1);
+	const secs = delay % 60
+	return Math.floor(delay / 60) + '.' + (secs < 10 ? "0" : "") + secs
 }
 
 export function pixelsToSvg(pixels: Pixel[], delays: Delay[], asDataUri = true) {
@@ -102,9 +102,8 @@ export function pixelsToSvg(pixels: Pixel[], delays: Delay[], asDataUri = true) 
 	for (let i = 0; i < pixels.length; i++) {
 		const pixel = pixels[i]
 		svg += `<rect width="1" height="1" x="${i % dimension}" y="${Math.ceil((i + 1) / dimension) - 1}" fill="${pixelColor(pixel[0])}">
-      <animate attributeName="fill" dur="${pixel.length + 1}s" repeatCount="indefinite" begin="${formatDelay(delays.find(v => v.idx == i)?.delay || 0)}s"
-      values="${pixel.concat([pixel[0]]).map(p => pixelColor(p))
-				.join(';')}" />
+      ${pixel.length > 1 ? `<animate attributeName="fill" dur="${pixel.length + 1}s" repeatCount="indefinite" begin="${formatDelay(delays.find(v => v.idx == i)?.delay || 0)}s"
+      values="${pixel.concat([pixel[0]]).map(p => pixelColor(p)).join(';')}" />` : ''}
     </rect>`;
 	}
 	svg += '</svg>';

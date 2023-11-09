@@ -169,7 +169,7 @@
 		const dir =
 			(e.deltaY > 0 ? 1 : -1) *
 			(shiftPressed ? Math.abs((v % 10) + (e.deltaY > 0 ? -10 : 0)) || 10 : 1);
-		const max = pxl.length * 100;
+		const max = pxl.length * 60;
 		if (dir < 0 && v + dir < 0) {
 			delays[hovering] = max + dir;
 		} else {

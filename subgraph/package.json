@@ -1,6 +1,6 @@
 {
 	"name": "magic-pixels",
-	"version": "0.1.7",
+	"version": "0.1.9",
 	"license": "UNLICENSED",
 	"scripts": {
 		"codegen": "graph codegen",
