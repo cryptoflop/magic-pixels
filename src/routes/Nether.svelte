@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { afterUpdate, beforeUpdate, getContext } from "svelte";
-	import Pixel from "../elements/Pixel.svelte";
+	import Pxl from "../elements/Pixel.svelte";
 	import PixelizedButton from "../elements/PixelizedButton.svelte";
 	import { tooltip } from "../directives/tooltip";
 	import { EMPTY, fullPixelName } from "../helpers/color-utils";
@@ -48,7 +48,7 @@
 		clear();
 		conjuring = true;
 
-		let conjured: number[][];
+		let conjured: Pixel[];
 		try {
 			const [c, a] = await web3.conjure(numPixels);
 			conjured = c.map((id) => decodePixel(id));
@@ -143,7 +143,7 @@
 						</div>
 					{:else}
 						<div class="grid" use:tooltip={fullPixelName(pxl)}>
-							<Pixel class="h-6 w-6 pointer-events-none" pixel={pxl} />
+							<Pxl class="h-6 w-6 pointer-events-none" pixel={pxl} />
 						</div>
 					{/if}
 				</div>
