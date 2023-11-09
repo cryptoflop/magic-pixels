@@ -231,16 +231,21 @@ describe('PixelsAndPlates', function () {
 		const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 		const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 	
-		await pxls.write.mint([bytesToPixels(conjured.args.pixels), []]) // TODO: use delays
+		const pixels = bytesToPixels(conjured.args.pixels)
+		const delays = Array(2).fill(1)
+			.map((_, i) => pixels.findIndex((pxl, j) => pxl.length > 1 && (i > 0 ? (j > 100) : true)))
+			.map(idx => [idx, Math.round(Math.random() * (199 - 0) + 0)])
+
+		await pxls.write.mint([pixels, delays])
 		
 		const svgDataURI = await (await ethers.getContractAt("MagicPlates", pltsAddress)).tokenURI(0, { gasLimit: 999999999999999999n }) // viem fails in this case, ethers doesn't...
 		expect(svgDataURI, "invalid svg data uri").includes("data:image/svg+xml")
-
 		// TODO: check if pixels are the correct color...
-		
-		const pixels = bytesToPixels(conjured.args.pixels)
-		const { pixels: underlyingPixels } = await plts.read.plateById([0n]) // TODO: check delays?
-		expect(pixels.length, "conjured / underlaying pixel length mismatch.").eq(underlyingPixels.length)
+
+		const { pixels: underlyingPixels, delays: underlyingDelays } = await plts.read.plateById([0n])
+		expect(pixels.length, "conjured / underlying pixel length mismatch.").eq(underlyingPixels.length)
+
+		expect(underlyingDelays.map(d => [d.idx, d.delay]).every((d, i) => d.every((v, j) => v === delays[i][j])), "delays do not match").to.be.true
 
 		let allPixelsMatchInOrder = true
 		for (let i = 0; i < underlyingPixels.length; i++) {
@@ -262,15 +267,13 @@ describe('PixelsAndPlates', function () {
 	})
 
 	it('Should mint 8x8 plate', async function() {
-		const [acc] = await viem.getWalletClients()
 		const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
-		const plts = await viem.getContractAt("MagicPlates", pltsAddress)
 
 		const conjureTx = await pxls.write.conjure([64n], { value: parseEther("0.15") })
 		const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 		const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 		
-		await pxls.write.mint([bytesToPixels(conjured.args.pixels), []]) // TODO: use delays
+		await pxls.write.mint([bytesToPixels(conjured.args.pixels), []])
 	})
 
 })

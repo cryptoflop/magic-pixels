@@ -98,9 +98,9 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
 
         if (delays.length > 0) {
         	Delay[] storage d = pixelDelays[tokenId];
-            for (uint i = 0; i < (delays.length - 1); i += 2) {
-                d.push(Delay(delays[i][0], uint16(delays[i][1])));
-            }
+					for (uint i = 0; i < delays.length; i++) {
+							d.push(Delay(delays[i][0], uint16(delays[i][1])));
+					}
         }
     }
 
