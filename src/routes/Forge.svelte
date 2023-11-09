@@ -81,6 +81,12 @@
 
 	let grabbed: PixelId | null;
 	function grab(pxl: Pixel, e: MouseEvent) {
+		if (window.getSelection) {
+			window.getSelection()?.removeAllRanges();
+		} else if (document.getSelection) {
+			document.getSelection()?.empty();
+		}
+
 		grabbed = encodePixel(pxl);
 
 		document.body.classList.add("cursor-grabbing");

@@ -4,13 +4,12 @@ import { parseAbiItem, parseEther, type Hex, type Address } from "viem";
 import { readable, writable } from "svelte/store";
 import { mantleTestnet } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
-import { bytesToPixelIds, bytesToPixels, decodePixel } from "../../contracts/scripts/libraries/pixel-parser"
+import { bytesToPixelIds, decodePixel } from "../../contracts/scripts/libraries/pixel-parser"
 import { NULL_ADDR, PIXEL_PRICE } from "../values";
 
 import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI } from "../../contracts/generated";
 
 import { execute, AllPixelsByAccountDocument, AccountLastBlockDocument } from "../../subgraph/.graphclient"
-import { comparePixel } from "../helpers/color-utils";
 import PixelBalances from "../helpers/pixel-balances";
 
 function savePixels(balances: PixelBalances, blockNumber: bigint, addr: Address) {

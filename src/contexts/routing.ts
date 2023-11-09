@@ -5,9 +5,9 @@ import { cachedStore } from "../helpers/reactivity-helpers";
 import Nether from "../routes/Nether.svelte";
 import Forge from "../routes/Forge.svelte";
 import Treasury from "../routes/treasury/Treasury.svelte";
-import Auctions from "../routes/auctions/Auctions.svelte";
-import OpenTrade from "../routes/auctions/OpenTrade.svelte";
-import TradeOutlet from "../routes/auctions/TradeOutlet.svelte";
+import Market from "../routes/market/Market.svelte";
+import OpenTrade from "../routes/market/OpenTrade.svelte";
+import TradeOutlet from "../routes/market/TradeOutlet.svelte";
 
 export function createRoutingCtx() {
 	const index = 'auctions'
@@ -19,7 +19,7 @@ export function createRoutingCtx() {
 
 		treasury: Treasury,
 
-		auctions: Auctions,
+		market: Market,
 		opentrade: OpenTrade,
 		trade: TradeOutlet
 	}

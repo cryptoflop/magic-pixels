@@ -1,3 +1,4 @@
+import { encodePixel } from '../../contracts/scripts/libraries/pixel-parser'
 import colorPallet from '../assets/pixel-colors.json'
 import colorPalletNames from '../assets/pixel-names.json'
 
@@ -86,12 +87,7 @@ export function pixelizeElement(el: HTMLElement, pixel: Pixel) {
 }
 
 export function comparePixel(a: Pixel, b: Pixel) {
-	for (let i = 0; i < a.length; i++) {
-		if (a[i] !== b[i]) {
-			return false
-		}
-	}
-	return true
+	return encodePixel(a) === encodePixel(b)
 }
 
 export function formatDelay(delay: number) {
@@ -106,7 +102,7 @@ export function pixelsToSvg(pixels: Pixel[], delays: Delay[], asDataUri = true) 
 	for (let i = 0; i < pixels.length; i++) {
 		const pixel = pixels[i]
 		svg += `<rect width="1" height="1" x="${i % dimension}" y="${Math.ceil((i + 1) / dimension) - 1}" fill="${pixelColor(pixel[0])}">
-      <animate attributeName="fill" dur="${pixel.length + 1}s" repeatCount="indefinite" begin="${formatDelay(delays.find(v => v.idx == BigInt(i))?.delay || 0)}s"
+      <animate attributeName="fill" dur="${pixel.length + 1}s" repeatCount="indefinite" begin="${formatDelay(delays.find(v => v.idx == i)?.delay || 0)}s"
       values="${pixel.concat([pixel[0]]).map(p => pixelColor(p))
 				.join(';')}" />
     </rect>`;
