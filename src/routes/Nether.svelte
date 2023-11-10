@@ -14,8 +14,12 @@
 	import sparkleSrc from "../assets/sparkle.mp3";
 	import { createAudio } from "../helpers/audio";
 	import { decodePixel } from "../../contracts/scripts/libraries/pixel-parser";
+	import { createToastCtx } from "../contexts/toast";
+	import UnexpectedFind from "../elements/UnexpectedFind.svelte";
 
 	const qack = createAudio(qackSrc, { volume: 0.2 });
+
+	const toast = getContext<ReturnType<typeof createToastCtx>>("toast");
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const usd = web3.usdPrice;
@@ -49,12 +53,11 @@
 		conjuring = true;
 
 		let conjured: Pixel[];
+		let surpriseFindAmount: bigint;
 		try {
 			const [c, a] = await web3.conjure(numPixels);
 			conjured = c.map((id) => decodePixel(id));
-			if (a > 0n) {
-				alert(`Congratualations, you found ${formatEther(a)} eth!`); // TODO: make this more fancy
-			}
+			surpriseFindAmount = a;
 		} catch (err) {
 			console.error(err);
 			conjuring = false;
@@ -79,11 +82,18 @@
 				await new Promise((r) => setTimeout(r, 400 / numPixels));
 			} else {
 				conjuring = false;
+				if (surpriseFindAmount > -1n) {
+					setTimeout(() => {
+						toast.show(UnexpectedFind, {
+							amount: formatEther(surpriseFindAmount),
+						});
+					}, 2000);
+				}
 			}
 		}
 	}
 
-	$: ethPrice = PIXEL_PRICE * numPixels;
+	$: price = PIXEL_PRICE * numPixels;
 
 	let container: HTMLDivElement;
 
@@ -168,10 +178,10 @@
 		}`}
 	>
 		<div class="flex mx-auto">
-			<div>{ethPrice.toFixed(2)}mnt</div>
+			<div>{price.toFixed(2)} {import.meta.env.VITE_VALUE_SYMBOL}</div>
 			<span>&ensp;=&ensp;</span>
 			<span use:tooltip={`1mnt = $${$usd.toFixed(2)}`}
-				>${(ethPrice * $usd).toFixed(2)}</span
+				>${(price * $usd).toFixed(2)}</span
 			>
 			<span>&ensp;=&ensp;</span>
 			<span>{numPixels} pixels</span>

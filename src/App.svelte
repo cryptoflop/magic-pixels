@@ -13,19 +13,15 @@
 
 	import atmosphereSrc from "./assets/atmoshpere.mp3";
 	import discordImg from "./assets/dc.png";
-	import { fade } from "svelte/transition";
+	import ToastOutlet from "./elements/ToastOutlet.svelte";
 
 	createAudio(atmosphereSrc, { autoPlay: true, loop: true, volume: 0.1 });
 
 	const toast = createToastCtx();
-	const toastComponent = toast.current;
 	setContext("toast", toast);
 
 	onMount(() => {
-		// if (!localStorage.getItem("intro")) toast.show(Intro);
-		toast.show(
-			"Test\n joojojdsdasdkl asd asd  saddasdkjasldkj sa daslkdjaldkja   asdasdasd\n  asdad"
-		);
+		if (!localStorage.getItem("intro")) toast.show(Intro);
 	});
 
 	setContext("web3", createWeb3Ctx());
@@ -38,19 +34,7 @@
 <main class="h-screen w-screen relative grid grid-rows-[min-content,1fr] pt-4">
 	<Background />
 
-	{#if $toastComponent !== null}
-		<div
-			class="absolute inset-0 bg-black/50 grid z-10"
-			transition:fade={{ duration: 300 }}
-		>
-			<div class="grid bg-black m-auto border-2 border-white/60">
-				<svelte:component
-					this={$toastComponent.component}
-					{...$toastComponent.props}
-				/>
-			</div>
-		</div>
-	{/if}
+	<ToastOutlet />
 
 	<RpcState />
 

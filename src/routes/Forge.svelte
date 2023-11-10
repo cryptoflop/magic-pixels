@@ -38,6 +38,8 @@
 
 	let hovering = -1;
 
+	let showDelayHint = !localStorage.getItem("delayHint");
+
 	$: delaysPacked = Object.keys(delays).map((k) => ({
 		idx: Number(k),
 		delay: delays[Number(k)],
@@ -163,8 +165,10 @@
 		if (hovering < 0) return;
 		const pxl = decodePixel(placedPixels[hovering]!);
 		if (pxl.length < 2) return;
-		if (!localStorage.getItem("delayHint"))
+		if (!localStorage.getItem("delayHint")) {
 			localStorage.setItem("delayHint", "true");
+			showDelayHint = false;
+		}
 		const v = delays[hovering] || 0;
 		const dir =
 			(e.deltaY > 0 ? 1 : -1) *
@@ -245,17 +249,19 @@
 
 		<div class="flex mx-auto text-xs mt-1">
 			{#if hovering >= 0 && placedPixels[hovering] && decodePixel(placedPixels[hovering]).length > 1}
-				<div class="">{formatDelay(delays[hovering] || 0)}s</div>
-				{#if !localStorage.getItem("delayHint")}
-					<div class="relative" transition:fade={{ duration: 300 }}>
-						<div
-							class="absolute border-2 px-1 py-0.5 text-center w-[120px] left-[-72px] top-[20px]"
-						>
-							Hover over any multicolor pixel and scroll to adjust the time
-							offset! Press shift to use decimal steps.
+				<div transition:fade={{ duration: 100 }}>
+					{formatDelay(delays[hovering] || 0)}s
+					{#if showDelayHint}
+						<div class="relative" transition:fade={{ duration: 100 }}>
+							<div
+								class="absolute border-2 px-1 py-0.5 text-center w-[120px] mt-2 -ml-12"
+							>
+								Hover over any multicolor pixel and scroll to adjust the time
+								offset! Press shift to use decimal steps.
+							</div>
 						</div>
-					</div>
-				{/if}
+					{/if}
+				</div>
 			{/if}
 		</div>
 
