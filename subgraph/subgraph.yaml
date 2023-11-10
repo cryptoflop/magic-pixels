@@ -6,7 +6,7 @@ dataSources:
     name: Pixels
     network: testnet
     source:
-      address: "0xb7ad74d6c4640c6935ef3d22fde6d04ab96958b0"
+      address: "0xc6571944217c73b85a5d30ab388ca487a4f3ae1e"
       abi: PxlsCore
       startBlock: 25492085
     mapping:
@@ -29,7 +29,7 @@ dataSources:
     name: Trades
     network: testnet
     source:
-      address: "0xb7ad74d6c4640c6935ef3d22fde6d04ab96958b0"
+      address: "0xc6571944217c73b85a5d30ab388ca487a4f3ae1e"
       abi: AuctionHouse
       startBlock: 25492085
     mapping:
