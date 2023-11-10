@@ -10,10 +10,10 @@
 	import Wallet from "./elements/Wallet.svelte";
 	import Intro from "./elements/Intro.svelte";
 	import RpcState from "./elements/RPCState.svelte";
+	import ToastOutlet from "./elements/ToastOutlet.svelte";
 
 	import atmosphereSrc from "./assets/atmoshpere.mp3";
-	import discordImg from "./assets/dc.png";
-	import ToastOutlet from "./elements/ToastOutlet.svelte";
+	import DiscordLink from "./elements/DiscordLink.svelte";
 
 	createAudio(atmosphereSrc, { autoPlay: true, loop: true, volume: 0.1 });
 
@@ -38,13 +38,7 @@
 
 	<RpcState />
 
-	<a
-		class="absolute bottom-4 left-4 cursor-pointer"
-		target="_blank"
-		href="https://discord.gg/wQJs3Upf77"
-	>
-		<img src={discordImg} class="w-4 h-4" />
-	</a>
+	<DiscordLink />
 
 	<Speaker />
 	<Navbar />
