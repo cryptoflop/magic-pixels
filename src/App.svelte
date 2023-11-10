@@ -34,12 +34,6 @@
 <main class="h-screen w-screen relative grid grid-rows-[min-content,1fr] pt-4">
 	<Background />
 
-	<ToastOutlet />
-
-	<RpcState />
-
-	<DiscordLink />
-
 	<Speaker />
 	<Navbar />
 	<Wallet />
@@ -47,4 +41,9 @@
 	<outlet id="outlet" class="grid">
 		<svelte:component this={$routeCompontent} />
 	</outlet>
+
+	<ToastOutlet />
+
+	<DiscordLink />
+	<RpcState />
 </main>
