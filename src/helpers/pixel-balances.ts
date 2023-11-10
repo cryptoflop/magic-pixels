@@ -1,6 +1,10 @@
 import { decodePixel } from "../../contracts/scripts/libraries/pixel-parser"
 
 export default class PixelBalances {
+	static fromString(data: string) {
+		return new PixelBalances(new Map(JSON.parse(data)))
+	}
+
 	private balances
 
 	constructor(balances = new Map<PixelId, number>()) {
@@ -41,7 +45,7 @@ export default class PixelBalances {
 	}
 
 	copy(deep = false) {
-		return new PixelBalances(deep ? new Map(JSON.parse(this.toString())) : this.balances)
+		return deep ? PixelBalances.fromString(this.toString()) : new PixelBalances(this.balances)
 	}
 
 }

@@ -1,4 +1,4 @@
-import { WHITE, pixelColor, rndColorIdx } from "../helpers/color-utils";
+import { pixelColor, rndColorIdx } from "../helpers/color-utils";
 import { rndBtwn } from "../helpers/utils";
 
 export type EmitterOptions = {
@@ -26,7 +26,14 @@ export function pixelemitter(element: HTMLElement, options: EmitterOptions) {
 	pixels.forEach(p => pool.appendChild(p))
 
 	pool.style.display = "none"
+
+	const getZIndex = (n: HTMLElement): number => {
+		const zi = Number(window.getComputedStyle(n).getPropertyValue('z-index'))
+		return isNaN(zi) ? (n.parentElement ? getZIndex(n.parentElement) : 0) : zi
+	}
 	pool.style.zIndex = "-1"
+	element.style.zIndex = String(getZIndex(element))
+
 	pool.style.position = "absolute"
 	pool.className = "inset-0"
 	element.style.position = "relative"
@@ -61,11 +68,11 @@ export function pixelemitter(element: HTMLElement, options: EmitterOptions) {
 	function animatePixel(el: HTMLElement) {
 		function animate() {
 			if (!active) return
-			const duration = 800 - (800 * ((options.intensity ?? 1) - 1))
+			const duration = 740 - (740 * ((options.intensity ?? 1) - 1))
 			const [xStart, xEnd, yStart, yEnd] = rndPoint();
 			el.animate([
 				{ transform: `translate(${xStart}px, ${yStart}px)`, backgroundColor: "transparent" },
-				{ backgroundColor: pixelColor((options.colored ?? true) ? rndColorIdx(true) : WHITE) + (options.opacity ? Math.floor(options.opacity * 255).toString(16) : '') },
+				{ backgroundColor: ((options.colored ?? true) ? pixelColor(rndColorIdx(true)) : "white") + (options.opacity ? Math.floor(options.opacity * 255).toString(16) : '') },
 				{ transform: `translate(${xEnd}px, ${yEnd}px)`, backgroundColor: "transparent" }
 			], {
 				duration: duration,

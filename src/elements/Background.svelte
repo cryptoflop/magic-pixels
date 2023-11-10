@@ -1,12 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { rndBtwn } from "../helpers/utils";
-	import {
-		BLACK,
-		WHITE,
-		pixelColor,
-		rndColorIdx,
-	} from "../helpers/color-utils";
+	import { pixelColor, rndColorIdx } from "../helpers/color-utils";
 
 	let el: HTMLDivElement;
 
@@ -35,9 +30,9 @@
 			}
 
 			function getColorStops() {
-				return [BLACK, rndColorIdx(true), BLACK]
-					.map((color) => pixelColor(color))
-					.map((s) => ({ backgroundColor: s }));
+				return ["black", pixelColor(rndColorIdx(true)), "black"].map((s) => ({
+					backgroundColor: s,
+				}));
 			}
 
 			function animate() {

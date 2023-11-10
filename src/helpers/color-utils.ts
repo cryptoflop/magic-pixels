@@ -4,11 +4,8 @@ import colorPalletNames from '../assets/pixel-names.json'
 
 import { rndBtwn } from './utils'
 
-export const BLACK = 191
-export const WHITE = 1
-export const EMPTY = -1
-export const MIN_PIXEL = WHITE
-export const MAX_PIXEL = BLACK
+export const MIN_PIXEL = 1
+export const MAX_PIXEL = 189
 export const MAX_PALETTE = 9
 
 export function rndPixel() {
@@ -31,17 +28,8 @@ function getPalletIndices(idx: number) {
 }
 
 export function pixelName(idx: number) {
-	if (idx === EMPTY) {
-		return 'EMPTY'
-	}
-	if (idx === WHITE) {
-		return 'White'
-	}
-	if (idx === BLACK) {
-		return 'Black'
-	}
 	if (idx === 0) {
-		console.warn("Idx 0 should not be used.")
+		console.warn("Invalid pixel idx: ", idx)
 		return 'Invalid'
 	}
 
@@ -50,17 +38,8 @@ export function pixelName(idx: number) {
 }
 
 export function pixelColor(idx: number) {
-	if (idx === EMPTY) {
-		return 'transparent'
-	}
-	if (idx === WHITE) {
-		return '#ffffff'
-	}
-	if (idx === BLACK) {
-		return '#000000'
-	}
 	if (idx === 0) {
-		console.warn("Idx 0 should not be used.")
+		console.warn("Invalid pixel idx: ", idx)
 		return 'transparent'
 	}
 
@@ -101,6 +80,7 @@ export function pixelsToSvg(pixels: Pixel[], delays: Delay[], asDataUri = true) 
                 shape-rendering="optimizeSpeed" viewBox="0 0 ${dimension} ${dimension}">`;
 	for (let i = 0; i < pixels.length; i++) {
 		const pixel = pixels[i]
+		if (pixel.length == 0) continue;
 		svg += `<rect width="1" height="1" x="${i % dimension}" y="${Math.ceil((i + 1) / dimension) - 1}" fill="${pixelColor(pixel[0])}">
       ${pixel.length > 1 ? `<animate attributeName="fill" dur="${pixel.length + 1}s" repeatCount="indefinite" begin="${formatDelay(delays.find(v => v.idx == i)?.delay || 0)}s"
       values="${pixel.concat([pixel[0]]).map(p => pixelColor(p)).join(';')}" />` : ''}

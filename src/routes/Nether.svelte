@@ -3,7 +3,7 @@
 	import Pxl from "../elements/Pixel.svelte";
 	import PixelizedButton from "../elements/PixelizedButton.svelte";
 	import { tooltip } from "../directives/tooltip";
-	import { EMPTY, fullPixelName } from "../helpers/color-utils";
+	import { fullPixelName } from "../helpers/color-utils";
 	import { rndBtwn } from "../helpers/utils";
 	import { PIXEL_PRICE } from "../values";
 	import type { createWeb3Ctx } from "../contexts/web3";
@@ -25,12 +25,12 @@
 
 	$: pixels = Array(numPixels)
 		.fill(1)
-		.map(() => [EMPTY]);
+		.map(() => [] as Pixel);
 
 	function clear() {
 		pixels = Array(numPixels)
 			.fill(1)
-			.map(() => [EMPTY]);
+			.map(() => []);
 	}
 
 	const click = createAudio(clickSrc, { volume: 0.6 });
@@ -38,7 +38,7 @@
 	$: {
 		numPixels && 1;
 		click.currentTime = 0;
-		if (click.paused) {
+		if (click.paused ?? true) {
 			click.play();
 		}
 	}
@@ -135,7 +135,7 @@
 		>
 			{#each pixels as pxl, i (i)}
 				<div class="border-2">
-					{#if pxl[0] == EMPTY}
+					{#if !pxl[0]}
 						<div
 							class="h-6 w-6 text-center text-lg/6 align-baseline select-none"
 						>

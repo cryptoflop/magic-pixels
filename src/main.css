@@ -191,17 +191,3 @@ input::placeholder {
     background-position: left 10px top, right 10px bottom, left bottom 10px, right top 10px;
   }
 }
-
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-.fade-in {
-  animation: fadeIn 1s;
-}

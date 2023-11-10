@@ -104,7 +104,6 @@ contract MagicPlates is Initializable, ERC721Upgradeable, ERC721EnumerableUpgrad
         }
     }
 
-
     /// @dev Also frees the underlying pixels the plate was made of.
     function _burn(uint256 tokenId)
         internal

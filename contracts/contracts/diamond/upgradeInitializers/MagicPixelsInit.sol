@@ -13,13 +13,13 @@ contract MagicPixelsInit is DiamondInit {
 
         s.PLATE_SIZE = 16;
 				s.MIN_PIXEL = 1;
-        s.MAX_PIXEL = 191;
+        s.MAX_PIXEL = 189;
         s.PIXEL_DEPTH = 2;
         
         s.ETH_PROB = 10000;
         s.ETH_PERC = 10;
 
-        s.PRICE = 0.00006 ether;
+        s.PRICE = 0.08 ether;
 
         s.DEPTH_PROBS = [80_000, 100_000];
     }

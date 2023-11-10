@@ -18,7 +18,7 @@ function savePixels(balances: PixelBalances, blockNumber: bigint, addr: Address)
 }
 
 function getPixels(addr: Address) {
-	return new PixelBalances(new Map(JSON.parse(localStorage.getItem("pixels_" + addr) ?? "[]")))
+	return PixelBalances.fromString(localStorage.getItem("pixels_" + addr) ?? "[]")
 }
 
 export function createWeb3Ctx() {

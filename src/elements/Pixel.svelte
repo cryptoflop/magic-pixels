@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { EMPTY, comparePixel, pixelizeElement } from "../helpers/color-utils";
+	import { comparePixel, pixelizeElement } from "../helpers/color-utils";
 
 	let className = "";
 	export { className as class };
 
-	export let pixel = [EMPTY];
+	export let pixel: Pixel = [];
 
 	let el: HTMLDivElement;
 

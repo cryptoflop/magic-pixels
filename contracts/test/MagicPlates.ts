@@ -3,6 +3,7 @@ import { expect } from 'chai'
 import { viem } from 'hardhat'
 
 import { deployPlts } from '../scripts/MagicPlates'
+import { colors } from '../scripts/colors'
 
 describe('MagicPlates', function () {
 	let pltsAddress: `0x${string}`
@@ -23,15 +24,7 @@ describe('MagicPlates', function () {
 
 	it('Should set pixel colors', async function () {
 		const plts = await viem.getContractAt("MagicPlates", pltsAddress)
-		await plts.write.setColors([
-			[
-				'000000',
-				'ffffff',
-				'f1f5f9',
-				'e2e8f0',
-				'ffffff',
-			]
-		])
+		await plts.write.setColors([colors])
 	})
 
 })

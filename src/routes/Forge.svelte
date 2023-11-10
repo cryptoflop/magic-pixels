@@ -3,7 +3,6 @@
 	import type { createWeb3Ctx } from "../contexts/web3";
 	import PixelPalette from "../elements/PixelPalette.svelte";
 	import {
-		EMPTY,
 		formatDelay,
 		pixelizeElement,
 		pixelsToSvg,
@@ -13,6 +12,7 @@
 		decodePixel,
 		encodePixel,
 	} from "../../contracts/scripts/libraries/pixel-parser";
+	import { fade } from "svelte/transition";
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const pixels = web3.pixels;
@@ -226,7 +226,7 @@
 			height="{dimension * size}px"
 			width="{dimension * size}px"
 			src={pixelsToSvg(
-				placedPixels.map((p) => (p ? decodePixel(p) : [EMPTY])),
+				placedPixels.map((p) => (p ? decodePixel(p) : [])),
 				delaysPacked
 			)}
 		/>
@@ -247,7 +247,7 @@
 			{#if hovering >= 0 && placedPixels[hovering] && decodePixel(placedPixels[hovering]).length > 1}
 				<div class="">{formatDelay(delays[hovering] || 0)}s</div>
 				{#if !localStorage.getItem("delayHint")}
-					<div class="relative fade-in">
+					<div class="relative" transition:fade={{ duration: 300 }}>
 						<div
 							class="absolute border-2 px-1 py-0.5 text-center w-[120px] left-[-72px] top-[20px]"
 						>
