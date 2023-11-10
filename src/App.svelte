@@ -7,6 +7,7 @@
 	import { createRoutingCtx } from "./contexts/routing";
 	import { createToastCtx } from "./contexts/toast";
 	import { createAudio } from "./helpers/audio";
+	import hookButtonAudioQues from "./directives/buttonaudioque";
 	import Wallet from "./elements/Wallet.svelte";
 	import Intro from "./elements/Intro.svelte";
 	import RpcState from "./elements/RPCState.svelte";
@@ -16,6 +17,8 @@
 	import DiscordLink from "./elements/DiscordLink.svelte";
 
 	createAudio(atmosphereSrc, { autoPlay: true, loop: true, volume: 0.1 });
+
+	hookButtonAudioQues();
 
 	const toast = createToastCtx();
 	setContext("toast", toast);
