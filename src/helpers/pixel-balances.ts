@@ -7,8 +7,14 @@ export default class PixelBalances {
 
 	private balances
 
+	private _total = 0
+	public get total() {
+		return this._total;
+	}
+
 	constructor(balances = new Map<PixelId, number>()) {
 		this.balances = balances
+		this._total = Array.from(balances.values()).reduce((p, c) => p + c, 0)
 	}
 
 	private _get(id: PixelId) {
@@ -29,19 +35,26 @@ export default class PixelBalances {
 
 	increase(id: PixelId) {
 		this.balances.set(id, this._get(id) + 1)
+		this._total++
 	}
 
 	decrease(id: PixelId) {
 		this.balances.set(id, this._get(id) - 1)
 		if (this._get(id) < 0) throw `Negative balance: ${decodePixel(id)}`
+		this._total--
 	}
 
 	toArray() {
-		return Array.from(this.balances.entries()).reduce((prev, curr) => {
-			const id = curr[0]
-			for (let i = 0; i < curr[1]; i++) prev.push(id)
-			return prev
-		}, [] as PixelId[])
+		const pixelIds: PixelId[] = []
+		for (const entry of this.balances.entries()) {
+			for (let i = 0; i < entry[1]; i++)
+				pixelIds.push(entry[0])
+		}
+		return pixelIds
+	}
+
+	toSectionArray(cursor: number, length: number) {
+		// TODO
 	}
 
 	copy(deep = false) {
