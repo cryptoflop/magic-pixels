@@ -1,10 +1,15 @@
 <script lang="ts">
-	import Plate from "../../elements/Plate.svelte";
+	import Plt from "../../elements/Plate.svelte";
 	import { getContext } from "svelte";
 	import type { createWeb3Ctx } from "../../contexts/web3";
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const plates = web3.plates;
+
+	const plateSize = (plate: Plate) => {
+		const s = Math.sqrt(plate.pixels.length);
+		return s + "x" + s;
+	};
 </script>
 
 <div
@@ -16,21 +21,17 @@
 			<div class="border-2 group-hover:scale-95">
 				<div class="px-1.5 flex justify-between">
 					<div>#{plate.id.toString()}</div>
-					<div class="text-xs mt-[5px]">
-						{`${Math.sqrt(plate.pixels.length)}x${Math.sqrt(
-							plate.pixels.length
-						)}`}
-					</div>
+					<div class="text-xs mt-[5px]">{plateSize(plate)}</div>
 				</div>
-				<Plate class="w-36" {plate} />
+				<Plt class="w-36" {plate} />
 			</div>
 		</div>
 	{/each}
 
 	{#if $plates.length == 0}
-		<div class="text-xs opacity-60 absolute w-64 text-center p-4 ml-2">
+		<div class="text-xs opacity-60 absolute w-[18.5rem] text-center p-4 ml-2">
 			No plates
 		</div>
-		<div class="w-36" />
+		<div class="w-[9.25rem]" />
 	{/if}
 </div>
