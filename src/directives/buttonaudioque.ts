@@ -6,7 +6,7 @@ import { onDestroy, onMount } from "svelte";
 
 export default function hookButtonAudioQues() {
 	const click = createAudio(clickSrc, { volume: 0.1 });
-	const clack = createAudio(clackSrc, { volume: 0.1 });
+	const clack = createAudio(clackSrc, { volume: 0.05 });
 
 	let last: HTMLElement
 	const clickFn = (e: MouseEvent) => {
@@ -21,7 +21,7 @@ export default function hookButtonAudioQues() {
 	}
 
 	const clackFn = (e: MouseEvent) => {
-		if ((e.target as HTMLElement).tagName === "BUTTON") {
+		if ((e.target as HTMLElement).tagName === "BUTTON" || last.tagName === "BUTTON") {
 			clack.play()
 		}
 	}

@@ -1,6 +1,5 @@
 import { viem } from 'hardhat'
 import { decodeEventLog, parseEther } from 'viem'
-import { bytesToPixelIds } from './libraries/pixel-parser'
 
 export async function openTrade(acc: Awaited<ReturnType<typeof viem.getWalletClients>>[0], pxlsAddress: `0x${string}`, receiver: `0x${string}`) {
 	const publicClient = await viem.getPublicClient()
@@ -12,11 +11,11 @@ export async function openTrade(acc: Awaited<ReturnType<typeof viem.getWalletCli
 	const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 	const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 
-	const tradeTx = await ah.write.openTrade([receiver, bytesToPixelIds(conjured.args.pixels), 0n, true])
+	const tradeTx = await ah.write.openTrade([receiver, conjured.args.pixels, 0n, 0])
 	const tradeRcpt = await publicClient.waitForTransactionReceipt({ hash: tradeTx })
 	const tradeOpened = decodeEventLog({ ...tradeRcpt.logs[0], abi: ah.abi, eventName: "TradeOpened" })
 
-	return tradeOpened.args.id
+	return [tradeOpened.args.id, conjured.args.pixels]
 }
 
 if (require.main === module) {

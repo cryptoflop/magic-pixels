@@ -15,21 +15,51 @@ export const auctionHouseABI = [
     inputs: [
       { name: 'id', internalType: 'bytes32', type: 'bytes32', indexed: false },
       {
-        name: 'seller',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
+        name: 'trade',
+        internalType: 'struct LibAuctionHouse.Trade',
+        type: 'tuple',
+        components: [
+          { name: 'creator', internalType: 'address', type: 'address' },
+          { name: 'receiver', internalType: 'address', type: 'address' },
+          { name: 'pixels', internalType: 'bytes', type: 'bytes' },
+          { name: 'price', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'tradeType',
+            internalType: 'enum LibAuctionHouse.TradeType',
+            type: 'uint8',
+          },
+        ],
+        indexed: false,
+      },
+    ],
+    name: 'TradeCanceled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'id', internalType: 'bytes32', type: 'bytes32', indexed: false },
+      {
+        name: 'trade',
+        internalType: 'struct LibAuctionHouse.Trade',
+        type: 'tuple',
+        components: [
+          { name: 'creator', internalType: 'address', type: 'address' },
+          { name: 'receiver', internalType: 'address', type: 'address' },
+          { name: 'pixels', internalType: 'bytes', type: 'bytes' },
+          { name: 'price', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'tradeType',
+            internalType: 'enum LibAuctionHouse.TradeType',
+            type: 'uint8',
+          },
+        ],
+        indexed: false,
       },
       {
-        name: 'buyer',
+        name: 'closing',
         internalType: 'address',
         type: 'address',
-        indexed: true,
-      },
-      {
-        name: 'pixels',
-        internalType: 'bytes4[]',
-        type: 'bytes4[]',
         indexed: false,
       },
     ],
@@ -39,19 +69,24 @@ export const auctionHouseABI = [
     type: 'event',
     anonymous: false,
     inputs: [
-      {
-        name: 'creator',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-      {
-        name: 'receiver',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
       { name: 'id', internalType: 'bytes32', type: 'bytes32', indexed: false },
+      {
+        name: 'trade',
+        internalType: 'struct LibAuctionHouse.Trade',
+        type: 'tuple',
+        components: [
+          { name: 'creator', internalType: 'address', type: 'address' },
+          { name: 'receiver', internalType: 'address', type: 'address' },
+          { name: 'pixels', internalType: 'bytes', type: 'bytes' },
+          { name: 'price', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'tradeType',
+            internalType: 'enum LibAuctionHouse.TradeType',
+            type: 'uint8',
+          },
+        ],
+        indexed: false,
+      },
     ],
     name: 'TradeOpened',
   },
@@ -65,10 +100,7 @@ export const auctionHouseABI = [
   {
     stateMutability: 'payable',
     type: 'function',
-    inputs: [
-      { name: 'id', internalType: 'bytes32', type: 'bytes32' },
-      { name: 'isSell', internalType: 'bool', type: 'bool' },
-    ],
+    inputs: [{ name: 'id', internalType: 'bytes32', type: 'bytes32' }],
     name: 'closeTrade',
     outputs: [],
   },
@@ -83,10 +115,15 @@ export const auctionHouseABI = [
         internalType: 'struct LibAuctionHouse.Trade',
         type: 'tuple',
         components: [
-          { name: 'seller', internalType: 'address', type: 'address' },
-          { name: 'buyer', internalType: 'address', type: 'address' },
-          { name: 'pixels', internalType: 'bytes4[]', type: 'bytes4[]' },
+          { name: 'creator', internalType: 'address', type: 'address' },
+          { name: 'receiver', internalType: 'address', type: 'address' },
+          { name: 'pixels', internalType: 'bytes', type: 'bytes' },
           { name: 'price', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'tradeType',
+            internalType: 'enum LibAuctionHouse.TradeType',
+            type: 'uint8',
+          },
         ],
       },
     ],
@@ -96,9 +133,13 @@ export const auctionHouseABI = [
     type: 'function',
     inputs: [
       { name: 'receiver', internalType: 'address', type: 'address' },
-      { name: 'pixels', internalType: 'bytes4[]', type: 'bytes4[]' },
+      { name: 'pixels', internalType: 'bytes', type: 'bytes' },
       { name: 'price', internalType: 'uint256', type: 'uint256' },
-      { name: 'isSell', internalType: 'bool', type: 'bool' },
+      {
+        name: 'tradeType',
+        internalType: 'enum LibAuctionHouse.TradeType',
+        type: 'uint8',
+      },
     ],
     name: 'openTrade',
     outputs: [],
@@ -522,9 +563,12 @@ export const pxlsCommonABI = [
   {
     stateMutability: 'view',
     type: 'function',
-    inputs: [{ name: 'addr', internalType: 'address', type: 'address' }],
+    inputs: [
+      { name: 'addr', internalType: 'address', type: 'address' },
+      { name: 'ids', internalType: 'bytes', type: 'bytes' },
+    ],
     name: 'pixelsOf',
-    outputs: [{ name: 'result', internalType: 'uint8[][]', type: 'uint8[][]' }],
+    outputs: [{ name: 'result', internalType: 'uint32[]', type: 'uint32[]' }],
   },
   {
     stateMutability: 'nonpayable',
@@ -584,7 +628,7 @@ export const pxlsCoreABI = [
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
-      { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
+      { name: 'pixelBytes', internalType: 'bytes', type: 'bytes' },
       { name: 'delays', internalType: 'uint32[][]', type: 'uint32[][]' },
     ],
     name: 'mint',

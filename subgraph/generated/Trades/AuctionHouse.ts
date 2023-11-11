@@ -10,6 +10,52 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
+export class TradeCanceled extends ethereum.Event {
+  get params(): TradeCanceled__Params {
+    return new TradeCanceled__Params(this);
+  }
+}
+
+export class TradeCanceled__Params {
+  _event: TradeCanceled;
+
+  constructor(event: TradeCanceled) {
+    this._event = event;
+  }
+
+  get id(): Bytes {
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get trade(): TradeCanceledTradeStruct {
+    return changetype<TradeCanceledTradeStruct>(
+      this._event.parameters[1].value.toTuple()
+    );
+  }
+}
+
+export class TradeCanceledTradeStruct extends ethereum.Tuple {
+  get creator(): Address {
+    return this[0].toAddress();
+  }
+
+  get receiver(): Address {
+    return this[1].toAddress();
+  }
+
+  get pixels(): Bytes {
+    return this[2].toBytes();
+  }
+
+  get price(): BigInt {
+    return this[3].toBigInt();
+  }
+
+  get tradeType(): i32 {
+    return this[4].toI32();
+  }
+}
+
 export class TradeClosed extends ethereum.Event {
   get params(): TradeClosed__Params {
     return new TradeClosed__Params(this);
@@ -27,16 +73,36 @@ export class TradeClosed__Params {
     return this._event.parameters[0].value.toBytes();
   }
 
-  get seller(): Address {
-    return this._event.parameters[1].value.toAddress();
+  get trade(): TradeClosedTradeStruct {
+    return changetype<TradeClosedTradeStruct>(
+      this._event.parameters[1].value.toTuple()
+    );
   }
 
-  get buyer(): Address {
+  get closing(): Address {
     return this._event.parameters[2].value.toAddress();
   }
+}
 
-  get pixels(): Array<Bytes> {
-    return this._event.parameters[3].value.toBytesArray();
+export class TradeClosedTradeStruct extends ethereum.Tuple {
+  get creator(): Address {
+    return this[0].toAddress();
+  }
+
+  get receiver(): Address {
+    return this[1].toAddress();
+  }
+
+  get pixels(): Bytes {
+    return this[2].toBytes();
+  }
+
+  get price(): BigInt {
+    return this[3].toBigInt();
+  }
+
+  get tradeType(): i32 {
+    return this[4].toI32();
   }
 }
 
@@ -53,34 +119,58 @@ export class TradeOpened__Params {
     this._event = event;
   }
 
-  get creator(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get receiver(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
   get id(): Bytes {
-    return this._event.parameters[2].value.toBytes();
+    return this._event.parameters[0].value.toBytes();
+  }
+
+  get trade(): TradeOpenedTradeStruct {
+    return changetype<TradeOpenedTradeStruct>(
+      this._event.parameters[1].value.toTuple()
+    );
   }
 }
 
-export class AuctionHouse__getTradeResultValue0Struct extends ethereum.Tuple {
-  get seller(): Address {
+export class TradeOpenedTradeStruct extends ethereum.Tuple {
+  get creator(): Address {
     return this[0].toAddress();
   }
 
-  get buyer(): Address {
+  get receiver(): Address {
     return this[1].toAddress();
   }
 
-  get pixels(): Array<Bytes> {
-    return this[2].toBytesArray();
+  get pixels(): Bytes {
+    return this[2].toBytes();
   }
 
   get price(): BigInt {
     return this[3].toBigInt();
+  }
+
+  get tradeType(): i32 {
+    return this[4].toI32();
+  }
+}
+
+export class AuctionHouse__getTradeResultValue0Struct extends ethereum.Tuple {
+  get creator(): Address {
+    return this[0].toAddress();
+  }
+
+  get receiver(): Address {
+    return this[1].toAddress();
+  }
+
+  get pixels(): Bytes {
+    return this[2].toBytes();
+  }
+
+  get price(): BigInt {
+    return this[3].toBigInt();
+  }
+
+  get tradeType(): i32 {
+    return this[4].toI32();
   }
 }
 
@@ -92,7 +182,7 @@ export class AuctionHouse extends ethereum.SmartContract {
   getTrade(id: Bytes): AuctionHouse__getTradeResultValue0Struct {
     let result = super.call(
       "getTrade",
-      "getTrade(bytes32):((address,address,bytes4[],uint256))",
+      "getTrade(bytes32):((address,address,bytes,uint256,uint8))",
       [ethereum.Value.fromFixedBytes(id)]
     );
 
@@ -106,7 +196,7 @@ export class AuctionHouse extends ethereum.SmartContract {
   ): ethereum.CallResult<AuctionHouse__getTradeResultValue0Struct> {
     let result = super.tryCall(
       "getTrade",
-      "getTrade(bytes32):((address,address,bytes4[],uint256))",
+      "getTrade(bytes32):((address,address,bytes,uint256,uint8))",
       [ethereum.Value.fromFixedBytes(id)]
     );
     if (result.reverted) {
@@ -195,10 +285,6 @@ export class CloseTradeCall__Inputs {
   get id(): Bytes {
     return this._call.inputValues[0].value.toBytes();
   }
-
-  get isSell(): boolean {
-    return this._call.inputValues[1].value.toBoolean();
-  }
 }
 
 export class CloseTradeCall__Outputs {
@@ -230,16 +316,16 @@ export class OpenTradeCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get pixels(): Array<Bytes> {
-    return this._call.inputValues[1].value.toBytesArray();
+  get pixels(): Bytes {
+    return this._call.inputValues[1].value.toBytes();
   }
 
   get price(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
   }
 
-  get isSell(): boolean {
-    return this._call.inputValues[3].value.toBoolean();
+  get tradeType(): i32 {
+    return this._call.inputValues[3].value.toI32();
   }
 }
 

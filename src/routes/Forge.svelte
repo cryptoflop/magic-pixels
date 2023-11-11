@@ -12,7 +12,12 @@
 		decodePixel,
 		encodePixel,
 	} from "../../contracts/scripts/libraries/pixel-parser";
+	import type { createRoutingCtx } from "../contexts/routing";
 	import { fade } from "svelte/transition";
+	import { createAudio } from "../helpers/audio";
+	import forgeSrc from "../assets/forging.mp3";
+
+	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const pixels = web3.pixels;
@@ -190,6 +195,16 @@
 		drop(idx);
 		delete delays[idx];
 	}
+
+	async function mint() {
+		createAudio(forgeSrc, {
+			autoPlay: true,
+			volume: 0.1,
+			disposable: true,
+		});
+		const tokenId = await web3.mint(placedPixels, delaysPacked);
+		routing.goto("plate", { id: tokenId.toString() }, "treasury");
+	}
 </script>
 
 <div
@@ -274,10 +289,7 @@
 			class="-mt-0.5 text-lg"
 			disabled={placedPixelsCount < dimension ** 2}
 			options={{ colored: true, density: 3 }}
-			action={async () => {
-				await web3.mint(placedPixels, delaysPacked);
-				clear();
-			}}
+			action={mint}
 			on:mouseenter={() => (flash = true)}
 			on:mouseleave={() => (flash = false)}
 		>

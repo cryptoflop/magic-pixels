@@ -2,31 +2,46 @@
 	import { getContext } from "svelte";
 	import type { createRoutingCtx } from "../../contexts/routing";
 	import type { createWeb3Ctx } from "../../contexts/web3";
-	import { comparePixel, fullPixelName } from "../../helpers/color-utils";
+	import { fullPixelName } from "../../helpers/color-utils";
 	import { tooltip } from "../../directives/tooltip";
-	import Pixel from "../../elements/Pixel.svelte";
+	import Pxl from "../../elements/Pixel.svelte";
 	import PixelPalette from "../../elements/PixelPalette.svelte";
 	import { NULL_ADDR } from "../../values";
-	import { formatEther, parseEther } from "viem";
+	import { parseEther, type Address } from "viem";
 	import PixelizedButton from "../../elements/PixelizedButton.svelte";
+	import {
+		decodePixel,
+		encodePixel,
+	} from "../../../contracts/scripts/libraries/pixel-parser";
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const acc = web3.account;
 	const pixels = web3.pixels;
 
-	let selectedPixelIndices: number[] = [];
+	let selectedPixels: PixelId[] = [];
 
-	$: availablePixels = $pixels.filter(
-		(_, i) => selectedPixelIndices.findIndex((idx) => idx == i) == -1
-	);
+	$: selectedPixelsArr = selectedPixels.map((id) => decodePixel(id));
 
-	$: selectedPixels = selectedPixelIndices.map((idx) => $pixels[idx]);
+	$: pixelsArr = $pixels.toArray();
+
+	$: availablePixels = pixelsArr.reduce(
+		(state, id) => {
+			const idx = state.toSub.indexOf(id);
+			if (idx >= 0) {
+				state.toSub.splice(idx, 1);
+			} else {
+				state.res.push(decodePixel(id));
+			}
+			return state;
+		},
+		{ toSub: selectedPixels.filter((id) => id), res: [] as Pixel[] }
+	).res;
 
 	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
 
 	let selecting = false;
 
-	let type: "sell" | "buy" = "sell";
+	let tradeType = 0;
 
 	let price = "";
 
@@ -45,30 +60,25 @@
 
 	let receiver = "";
 
-	function select(pxl: number[]) {
-		const idx = $pixels.findIndex(
-			(p, i) =>
-				comparePixel(pxl, p) &&
-				selectedPixelIndices.findIndex((idx) => idx == i) == -1
-		);
-		selectedPixelIndices = [...selectedPixelIndices, idx];
+	function select(pxl: PixelId) {
+		selectedPixels = [...selectedPixels, pxl];
 	}
 
-	function deselect(pxl: number[]) {
-		const idx = selectedPixelIndices.findIndex((idx) =>
-			comparePixel(pxl, $pixels[idx])
+	function deselect(pxl: PixelId) {
+		selectedPixels.splice(
+			selectedPixels.findIndex((id) => id === pxl),
+			1
 		);
-		selectedPixelIndices.splice(idx, 1);
-		selectedPixelIndices = [...selectedPixelIndices];
+		selectedPixels = [...selectedPixels];
 	}
 
 	async function openTrade() {
 		selecting = false;
 		await web3.openTrade(
 			selectedPixels,
+			(receiver || NULL_ADDR) as Address,
 			parseEther(price),
-			receiver || NULL_ADDR,
-			type == "sell"
+			tradeType
 		);
 		routing.goback();
 	}
@@ -78,14 +88,14 @@
 	<div class="flex">
 		<button class="button" on:click={() => routing.goback()}>go back</button>
 
-		<select class="ml-auto" bind:value={type}>
-			<option value="sell">Sell</option>
-			<option value="buy">Buy</option>
+		<select class="ml-auto" bind:value={tradeType}>
+			<option value={0}>Sell</option>
+			<option value={1}>Buy</option>
 		</select>
 	</div>
 
 	<div class="border-2 p-4 grid gap-2">
-		{#if type == "sell"}
+		{#if tradeType == 0}
 			<div class="grid">
 				<div>Seller (You)</div>
 				<div class="text-base/5">{$acc}</div>
@@ -99,7 +109,7 @@
 				/>
 			</div>
 		{/if}
-		{#if type == "buy"}
+		{#if tradeType == 1}
 			<div class="grid">
 				<div>Buyer (You)</div>
 				<div class="text-base/5">{$acc}</div>
@@ -132,13 +142,13 @@
 			<div
 				class="border-2 grid grid-cols-[repeat(12,1fr)] min-h-[1.75rem] min-w-[18.25rem]"
 			>
-				{#each selectedPixels as pxl}
+				{#each selectedPixelsArr as pxl}
 					<div class="relative">
-						<Pixel class="h-6 w-6" pixel={pxl} />
-						<div
+						<Pxl class="h-6 w-6" pixel={pxl} />
+						<button
 							class="absolute inset-0"
 							use:tooltip={fullPixelName(pxl)}
-							on:click={() => deselect(pxl)}
+							on:click={() => deselect(encodePixel(pxl))}
 						/>
 					</div>
 				{/each}
@@ -149,7 +159,7 @@
 	<PixelPalette
 		pixels={availablePixels}
 		cols={6}
-		on:mousedown={(e) => select(e.detail.pxl)}
+		on:mousedown={(e) => select(encodePixel(e.detail.pxl))}
 		class="absolute -translate-x-44 translate-y-8 {!selecting &&
 			'opacity-0 pointer-events-none'}"
 	/>

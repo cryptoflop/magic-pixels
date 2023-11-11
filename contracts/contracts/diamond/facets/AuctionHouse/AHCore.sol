@@ -5,7 +5,7 @@ import { LibAuctionHouse } from "../../libraries/LibAuctionHouse.sol";
 import { LibPixels } from "../../libraries/LibPixels.sol";
 
 
-/// @notice module that handles trades and auctioning
+/// @notice facet that handles trades and auctioning
 contract AuctionHouse {
 
 	error Unauthorized();
@@ -16,24 +16,19 @@ contract AuctionHouse {
 
 	constructor() {}
 
-	event TradeOpened(address indexed creator, address indexed receiver, bytes32 id);
-	event TradeClosed(
-		bytes32 id,
-		address indexed seller,
-		address indexed buyer,
-		bytes4[] pixels
-	);
+	event TradeOpened(bytes32 id, LibAuctionHouse.Trade trade);
+	event TradeClosed(bytes32 id, LibAuctionHouse.Trade trade, address closing);
+	event TradeCanceled(bytes32 id, LibAuctionHouse.Trade trade);
 
 	function getTrade(bytes32 id) external view returns (LibAuctionHouse.Trade memory) {
 		return LibAuctionHouse.store().trades[id];
 	}
 
-	
 	function openTrade(
 		address receiver,
-		bytes4[] calldata pixels,
+		bytes calldata pixels,
 		uint256 price,
-		bool isSell
+		LibAuctionHouse.TradeType tradeType
 	) external payable {
 		LibAuctionHouse.Storage storage s = LibAuctionHouse.store();
 
@@ -41,60 +36,57 @@ contract AuctionHouse {
 		if (s.trades[id].pixels.length > 0) revert TradeAlreadyExists();
 		if (pixels.length == 0) revert IncorrectValue();
 
-		if (isSell) {
-			// open as seller
-			s.trades[id] = LibAuctionHouse.Trade(tx.origin, receiver, pixels, price);
-		} else {
+		if (tradeType == LibAuctionHouse.TradeType.BUY) {
 			// open as buyer
 			if (msg.value != price) revert IncorrectValue();
-			s.trades[id] = LibAuctionHouse.Trade(receiver, tx.origin, pixels, price);
 		}
 
-		emit TradeOpened(tx.origin, receiver, id);
+		s.trades[id] = LibAuctionHouse.Trade(tx.origin, receiver, pixels, price, tradeType);
+
+		emit TradeOpened(id, s.trades[id]);
 	}
 
-	function closeTrade(bytes32 id, bool isSell) external payable {
+	function closeTrade(bytes32 id) external payable {
 		LibAuctionHouse.Trade memory trade = LibAuctionHouse.store().trades[id];
 
-		if (isSell) {
-			// close as seller
-			if (trade.seller != address(0)) {
-				if (trade.seller != tx.origin) revert Unauthorized();
-			}
+		if (trade.receiver != address(0) && trade.receiver != tx.origin) revert Unauthorized();
 
-			movePixels(trade.pixels, tx.origin, trade.seller);
+		if (trade.tradeType == LibAuctionHouse.TradeType.BUY) {
+			// close as seller
+			movePixels(trade.pixels, tx.origin, trade.creator);
+			deleteTrade(id);
 
 			(bool success, ) = tx.origin.call{value: trade.price}("");
 			if (!success) revert PaymentFailed();
 
-			emit TradeClosed(id, tx.origin, trade.buyer, trade.pixels);
 		} else {
 			// close as buyer
 			if (msg.value != trade.price) revert IncorrectValue();
 
-			if (trade.buyer != address(0)) {
-				if (trade.buyer != tx.origin) revert Unauthorized();
-			}
+			movePixels(trade.pixels, trade.creator, tx.origin);
+			deleteTrade(id);
 
-			(bool success, ) = trade.seller.call{value: trade.price}("");
+			(bool success, ) = trade.creator.call{value: trade.price}("");
 			if (!success) revert PaymentFailed();
-			
-			movePixels(trade.pixels, trade.seller, tx.origin);
 
-			emit TradeClosed(id, trade.seller, tx.origin, trade.pixels);
 		}
-	
-		deleteTrade(id);
+		
+		emit TradeClosed(id, trade, tx.origin);
 	}
 
 	function cancelTrade(bytes32 id) external {
 			LibAuctionHouse.Trade memory trade = LibAuctionHouse.store().trades[id];
+			if (trade.creator != tx.origin) revert Unauthorized();
+
 			deleteTrade(id);
-			if (trade.buyer == tx.origin) {
+
+			if (trade.tradeType == LibAuctionHouse.TradeType.BUY) {
 				// pay back price
 				(bool success, ) = tx.origin.call{value: trade.price}("");
 				if (!success) revert PaymentFailed();
 			}
+
+			emit TradeCanceled(id, trade);
 	}
 
 	function deleteTrade(bytes32 id) internal {
@@ -103,7 +95,7 @@ contract AuctionHouse {
 	}
 
 	function movePixels(
-		bytes4[] memory pixels,
+		bytes memory pixelBytes,
 		address from,
 		address to
 	) internal {
@@ -112,8 +104,9 @@ contract AuctionHouse {
 		mapping(bytes4 => uint32) storage fromPixels = s.pixelMap[from];
 		mapping(bytes4 => uint32) storage toPixels = s.pixelMap[to];
 
-		for (uint i = 0; i < pixels.length; i++) {
-			bytes4 pxlId = pixels[i];
+		uint256 len = (pixelBytes.length / 4);
+		for (uint i = 0; i < len; i++) {
+			bytes4 pxlId = LibPixels.unpackFromAt(pixelBytes, i);
 			--fromPixels[pxlId];
 			++toPixels[pxlId];
 		}

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNKNOWN
 pragma solidity ^0.8.18;
 
-import "../../MagicPlates.sol";
-
 library LibPixels {
 	bytes32 constant STORAGE_POSITION = keccak256("diamond.pixels.storage");
 
@@ -22,7 +20,7 @@ library LibPixels {
 
 		mapping(address => mapping(bytes4 => uint32)) pixelMap;
 
-		MagicPlates nft;
+		address plts;
 	}
 
 	function store() internal pure returns (Storage storage s) {
@@ -61,7 +59,14 @@ library LibPixels {
 	/// @notice packs the bytes of a pixel into a byte array at the given positon
 	function packIntoAt(bytes memory data, bytes4 pxl, uint256 at) internal pure {
 		assembly {
-			mstore(add(add(data, 0x20), mul(at, 0x01)), pxl)
+			mstore(add(add(data, 0x20), mul(at, 0x04)), pxl)
+		}
+	}
+
+	/// @notice unpacks the bytes of a pixel from a byte array at the given positon
+	function unpackFromAt(bytes memory data, uint256 at) internal pure returns (bytes4 result) {
+		assembly {
+			result := mload(add(add(data, 0x20), mul(at, 0x04)))
 		}
 	}
 

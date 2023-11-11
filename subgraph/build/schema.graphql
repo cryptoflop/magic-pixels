@@ -1,23 +1,5 @@
 # Pixels
 
-type Conjured @entity(immutable: true) {
-  id: Bytes!
-  conjurer: Bytes! # address
-  pixels: Bytes! # bytes
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type Minted @entity(immutable: true) {
-  id: Bytes!
-  minter: Bytes! # address
-  pixels: Bytes! # bytes
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
 type PixelBalance @entity(immutable: false) {
   id: ID!
 	pixel: Bytes! # bytes4
@@ -33,34 +15,23 @@ type Account @entity(immutable: false) {
 
 # AuctionHouse
 
-type TradeClosed @entity(immutable: true) {
-  id: Bytes!
-	AuctionHouse_id: Bytes! # bytes32
-  seller: Bytes! # address
-  buyer: Bytes! # address
-  pixels: [Bytes!]! # bytes4[]
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type TradeOpened @entity(immutable: true) {
-  id: Bytes!
-  creator: Bytes! # address
-  AuctionHouse_id: Bytes! # bytes32
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type Trade @entity(immutable: false) {
+	id: ID!
+	creator: Bytes! # address
+	receiver: Bytes! # address
+	pixels: Bytes!
+	price: BigInt!
+	tradeType: Int!
 }
 
 type TradesByCreator @entity(immutable: false) {
 	id: ID!
-	trades: [Bytes!]!
+	trades: [Trade!]!
 }
 
 type TradesByReceiver @entity(immutable: false) {
 	id: ID!
-	trades: [Bytes!]!
+	trades: [Trade!]!
 }
 
 

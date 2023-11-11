@@ -2,6 +2,9 @@
 	import Plt from "../../elements/Plate.svelte";
 	import { getContext } from "svelte";
 	import type { createWeb3Ctx } from "../../contexts/web3";
+	import type { createRoutingCtx } from "../../contexts/routing";
+
+	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const plates = web3.plates;
@@ -13,19 +16,22 @@
 </script>
 
 <div
-	class="border-2 grid grid-cols-2 gap-4 p-4 overflow-y-auto h-[314px] max-h-[314px]"
+	class="border-2 grid grid-cols-2 gap-4 p-4 overflow-y-auto h-[388px] max-h-[388px]"
 	style="grid-auto-rows: min-content;"
 >
 	{#each $plates as plate}
-		<div class="group cursor-pointer">
-			<div class="border-2 group-hover:scale-95">
+		<button
+			class="group cursor-pointer"
+			on:click={() => routing.goto("plate", { id: plate.id.toString() })}
+		>
+			<div class="border-2 group-hover:scale-95 pointer-events-none">
 				<div class="px-1.5 flex justify-between">
 					<div>#{plate.id.toString()}</div>
 					<div class="text-xs mt-[5px]">{plateSize(plate)}</div>
 				</div>
 				<Plt class="w-36" {plate} />
 			</div>
-		</div>
+		</button>
 	{/each}
 
 	{#if $plates.length == 0}

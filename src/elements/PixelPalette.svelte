@@ -86,7 +86,7 @@
 						on:mousedown={(e) => dispatch("mousedown", { pxl, ev: e })}
 					>
 						<Pxl class="h-6 w-6" pixel={pxl} />
-						<div
+						<button
 							class="absolute inset-0 hover:bg-white/30 select-none {classNamePixel}"
 							use:tooltip={fullPixelName(pxl)}
 						/>

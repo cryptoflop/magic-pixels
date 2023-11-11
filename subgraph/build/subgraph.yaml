@@ -6,9 +6,9 @@ dataSources:
     name: Pixels
     network: testnet
     source:
-      address: "0xc6571944217c73b85a5d30ab388ca487a4f3ae1e"
+      address: "0xb75d03c798281b7e1aa715f58c2f570a29b5e906"
       abi: PxlsCore
-      startBlock: 25492085
+      startBlock: 25628213
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -29,9 +29,9 @@ dataSources:
     name: Trades
     network: testnet
     source:
-      address: "0xc6571944217c73b85a5d30ab388ca487a4f3ae1e"
+      address: "0xb75d03c798281b7e1aa715f58c2f570a29b5e906"
       abi: AuctionHouse
-      startBlock: 25492085
+      startBlock: 25628213
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -43,8 +43,10 @@ dataSources:
         - name: AuctionHouse
           file: contracts\artifacts\contracts\diamond\facets\AuctionHouse\AHCore.sol\AuctionHouse.json
       eventHandlers:
-        - event: TradeOpened(indexed address,indexed address,bytes32)
+        - event: TradeOpened(bytes32,(address,address,bytes,uint256,uint8))
           handler: handleTradeOpened
-        - event: TradeClosed(bytes32,indexed address,indexed address,bytes4[])
+        - event: TradeClosed(bytes32,(address,address,bytes,uint256,uint8),address)
           handler: handleTradeClosed
+        - event: TradeCanceled(bytes32,(address,address,bytes,uint256,uint8))
+          handler: handleTradeCanceled
       file: Trades\Trades.wasm

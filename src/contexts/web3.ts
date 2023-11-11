@@ -4,10 +4,10 @@ import { parseAbiItem, parseEther, type Hex, type Address } from "viem";
 import { readable, writable } from "svelte/store";
 import { mantleTestnet } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
-import { bytesToPixelIds, decodePixel } from "../../contracts/scripts/libraries/pixel-parser"
+import { bytesToPixelIds, pixelIdsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
 import { NULL_ADDR, PIXEL_PRICE } from "../values";
 
-import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI } from "../../contracts/generated";
+import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI, auctionHouseABI } from "../../contracts/generated";
 
 import { execute, AllPixelsByAccountDocument, AccountLastBlockDocument } from "../../subgraph/.graphclient"
 import PixelBalances from "../helpers/pixel-balances";
@@ -122,28 +122,12 @@ export function createWeb3Ctx() {
 			})
 		})),
 
-		async getTrade(id: `0x${string}`) {
-			const trade = await readContract({
-				address: PXLS,
-				abi: [parseAbiItem("function getTrade(bytes32 id) view returns((address, address, uint8[][], uint256))")],
-				functionName: "getTrade",
-				args: [id]
-			});
-			return trade[2].length ? {
-				id,
-				seller: trade[0],
-				buyer: trade[1],
-				pixels: trade[2].map(p => p.map(pi => pi)),
-				price: trade[3]
-			} as P2PTrade : null
-		},
-
-		async openTrade(pixels: number[][], price: bigint, receiver: string, isSell: boolean) {
+		async openTrade(pixels: PixelId[], receiver: Address, price: bigint, tradeType: number) {
 			const { hash } = await writeContract({
 				address: PXLS,
-				abi: [parseAbiItem("function openTrade(address, uint8[][], uint256, bool) external payable")],
+				abi: auctionHouseABI,
 				functionName: "openTrade",
-				args: [receiver as `0x${string}`, pixels, price, isSell],
+				args: [receiver, pixelIdsToBytes(pixels), price, tradeType],
 				value: price
 			});
 
@@ -165,10 +149,11 @@ export function createWeb3Ctx() {
 			ctx.trades.update(curr => {
 				curr.push({
 					id: tradeId,
-					seller: isSell ? ctx.account.current! : receiver,
-					buyer: isSell ? receiver : ctx.account.current!,
+					creator: ctx.account.current!,
+					receiver,
 					pixels,
-					price
+					price,
+					tradeType
 				})
 				return curr
 			})
@@ -207,6 +192,21 @@ export function createWeb3Ctx() {
 			// })
 		},
 
+		async getTrade(id: `0x${string}`) {
+			const trade = await readContract({
+				address: PXLS,
+				abi: auctionHouseABI,
+				functionName: "getTrade",
+				args: [id]
+			});
+			const pixelIds = bytesToPixelIds(trade.pixels)
+			return pixelIds.length ? {
+				...trade,
+				id,
+				pixels: pixelIds
+			} as P2PTrade : null
+		},
+
 		async conjure(numPixels: number): Promise<[PixelId[], bigint]> {
 			const { hash } = await writeContract({
 				address: PXLS,
@@ -216,7 +216,7 @@ export function createWeb3Ctx() {
 				value: parseEther(PIXEL_PRICE.toString()) * BigInt(numPixels)
 			})
 
-			const { status, blockNumber } = await waitForTransaction({ hash, confirmations: import.meta.env.DEV ? 1 : 2 })
+			const { status, blockNumber } = await waitForTransaction({ hash })
 			if (status == "reverted") throw "reverted"
 
 			const conjuredEvents = await getPublicClient().getContractEvents({
@@ -259,7 +259,7 @@ export function createWeb3Ctx() {
 				address: PXLS,
 				abi: pxlsCoreABI,
 				functionName: 'mint',
-				args: [pixels.map(id => decodePixel(id)), delays.map(delay => [delay.idx, delay.delay] as const)]
+				args: [pixelIdsToBytes(pixels), delays.map(delay => [delay.idx, delay.delay] as const)]
 			})
 
 			const { status, blockNumber } = await waitForTransaction({ hash })
@@ -302,8 +302,51 @@ export function createWeb3Ctx() {
 			return tokenId
 		},
 
-		async burn() {
-			// TODO
+		async getPlate(tokenId: bigint) {
+			return (await readContract({
+				address: PLTS,
+				abi: magicPlatesABI,
+				functionName: "plateById",
+				args: [tokenId],
+			})) as Plate
+		},
+
+		async shatter(tokenId: bigint) {
+			const { hash } = await writeContract({
+				address: PLTS,
+				abi: magicPlatesABI,
+				functionName: "burn",
+				args: [tokenId],
+			})
+
+			const { status, blockNumber } = await waitForTransaction({ hash })
+			if (status == "reverted") throw "reverted"
+
+			const restoredEvents = await getPublicClient().getContractEvents({
+				address: PXLS,
+				abi: pxlsCoreABI,
+				eventName: "Conjured",
+				args: {
+					to: ctx.account.current
+				},
+				fromBlock: blockNumber,
+				toBlock: blockNumber
+			})
+
+			const pixelIds = bytesToPixelIds(restoredEvents[0].args.pixels!)
+			ctx.pixels.update(c => {
+				// add restored pixels to balances
+				pixelIds.forEach(id => c.increase(id))
+				const updated = c.copy()
+				savePixels(updated, blockNumber, ctx.account.current!)
+				return updated
+			})
+
+			ctx.plates.update(c => {
+				// remove shattered plate
+				c.splice(c.findIndex(p => p.id === tokenId), 1)
+				return [...c]
+			})
 		}
 	}
 

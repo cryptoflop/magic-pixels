@@ -1,8 +1,13 @@
 <script lang="ts">
+	import { getContext } from "svelte";
 	import Pixels from "./Pixels.svelte";
 	import Plates from "./Plates.svelte";
+	import type { createRoutingCtx } from "../../contexts/routing";
 
-	let view: "pixels" | "plates" = "plates";
+	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
+	const param = routing.param;
+
+	let view: "pixels" | "plates" = ($param?.view as "pixels") ?? "plates";
 </script>
 
 <div class="grid grid-rows-[min-content,1fr] m-auto gap-4">

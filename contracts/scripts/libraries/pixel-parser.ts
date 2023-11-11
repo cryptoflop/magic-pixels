@@ -12,6 +12,11 @@ export function bytesToPixelIds(bytes: Hex) {
 	}, [] as `0x${string}`[])
 }
 
+/** Takes a bytes array and returns an array of bytes in the length of a pixel @see MAX_PIXEL_LENGTH */
+export function pixelIdsToBytes(pixelIds: Hex[]) {
+	return ("0x" + pixelIds.map(id => id.substring(2)).join('')) as Hex
+}
+
 /** Converts a pixel array into a bytes array */
 export function pixelsToBytes(pixels: number[][]) {
 	return ("0x" + pixels.map(pxl => Array(MAX_PIXEL_LENGTH).fill(0).map((d, i) => pxl[i] ?? d))

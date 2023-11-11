@@ -55,7 +55,7 @@
 		...options,
 	}}
 >
-	<span class={disabled ? "opacity-50" : ""}>
+	<span class="{disabled ? 'opacity-50' : ''} pointer-events-none">
 		{#if executing}
 			<slot name="executing" />
 		{:else}

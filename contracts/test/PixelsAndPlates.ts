@@ -42,7 +42,7 @@ describe('PixelsAndPlates', function () {
 			.map((_, i) => pixels.findIndex((pxl, j) => pxl.length > 1 && (i > 0 ? (j > 100) : true)))
 			.map(idx => [idx, Math.round(Math.random() * (199 - 0) + 0)])
 
-		await pxls.write.mint([pixels, delays])
+		await pxls.write.mint([conjured.args.pixels, delays])
 
 		const svgDataURI = await (await ethers.getContractAt("MagicPlates", pltsAddress)).tokenURI(0, { gasLimit: 999999999999999999n }) // viem fails in this case, ethers doesn't...
 		expect(svgDataURI, "invalid svg data uri").includes("data:image/svg+xml")
@@ -87,7 +87,7 @@ describe('PixelsAndPlates', function () {
 		const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 		const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 
-		await pxls.write.mint([bytesToPixels(conjured.args.pixels), []])
+		await pxls.write.mint([conjured.args.pixels, []])
 	})
 
 })

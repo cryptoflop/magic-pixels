@@ -78,9 +78,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint8[][]",
-        "name": "pixels",
-        "type": "uint8[][]"
+        "internalType": "bytes",
+        "name": "pixelBytes",
+        "type": "bytes"
       },
       {
         "internalType": "uint32[][]",

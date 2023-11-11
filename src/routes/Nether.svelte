@@ -10,8 +10,9 @@
 	import { formatEther } from "viem";
 
 	import qackSrc from "../assets/quack.mp3";
-	import clickSrc from "../assets/click.mp3";
+	import tokSrc from "../assets/tok.mp3";
 	import sparkleSrc from "../assets/sparkle.mp3";
+	import winSrc from "../assets/win.mp3";
 	import { createAudio } from "../helpers/audio";
 	import { decodePixel } from "../../contracts/scripts/libraries/pixel-parser";
 	import { createToastCtx } from "../contexts/toast";
@@ -37,13 +38,13 @@
 			.map(() => []);
 	}
 
-	const click = createAudio(clickSrc, { volume: 0.6 });
+	const tok = createAudio(tokSrc, { volume: 0.6 });
 
 	$: {
 		numPixels && 1;
-		click.currentTime = 0;
-		if (click.paused ?? true) {
-			click.play();
+		tok.currentTime = 0;
+		if (tok.paused ?? true) {
+			tok.play();
 		}
 	}
 
@@ -82,8 +83,14 @@
 				await new Promise((r) => setTimeout(r, 400 / numPixels));
 			} else {
 				conjuring = false;
-				if (surpriseFindAmount > -1n) {
+				if (surpriseFindAmount > 0n) {
 					setTimeout(() => {
+						createAudio(winSrc, {
+							autoPlay: true,
+							volume: 0.2,
+							disposable: true,
+						});
+
 						toast.show(UnexpectedFind, {
 							amount: formatEther(surpriseFindAmount),
 						});

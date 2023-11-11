@@ -8,6 +8,7 @@ import Treasury from "../routes/treasury/Treasury.svelte";
 import Market from "../routes/market/Market.svelte";
 import OpenTrade from "../routes/market/OpenTrade.svelte";
 import TradeOutlet from "../routes/market/TradeOutlet.svelte";
+import PlateOutlet from "../routes/treasury/PlateOutlet.svelte";
 
 export function createRoutingCtx() {
 	const index = 'nether'
@@ -18,6 +19,7 @@ export function createRoutingCtx() {
 		forge: Forge,
 
 		treasury: Treasury,
+		plate: PlateOutlet,
 
 		market: Market,
 		opentrade: OpenTrade,
@@ -57,11 +59,11 @@ export function createRoutingCtx() {
 			return () => unsub();
 		}),
 
-		goto(route: string, param?: Param, asRoot = false) {
-			window.history.pushState(param, route, (asRoot ? ('/' + route) : `${ctx.root.current}/${route}`) + (param ? formatParam(param) : ''))
+		goto(route: string, param?: Param, root?: string) {
+			window.history.pushState(param, route, (`/${root ?? ctx.root.current}${root == route ? '' : ('/' + route)}`) + (param ? formatParam(param) : ''))
+			if (root) ctx.root.set(root)
 			ctx.route.set(route)
 			ctx.param.set(param)
-			if (asRoot) ctx.root.set(route)
 			navigations++
 		},
 
@@ -72,7 +74,7 @@ export function createRoutingCtx() {
 				const [_, root, route] = window.location.pathname.split('/')
 				if (route) {
 					// we can "move back" to root since we are under root/route
-					ctx.goto(root, undefined, true)
+					ctx.goto(root, undefined, root)
 				}
 			}
 		}
@@ -83,7 +85,7 @@ export function createRoutingCtx() {
 		const param = window.location.search
 		ctx.root.set(root)
 		ctx.param.set(param ? parseParam(new URLSearchParams(param)) : undefined)
-		ctx.route.set(route ?? root)
+		ctx.route.set(route || root)
 	}
 
 	if (window.location.pathname.length > 1) {

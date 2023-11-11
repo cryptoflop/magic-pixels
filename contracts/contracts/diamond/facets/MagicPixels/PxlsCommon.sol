@@ -8,28 +8,19 @@ contract PxlsCommon is Ownable {
 
   constructor() {}
 
-	/// @notice TODO
-	function pixelsOf(address addr) external view returns (uint8[][] memory result) {
+	function pixelsOf(address addr, bytes calldata ids) external view returns (uint32[] memory result) {
 		LibPixels.Storage storage store = LibPixels.store();
 
-		mapping(bytes4 => uint32) storage pixels = store.pixelMap[addr];
+		mapping(bytes4 => uint32) storage pixelBalances = store.pixelMap[addr];
 
-		if (pixels[""] == 0xffffff) {}
-		// uint8 MAX_PIXEL = store.MAX_PIXEL;
-		// for (uint8 i = store.MIN_PIXEL; i < MAX_PIXEL; i++) {
-		// 	uint8[] memory pxl = new uint8[](1);
-		// 	pxl[0] = i;
-		// 	bytes4 pxlId = LibPixels.encode(pxl);
+		uint256 len = ids.length / 4;
 
+		result = new uint32[](len);
 
-		// 	for (uint8 j = store.MIN_PIXEL; j < MAX_PIXEL; j++) {
-		// 		uint8[] memory pxl = new uint8[](2);
-		// 		pxl[0] = i; pxl[1] = j;
-		// 		bytes4 pxlId = LibPixels.encode(pxl);
-
-		// 	}
-		// }
-		return new uint8[][](0);
+		for (uint i = 0; i < len; i++) {
+			bytes4 pxlId = LibPixels.unpackFromAt(ids, i);
+			result[i] = pixelBalances[pxlId];
+		}
 	}
 
 	function withdraw(uint256 amount) external onlyOwner returns (bool) {

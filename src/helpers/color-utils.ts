@@ -21,7 +21,6 @@ export function fullPixelName(pixel: number[]) {
 }
 
 function getPalletIndices(idx: number) {
-	idx = idx - 1 // subtract 1 since index is zero based but our pixel colors start at 1
 	const groupIdx = Math.ceil(idx / MAX_PALETTE) - 1
 	const palletIdx = (idx - 1) % MAX_PALETTE
 	return [groupIdx, palletIdx]

@@ -1,7 +1,6 @@
 import { viem } from 'hardhat'
 
 import { decodeEventLog, parseEther } from 'viem'
-import { bytesToPixels } from './libraries/pixel-parser'
 
 import { deployPxls } from './MagicPixels'
 import { deployPlts } from './MagicPlates'
@@ -34,13 +33,13 @@ export async function deploy () {
 	const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 	const conjured = decodeEventLog({ ...conjureRcpt.logs[conjureRcpt.logs.length > 1 ? 1: 0], abi: pxls.abi, eventName: "Conjured" })
 
-  const mintTx = await pxls.write.mint([bytesToPixels(conjured.args.pixels), []])
+  const mintTx = await pxls.write.mint([conjured.args.pixels, []])
 	await publicClient.waitForTransactionReceipt({ hash: mintTx })
 
   console.log('Minted')
 	
 	await openTrade(acc1, pxlsAddress, "0x0000000000000000000000000000000000000000")
-	const id = await openTrade(acc2, pxlsAddress, "0x0000000000000000000000000000000000000000")
+	const [id] = await openTrade(acc2, pxlsAddress, "0x0000000000000000000000000000000000000000")
 	console.log('Test trade: ' + id)
 }
 

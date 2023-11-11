@@ -3,6 +3,7 @@ pragma solidity ^0.8.18;
 
 import "./PxlsRng.sol";
 import "./PxlsNether.sol";
+import "../../../MagicPlates.sol";
 import { LibDiamond } from "../../libraries/LibDiamond.sol";
 import { LibPixels } from "../../libraries/LibPixels.sol";
 
@@ -57,7 +58,7 @@ contract PxlsCore {
 			}
 
 			bytes4 pxlId = LibPixels.encode(pixel);
-			LibPixels.packIntoAt(conjured, pxlId, i * 4);
+			LibPixels.packIntoAt(conjured, pxlId, i);
 			++pixels[pxlId];
 		}
 
@@ -67,29 +68,29 @@ contract PxlsCore {
 	}
 
 	/// @notice Uses pixels to mint a MagicPixels nft
-	function mint(uint8[][] memory pixels, uint32[][] memory delays) external {
+	function mint(bytes calldata pixelBytes, uint32[][] memory delays) external {
 		LibPixels.Storage storage s = LibPixels.store();
 
 		mapping(bytes4 => uint32) storage pixelsOfOwner = s.pixelMap[msg.sender];
 
-		bytes memory used = new bytes(pixels.length * 4);
+		uint8[][] memory pixels = new uint8[][](pixelBytes.length / 4);
 
 		// subtract pixels
 		for (uint i = 0; i < pixels.length; i++) {
-			bytes4 pxlId = LibPixels.encode(pixels[i]);
-			LibPixels.packIntoAt(used, pxlId, i * 4);
+			bytes4 pxlId = LibPixels.unpackFromAt(pixelBytes, i);
 			--pixelsOfOwner[pxlId];
+			pixels[i] = LibPixels.decode(pxlId);
 		}
 
-		s.nft.mint(msg.sender, pixels, delays);
+		MagicPlates(s.plts).mint(msg.sender, pixels, delays);
 
-		emit Minted(msg.sender, used);
+		emit Minted(msg.sender, pixelBytes);
 	}
 	
 	/// @dev restores pixels from a shattered plate
 	function restore(address to, uint8[][] calldata plate) external {
 		LibPixels.Storage storage s = LibPixels.store();
-		if (msg.sender != address(s.nft)) revert Unauthorized();
+		if (msg.sender != s.plts) revert Unauthorized();
 
 		mapping(bytes4 => uint32) storage pixels = s.pixelMap[to]; 
 
@@ -97,7 +98,7 @@ contract PxlsCore {
 
 		for (uint i = 0; i < plate.length; i++) {
 			bytes4 pxlId = LibPixels.encode(plate[i]);
-			LibPixels.packIntoAt(restored, pxlId, i * 4);
+			LibPixels.packIntoAt(restored, pxlId, i);
 			++pixels[pxlId];
 		}
 

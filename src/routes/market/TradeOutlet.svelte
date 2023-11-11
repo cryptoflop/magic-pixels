@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from "svelte";
-	import type { P2PTrade, createWeb3Ctx } from "../../contexts/web3";
+	import type { createWeb3Ctx } from "../../contexts/web3";
 	import type { createRoutingCtx } from "../../contexts/routing";
 	import Trade from "./Trade.svelte";
 	import PixelizedButton from "../../elements/PixelizedButton.svelte";
@@ -20,11 +20,11 @@
 		if ($param?.id) {
 			const ownTrade = $trades.find((t) => t.id == `0x${$param!.id}`);
 			if (ownTrade) {
-				isOwnTrade = false;
+				isOwnTrade = true;
 				trade = ownTrade;
 			} else {
-				web3.getTrade(`0x${$param!.id}`).then((t) => (trade = t));
 				isOwnTrade = false;
+				web3.getTrade(`0x${$param!.id}`).then((t) => (trade = t));
 			}
 		} else {
 			trade = null;

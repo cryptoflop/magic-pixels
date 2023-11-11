@@ -14,7 +14,7 @@ export async function testPixels() {
 
 	let i = 1
 	while (true) {
-		const conjureTx = await pxls.write.conjure([256n], { value: parseEther("0.06") })
+		const conjureTx = await pxls.write.conjure([256n], { value: parseEther("20.5") })
 		const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 		if (conjureRcpt.logs.length > 1) {
 			const surprise = decodeEventLog({ ...conjureRcpt.logs[0], abi: nether.abi, eventName: "UnexpectedFind" })

@@ -133,8 +133,8 @@ export class MintCall__Inputs {
     this._call = call;
   }
 
-  get pixels(): Array<Array<i32>> {
-    return this._call.inputValues[0].value.toI32Matrix();
+  get pixelBytes(): Bytes {
+    return this._call.inputValues[0].value.toBytes();
   }
 
   get delays(): Array<Array<BigInt>> {
