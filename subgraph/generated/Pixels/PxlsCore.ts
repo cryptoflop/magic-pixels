@@ -32,16 +32,16 @@ export class Conjured__Params {
   }
 }
 
-export class Minted extends ethereum.Event {
-  get params(): Minted__Params {
-    return new Minted__Params(this);
+export class Used extends ethereum.Event {
+  get params(): Used__Params {
+    return new Used__Params(this);
   }
 }
 
-export class Minted__Params {
-  _event: Minted;
+export class Used__Params {
+  _event: Used;
 
-  constructor(event: Minted) {
+  constructor(event: Used) {
     this._event = event;
   }
 
@@ -146,6 +146,44 @@ export class MintCall__Outputs {
   _call: MintCall;
 
   constructor(call: MintCall) {
+    this._call = call;
+  }
+}
+
+export class MovePixelsCall extends ethereum.Call {
+  get inputs(): MovePixelsCall__Inputs {
+    return new MovePixelsCall__Inputs(this);
+  }
+
+  get outputs(): MovePixelsCall__Outputs {
+    return new MovePixelsCall__Outputs(this);
+  }
+}
+
+export class MovePixelsCall__Inputs {
+  _call: MovePixelsCall;
+
+  constructor(call: MovePixelsCall) {
+    this._call = call;
+  }
+
+  get from(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get to(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
+  get pixelBytes(): Bytes {
+    return this._call.inputValues[2].value.toBytes();
+  }
+}
+
+export class MovePixelsCall__Outputs {
+  _call: MovePixelsCall;
+
+  constructor(call: MovePixelsCall) {
     this._call = call;
   }
 }

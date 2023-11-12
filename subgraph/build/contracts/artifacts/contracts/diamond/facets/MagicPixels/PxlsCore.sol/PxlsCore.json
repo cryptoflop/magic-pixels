@@ -59,7 +59,7 @@
         "type": "bytes"
       }
     ],
-    "name": "Minted",
+    "name": "Used",
     "type": "event"
   },
   {
@@ -89,6 +89,29 @@
       }
     ],
     "name": "mint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "pixelBytes",
+        "type": "bytes"
+      }
+    ],
+    "name": "movePixels",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

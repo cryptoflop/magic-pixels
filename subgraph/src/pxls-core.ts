@@ -1,5 +1,5 @@
 import { BigInt, Bytes } from "@graphprotocol/graph-ts"
-import { Conjured as ConjuredEvent, Minted as MintedEvent } from "../generated/Pixels/PxlsCore"
+import { Conjured as ConjuredEvent, Used as UsedEvent } from "../generated/Pixels/PxlsCore"
 import { Account, PixelBalance } from "../generated/schema"
 
 const MAX_PIXEL_LENGTH = 4
@@ -7,9 +7,11 @@ const MAX_PIXEL_LENGTH = 4
 function chopBytes(bytes: Bytes): string[] {
 	const pixelBytes = bytes.toHex().substring(2)
 
+	const pxlLen = MAX_PIXEL_LENGTH * 2
+
 	const chopped: string[] = []
-	for (let i = 0; i < (pixelBytes.length / (MAX_PIXEL_LENGTH * 2)); i++) {
-		const pxlId = pixelBytes.slice(i * (MAX_PIXEL_LENGTH * 2), i * (MAX_PIXEL_LENGTH * 2) + (MAX_PIXEL_LENGTH * 2))
+	for (let i = 0; i < (pixelBytes.length / pxlLen); i++) {
+		const pxlId = pixelBytes.slice(i * pxlLen, i * pxlLen + pxlLen)
 		chopped.push(pxlId)
 	}
 
@@ -50,7 +52,7 @@ export function handleConjured(event: ConjuredEvent): void {
 	pixels.save()
 }
 
-export function handleMinted(event: MintedEvent): void {
+export function handleUsed(event: UsedEvent): void {
   const minterId = event.params.minter.toHex()
 
 	const pixelIds = chopBytes(event.params.pixels)

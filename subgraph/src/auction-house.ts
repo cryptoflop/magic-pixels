@@ -20,6 +20,7 @@ export function handleTradeOpened(event: TradeOpenedEvent): void {
 	trade.receiver = event.params.trade.receiver;
 	trade.pixels = event.params.trade.pixels;
 	trade.price = event.params.trade.price;
+	trade.tradeType = event.params.trade.tradeType;
 	trade.save()
 
   let tradesByCreator = TradesByCreator.load(creator)

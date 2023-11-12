@@ -6,7 +6,7 @@ dataSources:
     name: Pixels
     network: testnet
     source:
-      address: "0xb75d03c798281b7e1aa715f58c2f570a29b5e906"
+      address: "0x753222c93c96277813be26ddd661d98a0eed2701"
       abi: PxlsCore
       startBlock: 25628213
     mapping:
@@ -22,14 +22,14 @@ dataSources:
       eventHandlers:
         - event: Conjured(address,bytes)
           handler: handleConjured
-        - event: Minted(address,bytes)
-          handler: handleMinted
+        - event: Used(address,bytes)
+          handler: handleUsed
       file: ./src/pxls-core.ts
   - kind: ethereum/contract
     name: Trades
     network: testnet
     source:
-      address: "0xb75d03c798281b7e1aa715f58c2f570a29b5e906"
+      address: "0x753222c93c96277813be26ddd661d98a0eed2701"
       abi: AuctionHouse
       startBlock: 25628213
     mapping:
