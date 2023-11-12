@@ -1,0 +1,22 @@
+query AllTradesForAccount($account: ID!) {
+	tradesByCreator(id: $account) {
+    trades {
+      id
+      creator
+      receiver
+      pixels
+      price
+      tradeType
+    }
+  }
+  tradesByReceiver(id: $account) {
+    trades {
+      id
+      creator
+      receiver
+      pixels
+      price
+      tradeType
+    }
+  }
+}

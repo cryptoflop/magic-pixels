@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-library LibAuctionHouse {
-	bytes32 constant STORAGE_POSITION = keccak256("diamond.auctionhouse.storage");
+library LibTrades {
+	bytes32 constant STORAGE_POSITION = keccak256("diamond.trades.storage");
 
 	enum TradeType { SELL, BUY }
 
@@ -16,6 +16,7 @@ library LibAuctionHouse {
 
 	struct Storage {
 		mapping(bytes32 => Trade) trades;
+		address payable vault;
 	}
 
 	function store() internal pure returns (Storage storage s) {

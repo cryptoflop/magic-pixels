@@ -1,152 +1,4 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// AuctionHouse
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-export const auctionHouseABI = [
-  { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
-  { type: 'error', inputs: [], name: 'IncorrectValue' },
-  { type: 'error', inputs: [], name: 'PaymentFailed' },
-  { type: 'error', inputs: [], name: 'SellerInsufficientPixels' },
-  { type: 'error', inputs: [], name: 'TradeAlreadyExists' },
-  { type: 'error', inputs: [], name: 'Unauthorized' },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      { name: 'id', internalType: 'bytes32', type: 'bytes32', indexed: false },
-      {
-        name: 'trade',
-        internalType: 'struct LibAuctionHouse.Trade',
-        type: 'tuple',
-        components: [
-          { name: 'creator', internalType: 'address', type: 'address' },
-          { name: 'receiver', internalType: 'address', type: 'address' },
-          { name: 'pixels', internalType: 'bytes', type: 'bytes' },
-          { name: 'price', internalType: 'uint256', type: 'uint256' },
-          {
-            name: 'tradeType',
-            internalType: 'enum LibAuctionHouse.TradeType',
-            type: 'uint8',
-          },
-        ],
-        indexed: false,
-      },
-    ],
-    name: 'TradeCanceled',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      { name: 'id', internalType: 'bytes32', type: 'bytes32', indexed: false },
-      {
-        name: 'trade',
-        internalType: 'struct LibAuctionHouse.Trade',
-        type: 'tuple',
-        components: [
-          { name: 'creator', internalType: 'address', type: 'address' },
-          { name: 'receiver', internalType: 'address', type: 'address' },
-          { name: 'pixels', internalType: 'bytes', type: 'bytes' },
-          { name: 'price', internalType: 'uint256', type: 'uint256' },
-          {
-            name: 'tradeType',
-            internalType: 'enum LibAuctionHouse.TradeType',
-            type: 'uint8',
-          },
-        ],
-        indexed: false,
-      },
-      {
-        name: 'closing',
-        internalType: 'address',
-        type: 'address',
-        indexed: false,
-      },
-    ],
-    name: 'TradeClosed',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      { name: 'id', internalType: 'bytes32', type: 'bytes32', indexed: false },
-      {
-        name: 'trade',
-        internalType: 'struct LibAuctionHouse.Trade',
-        type: 'tuple',
-        components: [
-          { name: 'creator', internalType: 'address', type: 'address' },
-          { name: 'receiver', internalType: 'address', type: 'address' },
-          { name: 'pixels', internalType: 'bytes', type: 'bytes' },
-          { name: 'price', internalType: 'uint256', type: 'uint256' },
-          {
-            name: 'tradeType',
-            internalType: 'enum LibAuctionHouse.TradeType',
-            type: 'uint8',
-          },
-        ],
-        indexed: false,
-      },
-    ],
-    name: 'TradeOpened',
-  },
-  {
-    stateMutability: 'nonpayable',
-    type: 'function',
-    inputs: [{ name: 'id', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'cancelTrade',
-    outputs: [],
-  },
-  {
-    stateMutability: 'payable',
-    type: 'function',
-    inputs: [{ name: 'id', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'closeTrade',
-    outputs: [],
-  },
-  {
-    stateMutability: 'view',
-    type: 'function',
-    inputs: [{ name: 'id', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'getTrade',
-    outputs: [
-      {
-        name: '',
-        internalType: 'struct LibAuctionHouse.Trade',
-        type: 'tuple',
-        components: [
-          { name: 'creator', internalType: 'address', type: 'address' },
-          { name: 'receiver', internalType: 'address', type: 'address' },
-          { name: 'pixels', internalType: 'bytes', type: 'bytes' },
-          { name: 'price', internalType: 'uint256', type: 'uint256' },
-          {
-            name: 'tradeType',
-            internalType: 'enum LibAuctionHouse.TradeType',
-            type: 'uint8',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    stateMutability: 'payable',
-    type: 'function',
-    inputs: [
-      { name: 'receiver', internalType: 'address', type: 'address' },
-      { name: 'pixels', internalType: 'bytes', type: 'bytes' },
-      { name: 'price', internalType: 'uint256', type: 'uint256' },
-      {
-        name: 'tradeType',
-        internalType: 'enum LibAuctionHouse.TradeType',
-        type: 'uint8',
-      },
-    ],
-    name: 'openTrade',
-    outputs: [],
-  },
-] as const
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MagicPlates
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -615,7 +467,7 @@ export const pxlsCoreABI = [
       },
       { name: 'pixels', internalType: 'bytes', type: 'bytes', indexed: false },
     ],
-    name: 'Minted',
+    name: 'Used',
   },
   {
     stateMutability: 'payable',
@@ -632,6 +484,17 @@ export const pxlsCoreABI = [
       { name: 'delays', internalType: 'uint32[][]', type: 'uint32[][]' },
     ],
     name: 'mint',
+    outputs: [],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'pixelBytes', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'movePixels',
     outputs: [],
   },
   {
@@ -675,6 +538,148 @@ export const pxlsNetherABI = [
       { name: 'rnd', internalType: 'uint256', type: 'uint256' },
     ],
     name: 'examineNether',
+    outputs: [],
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TrdsCore
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const trdsCoreABI = [
+  { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
+  { type: 'error', inputs: [], name: 'IncorrectValue' },
+  { type: 'error', inputs: [], name: 'PaymentFailed' },
+  { type: 'error', inputs: [], name: 'SellerInsufficientPixels' },
+  { type: 'error', inputs: [], name: 'TradeAlreadyExists' },
+  { type: 'error', inputs: [], name: 'Unauthorized' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'id', internalType: 'bytes32', type: 'bytes32', indexed: false },
+      {
+        name: 'trade',
+        internalType: 'struct LibTrades.Trade',
+        type: 'tuple',
+        components: [
+          { name: 'creator', internalType: 'address', type: 'address' },
+          { name: 'receiver', internalType: 'address', type: 'address' },
+          { name: 'pixels', internalType: 'bytes', type: 'bytes' },
+          { name: 'price', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'tradeType',
+            internalType: 'enum LibTrades.TradeType',
+            type: 'uint8',
+          },
+        ],
+        indexed: false,
+      },
+    ],
+    name: 'TradeCanceled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'id', internalType: 'bytes32', type: 'bytes32', indexed: false },
+      {
+        name: 'trade',
+        internalType: 'struct LibTrades.Trade',
+        type: 'tuple',
+        components: [
+          { name: 'creator', internalType: 'address', type: 'address' },
+          { name: 'receiver', internalType: 'address', type: 'address' },
+          { name: 'pixels', internalType: 'bytes', type: 'bytes' },
+          { name: 'price', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'tradeType',
+            internalType: 'enum LibTrades.TradeType',
+            type: 'uint8',
+          },
+        ],
+        indexed: false,
+      },
+    ],
+    name: 'TradeClosed',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'id', internalType: 'bytes32', type: 'bytes32', indexed: false },
+      {
+        name: 'trade',
+        internalType: 'struct LibTrades.Trade',
+        type: 'tuple',
+        components: [
+          { name: 'creator', internalType: 'address', type: 'address' },
+          { name: 'receiver', internalType: 'address', type: 'address' },
+          { name: 'pixels', internalType: 'bytes', type: 'bytes' },
+          { name: 'price', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'tradeType',
+            internalType: 'enum LibTrades.TradeType',
+            type: 'uint8',
+          },
+        ],
+        indexed: false,
+      },
+    ],
+    name: 'TradeOpened',
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [{ name: 'id', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'cancelTrade',
+    outputs: [],
+  },
+  {
+    stateMutability: 'payable',
+    type: 'function',
+    inputs: [{ name: 'id', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'closeTrade',
+    outputs: [],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'id', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'getTrade',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct LibTrades.Trade',
+        type: 'tuple',
+        components: [
+          { name: 'creator', internalType: 'address', type: 'address' },
+          { name: 'receiver', internalType: 'address', type: 'address' },
+          { name: 'pixels', internalType: 'bytes', type: 'bytes' },
+          { name: 'price', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'tradeType',
+            internalType: 'enum LibTrades.TradeType',
+            type: 'uint8',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    stateMutability: 'payable',
+    type: 'function',
+    inputs: [
+      { name: 'receiver', internalType: 'address', type: 'address' },
+      { name: 'pixels', internalType: 'bytes', type: 'bytes' },
+      { name: 'price', internalType: 'uint256', type: 'uint256' },
+      {
+        name: 'tradeType',
+        internalType: 'enum LibTrades.TradeType',
+        type: 'uint8',
+      },
+    ],
+    name: 'openTrade',
     outputs: [],
   },
 ] as const

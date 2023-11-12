@@ -6,9 +6,9 @@ dataSources:
     name: Pixels
     network: testnet
     source:
-      address: "0x753222c93c96277813be26ddd661d98a0eed2701"
+      address: "0x56e3de812e29555ef6ccb8b33e97ec609bfcd876"
       abi: PxlsCore
-      startBlock: 25628213
+      startBlock: 25696054
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -29,9 +29,9 @@ dataSources:
     name: Trades
     network: testnet
     source:
-      address: "0x753222c93c96277813be26ddd661d98a0eed2701"
-      abi: AuctionHouse
-      startBlock: 25628213
+      address: "0x56e3de812e29555ef6ccb8b33e97ec609bfcd876"
+      abi: TrdsCore
+      startBlock: 25696054
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -40,12 +40,12 @@ dataSources:
         - TradeClosed
         - TradeOpened
       abis:
-        - name: AuctionHouse
-          file: contracts\artifacts\contracts\diamond\facets\AuctionHouse\AHCore.sol\AuctionHouse.json
+        - name: TrdsCore
+          file: contracts\artifacts\contracts\diamond\facets\Market\Trades\TrdsCore.sol\TrdsCore.json
       eventHandlers:
         - event: TradeOpened(bytes32,(address,address,bytes,uint256,uint8))
           handler: handleTradeOpened
-        - event: TradeClosed(bytes32,(address,address,bytes,uint256,uint8),address)
+        - event: TradeClosed(bytes32,(address,address,bytes,uint256,uint8))
           handler: handleTradeClosed
         - event: TradeCanceled(bytes32,(address,address,bytes,uint256,uint8))
           handler: handleTradeCanceled

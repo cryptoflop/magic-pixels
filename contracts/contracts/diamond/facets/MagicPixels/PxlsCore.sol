@@ -17,7 +17,7 @@ contract PxlsCore {
   constructor() {}
 
 	event Conjured(address conjurer, bytes pixels);
-	event Minted(address minter, bytes pixels);
+	event Used(address minter, bytes pixels);
 
 	/// @notice Conjures random pixels from the nether | 8,666,031 gas for 144 pxl
 	function conjure(uint256 numPixels) external payable {
@@ -84,7 +84,7 @@ contract PxlsCore {
 
 		MagicPlates(s.plts).mint(msg.sender, pixels, delays);
 
-		emit Minted(msg.sender, pixelBytes);
+		emit Used(msg.sender, pixelBytes);
 	}
 	
 	/// @dev restores pixels from a shattered plate
@@ -103,6 +103,28 @@ contract PxlsCore {
 		}
 
 		emit Conjured(to, restored);
+	}
+
+	function movePixels(
+		address from,
+		address to,
+		bytes memory pixelBytes
+	) public {
+		LibDiamond.enforceDiamondItself();
+		LibPixels.Storage storage s = LibPixels.store();
+
+		mapping(bytes4 => uint32) storage fromPixels = s.pixelMap[from];
+		mapping(bytes4 => uint32) storage toPixels = s.pixelMap[to];
+
+		uint256 len = (pixelBytes.length / 4);
+		for (uint i = 0; i < len; i++) {
+			bytes4 pxlId = LibPixels.unpackFromAt(pixelBytes, i);
+			--fromPixels[pxlId];
+			++toPixels[pxlId];
+		}
+
+		emit Used(from, pixelBytes);
+		emit Conjured(to, pixelBytes);
 	}
 
 }

@@ -2,7 +2,7 @@ import {
 	TradeClosed as TradeClosedEvent,
   TradeOpened as TradeOpenedEvent,
 	TradeCanceled as TradeCanceledEvent
-} from "../generated/Trades/AuctionHouse"
+} from "../generated/Trades/TrdsCore"
 import { Trade, TradesByCreator, TradesByReceiver } from "../generated/schema"
 
 
@@ -44,7 +44,7 @@ export function handleTradeOpened(event: TradeOpenedEvent): void {
 
 export function handleTradeClosed(event: TradeClosedEvent): void {
   const creator = event.params.trade.creator.toHex()
-	const receiver = event.params.closing.toHex()
+	const receiver = event.transaction.from.toHex()
 	const tradeId = event.params.id.toHex()
 
   const tradesByCreator = TradesByCreator.load(creator)!

@@ -78,10 +78,6 @@ export class TradeClosed__Params {
       this._event.parameters[1].value.toTuple()
     );
   }
-
-  get closing(): Address {
-    return this._event.parameters[2].value.toAddress();
-  }
 }
 
 export class TradeClosedTradeStruct extends ethereum.Tuple {
@@ -152,7 +148,7 @@ export class TradeOpenedTradeStruct extends ethereum.Tuple {
   }
 }
 
-export class AuctionHouse__getTradeResultValue0Struct extends ethereum.Tuple {
+export class TrdsCore__getTradeResultValue0Struct extends ethereum.Tuple {
   get creator(): Address {
     return this[0].toAddress();
   }
@@ -174,26 +170,26 @@ export class AuctionHouse__getTradeResultValue0Struct extends ethereum.Tuple {
   }
 }
 
-export class AuctionHouse extends ethereum.SmartContract {
-  static bind(address: Address): AuctionHouse {
-    return new AuctionHouse("AuctionHouse", address);
+export class TrdsCore extends ethereum.SmartContract {
+  static bind(address: Address): TrdsCore {
+    return new TrdsCore("TrdsCore", address);
   }
 
-  getTrade(id: Bytes): AuctionHouse__getTradeResultValue0Struct {
+  getTrade(id: Bytes): TrdsCore__getTradeResultValue0Struct {
     let result = super.call(
       "getTrade",
       "getTrade(bytes32):((address,address,bytes,uint256,uint8))",
       [ethereum.Value.fromFixedBytes(id)]
     );
 
-    return changetype<AuctionHouse__getTradeResultValue0Struct>(
+    return changetype<TrdsCore__getTradeResultValue0Struct>(
       result[0].toTuple()
     );
   }
 
   try_getTrade(
     id: Bytes
-  ): ethereum.CallResult<AuctionHouse__getTradeResultValue0Struct> {
+  ): ethereum.CallResult<TrdsCore__getTradeResultValue0Struct> {
     let result = super.tryCall(
       "getTrade",
       "getTrade(bytes32):((address,address,bytes,uint256,uint8))",
@@ -204,7 +200,7 @@ export class AuctionHouse extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      changetype<AuctionHouse__getTradeResultValue0Struct>(value[0].toTuple())
+      changetype<TrdsCore__getTradeResultValue0Struct>(value[0].toTuple())
     );
   }
 }

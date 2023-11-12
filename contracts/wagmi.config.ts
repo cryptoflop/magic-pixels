@@ -11,7 +11,8 @@ export default defineConfig({
 				'PxlsCommon.json',
 				'PxlsNether.json',
 				'PxlsCore.json',
-				'AuctionHouse.json',
+
+				'TrdsCore.json',
 
         'MagicPlates.json'
       ]
