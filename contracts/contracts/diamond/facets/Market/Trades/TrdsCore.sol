@@ -3,6 +3,8 @@ pragma solidity ^0.8.18;
 
 import { LibDiamond } from "../../../libraries/LibDiamond.sol";
 import { LibTrades } from "../../../libraries/LibTrades.sol";
+import { SafeTransferLib  } from "solady/src/utils/SafeTransferLib.sol";
+
 import "../../../facets/MagicPixels/PxlsCore.sol";
 
 import "./TrdsVault.sol";
@@ -12,7 +14,6 @@ import "./TrdsVault.sol";
 contract TrdsCore {
 
 	error Unauthorized();
-	error PaymentFailed();
 	error IncorrectValue();
 	error TradeAlreadyExists();
 	error SellerInsufficientPixels();
@@ -43,12 +44,11 @@ contract TrdsCore {
 			// open as buyer
 			if (msg.value != price) revert IncorrectValue();
 			// send buy price to the vault
-			(bool success, ) = s.vault.call{value: msg.value}("");
-			if (!success) revert PaymentFailed();
+			SafeTransferLib.safeTransferETH(s.vault, msg.value);
 		} else {
 			// open as seller
 			// move pixels from seller to vault
-			PxlsCore(LibDiamond.diamondStorage().diamondAddress).movePixels(tx.origin, s.vault, pixels);
+			movePixels(tx.origin, s.vault, pixels);
 		}
 
 		s.trades[id] = LibTrades.Trade(tx.origin, receiver, pixels, price, tradeType);
@@ -67,47 +67,49 @@ contract TrdsCore {
 			// close as seller
 
 			// move pixels from the seller to the buyer
-			PxlsCore(LibDiamond.diamondStorage().diamondAddress).movePixels(tx.origin, trade.creator, trade.pixels);
+			movePixels(tx.origin, trade.creator, trade.pixels);
 			deleteTrade(id);
 
 			// send the trade price from the vault to the seller
-			bool success = TrdsVault(s.vault).withdrawTo(tx.origin, trade.price);
-			if (!success) revert PaymentFailed();
-
+			TrdsVault(s.vault).withdrawTo(tx.origin, trade.price);
 		} else {
 			// close as buyer
 			if (msg.value != trade.price) revert IncorrectValue();
 
 			// move pixels from vault to buyer
-			PxlsCore(LibDiamond.diamondStorage().diamondAddress).movePixels(s.vault, tx.origin, trade.pixels);
+			movePixels(s.vault, tx.origin, trade.pixels);
 			deleteTrade(id);
 
 			// send the trade price to the seller
-			(bool success, ) = trade.creator.call{value: trade.price}("");
-			if (!success) revert PaymentFailed();
-
+			SafeTransferLib.safeTransferETH(trade.creator, trade.price);
 		}
 		
 		emit TradeClosed(id, trade);
 	}
 
 	function cancelTrade(bytes32 id) external {
-			LibTrades.Trade memory trade = LibTrades.store().trades[id];
+			LibTrades.Storage storage s = LibTrades.store();
+			LibTrades.Trade memory trade = s.trades[id];
 			if (trade.creator != tx.origin) revert Unauthorized();
 
 			deleteTrade(id);
 
 			if (trade.tradeType == LibTrades.TradeType.BUY) {
 				// pay back price
-				(bool success, ) = tx.origin.call{value: trade.price}("");
-				if (!success) revert PaymentFailed();
+				TrdsVault(s.vault).withdrawTo(trade.creator, trade.price);
+			} else {
+				// move back pixels
+				movePixels(s.vault, trade.creator, trade.pixels);
 			}
 
 			emit TradeCanceled(id, trade);
 	}
 
 	function deleteTrade(bytes32 id) internal {
-		LibTrades.Storage storage s = LibTrades.store();
-		delete s.trades[id];
+		delete LibTrades.store().trades[id];
+	}
+
+	function movePixels(address from, address to, bytes memory pixels) internal {
+		PxlsCore(LibDiamond.diamondStorage().diamondAddress).movePixels(from, to, pixels);
 	}
 }

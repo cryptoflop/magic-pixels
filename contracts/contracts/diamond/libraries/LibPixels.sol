@@ -10,6 +10,8 @@ library LibPixels {
 		uint8 MAX_PIXEL;
 		uint8 PIXEL_DEPTH;
 
+		address plts;
+
 		uint256 ETH_PROB; // 0.01%
 		uint256 ETH_PERC; // 10% percentage not the pill
 		uint256 ETH_LAST_BLOCK; // last block eth was found
@@ -19,8 +21,6 @@ library LibPixels {
 		uint24[] DEPTH_PROBS;
 
 		mapping(address => mapping(bytes4 => uint32)) pixelMap;
-
-		address plts;
 	}
 
 	function store() internal pure returns (Storage storage s) {

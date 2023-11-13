@@ -28,4 +28,8 @@ contract PxlsCommon is Ownable {
 		return success;
 	}
 
+	function price() external view returns (uint256) {
+		return LibPixels.store().PRICE;
+	}
+
 }

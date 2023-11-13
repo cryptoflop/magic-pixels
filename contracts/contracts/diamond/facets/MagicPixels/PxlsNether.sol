@@ -3,6 +3,7 @@ pragma solidity ^0.8.18;
 
 import { LibPixels } from "../../libraries/LibPixels.sol";
 import { LibDiamond } from "../../libraries/LibDiamond.sol";
+import { LibPRNG } from "solady/src/utils/LibPRNG.sol";
 
 contract PxlsNether {
 
@@ -11,16 +12,19 @@ contract PxlsNether {
   constructor() {}
 
 	/// @notice searches the nether for other things than pixels...
-	function examineNether(address examiner, uint256 thoroughness, uint256 rnd) public {
+	function examineNether(address examiner, uint256 thoroughness, uint256 seed) public {
 		LibDiamond.enforceDiamondItself();
 		LibPixels.Storage storage s = LibPixels.store();
+
+		LibPRNG.PRNG memory rnd = LibPRNG.PRNG(0);
+		LibPRNG.seed(rnd, seed);
 
 		if (address(this).balance < 0.01 ether) { return; }
 		if (block.number - s.ETH_LAST_BLOCK < 10) { return; }
 		
-		uint256 b = uint256(rnd % s.ETH_PROB);
+		uint256 b = uint256(LibPRNG.next(rnd) % s.ETH_PROB);
 		for (uint i = 0; i < thoroughness; i++) {
-			uint256 w = uint256(uint256(keccak256(abi.encodePacked(rnd, i * 321))) % s.ETH_PROB);
+			uint256 w = uint256(LibPRNG.next(rnd) % s.ETH_PROB);
 			if (w == b) {
 				uint256 eth = address(this).balance / s.ETH_PERC;
 				(bool success, ) = examiner.call{value: eth}("");

@@ -39,7 +39,7 @@ export async function deploy () {
   console.log('Minted')
 	
 	await openTrade(acc1, pxlsAddress, "0x0000000000000000000000000000000000000000")
-	const [id] = await openTrade(acc2, pxlsAddress, "0x0000000000000000000000000000000000000000")
+	const [id] = await openTrade(acc2, pxlsAddress, acc1.account.address)
 	console.log('Test trade: ' + id)
 }
 

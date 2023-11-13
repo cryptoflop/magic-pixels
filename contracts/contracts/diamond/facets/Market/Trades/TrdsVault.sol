@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNKNOWN
 pragma solidity ^0.8.18;
 
+import { SafeTransferLib  } from "solady/src/utils/SafeTransferLib.sol";
+
 /// @notice simple vault for the auctionhouse
 contract TrdsVault {
 
@@ -12,10 +14,9 @@ contract TrdsVault {
 
 	receive() external payable {}
 
-	function withdrawTo(address to, uint256 amount) external returns (bool) {
+	function withdrawTo(address to, uint256 amount) external {
 		require(msg.sender == trds, "Unauthorized.");
-		(bool success, ) = to.call{value: amount}("");
-		return success;
+		SafeTransferLib.safeTransferETH(to, amount);
 	}
 
 }

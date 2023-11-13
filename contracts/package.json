@@ -25,5 +25,8 @@
 		"hardhat": "^2.13.0",
 		"ts-node": "^10.9.1",
 		"viem": "^1.18.0"
+	},
+	"dependencies": {
+		"solady": "^0.0.140"
 	}
 }

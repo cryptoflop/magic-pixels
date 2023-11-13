@@ -6,6 +6,7 @@ import "./PxlsNether.sol";
 import "../../../MagicPlates.sol";
 import { LibDiamond } from "../../libraries/LibDiamond.sol";
 import { LibPixels } from "../../libraries/LibPixels.sol";
+import { LibPRNG } from "solady/src/utils/LibPRNG.sol";
 
 contract PxlsCore {
 
@@ -17,7 +18,7 @@ contract PxlsCore {
   constructor() {}
 
 	event Conjured(address conjurer, bytes pixels);
-	event Used(address minter, bytes pixels);
+	event Used(address user, bytes pixels);
 
 	/// @notice Conjures random pixels from the nether | 8,666,031 gas for 144 pxl
 	function conjure(uint256 numPixels) external payable {
@@ -25,7 +26,8 @@ contract PxlsCore {
 
 		if (msg.value < (s.PRICE * numPixels)) revert InsufficientValue();
 
-		uint256 rnd = PxlsRng(LibDiamond.diamondStorage().diamondAddress).rnd(msg.sender);
+		LibPRNG.PRNG memory rnd = LibPRNG.PRNG(0);
+		LibPRNG.seed(rnd, PxlsRng(LibDiamond.diamondStorage().diamondAddress).rnd(msg.sender));
 
 		mapping(bytes4 => uint32) storage pixels = s.pixelMap[msg.sender];
 
@@ -33,10 +35,8 @@ contract PxlsCore {
 
 		// conjure actual pixels
 		for (uint i = 0; i < numPixels; i++) {
-			uint256 rndI = uint256(keccak256(abi.encodePacked(rnd, i + 1)));
-
 			uint8 depth;
-			uint256 pd = rndI % 100_000;
+			uint256 pd = LibPRNG.next(rnd) % 100_000;
 			for (uint j = 0; j < s.DEPTH_PROBS.length; j++) {
 				if (pd <= s.DEPTH_PROBS[j]) {
 					// set the depth of the pixel to the idx where "pd" falls in DEPTH_PROBS
@@ -53,7 +53,7 @@ contract PxlsCore {
 				// - a uint8 higher than the preceeding one
 				// - a uint8 between MIN_PIXEL - MAX_PIXEL (both inclusive)
 				// - a uint8 that can't be MAX_PIXEL if it's not the last entry
-				last = last + uint8((uint256(keccak256(abi.encodePacked(rndI, j)))) % ((s.MAX_PIXEL - ((depth - 1) - j)) - last)) + s.MIN_PIXEL;
+				last = last + uint8(LibPRNG.next(rnd) % ((s.MAX_PIXEL - ((depth - 1) - j)) - last)) + s.MIN_PIXEL;
 				pixel[j] = last;
 			}
 
@@ -62,7 +62,7 @@ contract PxlsCore {
 			++pixels[pxlId];
 		}
 
-		PxlsNether(LibDiamond.diamondStorage().diamondAddress).examineNether(msg.sender, numPixels / 8, rnd);
+		PxlsNether(LibDiamond.diamondStorage().diamondAddress).examineNether(msg.sender, numPixels / 8, LibPRNG.next(rnd));
 		
 		emit Conjured(msg.sender, conjured);
 	}
