@@ -49,7 +49,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "minter",
+        "name": "user",
         "type": "address"
       },
       {

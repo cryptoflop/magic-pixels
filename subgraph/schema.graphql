@@ -1,15 +1,9 @@
 # Pixels
 
 type PixelBalance @entity(immutable: false) {
-  id: ID!
-	pixel: Bytes! # bytes4
-  amount: BigInt!
-}
-
-type Account @entity(immutable: false) {
-	id: ID! # address
+  id: ID! # address
 	last_block: BigInt!
-	balances: [PixelBalance!]!
+	balances: String!
 }
 
 
@@ -22,14 +16,4 @@ type Trade @entity(immutable: false) {
 	pixels: Bytes!
 	price: BigInt!
 	tradeType: Int!
-}
-
-type TradesByCreator @entity(immutable: false) {
-	id: ID!
-	trades: [Trade!]!
-}
-
-type TradesByReceiver @entity(immutable: false) {
-	id: ID!
-	trades: [Trade!]!
 }

@@ -935,6 +935,12 @@ const merger = new(BareMerger as any)({
           return printWithCache(AllPixelsByAccountDocument);
         },
         location: 'AllPixelsByAccountDocument.graphql'
+      },{
+        document: AllTradesForAccountDocument,
+        get rawSDL() {
+          return printWithCache(AllTradesForAccountDocument);
+        },
+        location: 'AllTradesForAccountDocument.graphql'
       }
     ];
     },
@@ -989,6 +995,13 @@ export type AllPixelsByAccountQueryVariables = Exact<{
 
 export type AllPixelsByAccountQuery = { account?: Maybe<{ balances: Array<Pick<PixelBalance, 'pixel' | 'amount'>> }> };
 
+export type AllTradesForAccountQueryVariables = Exact<{
+  account: Scalars['ID'];
+}>;
+
+
+export type AllTradesForAccountQuery = { tradesByCreator?: Maybe<{ trades: Array<Pick<Trade, 'id' | 'creator' | 'receiver' | 'pixels' | 'price' | 'tradeType'>> }>, tradesByReceiver?: Maybe<{ trades: Array<Pick<Trade, 'id' | 'creator' | 'receiver' | 'pixels' | 'price' | 'tradeType'>> }> };
+
 
 export const AccountLastBlockDocument = gql`
     query AccountLastBlock($account: ID!) {
@@ -1007,6 +1020,31 @@ export const AllPixelsByAccountDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AllPixelsByAccountQuery, AllPixelsByAccountQueryVariables>;
+export const AllTradesForAccountDocument = gql`
+    query AllTradesForAccount($account: ID!) {
+  tradesByCreator(id: $account) {
+    trades {
+      id
+      creator
+      receiver
+      pixels
+      price
+      tradeType
+    }
+  }
+  tradesByReceiver(id: $account) {
+    trades {
+      id
+      creator
+      receiver
+      pixels
+      price
+      tradeType
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllTradesForAccountQuery, AllTradesForAccountQueryVariables>;
+
 
 
 
@@ -1018,6 +1056,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AllPixelsByAccount(variables: AllPixelsByAccountQueryVariables, options?: C): Promise<AllPixelsByAccountQuery> {
       return requester<AllPixelsByAccountQuery, AllPixelsByAccountQueryVariables>(AllPixelsByAccountDocument, variables, options) as Promise<AllPixelsByAccountQuery>;
+    },
+    AllTradesForAccount(variables: AllTradesForAccountQueryVariables, options?: C): Promise<AllTradesForAccountQuery> {
+      return requester<AllTradesForAccountQuery, AllTradesForAccountQueryVariables>(AllTradesForAccountDocument, variables, options) as Promise<AllTradesForAccountQuery>;
     }
   };
 }

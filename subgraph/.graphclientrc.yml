@@ -10,3 +10,4 @@ sources:
 documents:
   - ./queries/pixels.graphql
   - ./queries/pixels-last-block.graphql
+  - ./queries/trades.graphql

@@ -45,7 +45,7 @@ export class Used__Params {
     this._event = event;
   }
 
-  get minter(): Address {
+  get user(): Address {
     return this._event.parameters[0].value.toAddress();
   }
 

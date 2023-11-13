@@ -1,22 +1,14 @@
 query AllTradesForAccount($account: ID!) {
-	tradesByCreator(id: $account) {
-    trades {
-      id
-      creator
-      receiver
-      pixels
-      price
-      tradeType
-    }
-  }
-  tradesByReceiver(id: $account) {
-    trades {
-      id
-      creator
-      receiver
-      pixels
-      price
-      tradeType
-    }
+	trades(filter: {
+    OR: [
+      { creator: { equalTo: $account } },
+      { receiver: { equalTo: $account } }
+    ]}
+	) {
+    tradeType
+    receiver
+    price
+    pixels
+    id
   }
 }

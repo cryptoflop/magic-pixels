@@ -1,73 +1,67 @@
-import { BigInt, Bytes } from "@graphprotocol/graph-ts"
+import { Bytes } from "@graphprotocol/graph-ts"
 import { Conjured as ConjuredEvent, Used as UsedEvent } from "../generated/Pixels/PxlsCore"
-import { Account, PixelBalance } from "../generated/schema"
+import { PixelBalance } from "../generated/schema"
+import { PixelBalances } from "./utils/PixelBalances"
 
 const MAX_PIXEL_LENGTH = 4
+const P_LEN = MAX_PIXEL_LENGTH * 2
 
-function chopBytes(bytes: Bytes): string[] {
+function chopPixelBytes(bytes: Bytes): string[] {
 	const pixelBytes = bytes.toHex().substring(2)
 
-	const pxlLen = MAX_PIXEL_LENGTH * 2
-
 	const chopped: string[] = []
-	for (let i = 0; i < (pixelBytes.length / pxlLen); i++) {
-		const pxlId = pixelBytes.slice(i * pxlLen, i * pxlLen + pxlLen)
+	const len = (pixelBytes.length / P_LEN);
+	for (let i = 0; i < len; i++) {
+		const pxlId = pixelBytes.slice(i * P_LEN, i * P_LEN + P_LEN)
 		chopped.push(pxlId)
 	}
 
 	return chopped
 }
 
+
 export function handleConjured(event: ConjuredEvent): void {
 	const conjurerId = event.params.conjurer.toHex()
 
-	let pixels = Account.load(conjurerId)
+	let pixels = PixelBalance.load(conjurerId)
 	
 	if (!pixels) {
-		pixels = new Account(conjurerId);
-    pixels.balances = [];
+		pixels = new PixelBalance(conjurerId);
+    pixels.balances = "";
+	}
+
+	const balances = PixelBalances.fromString(pixels.balances);
+
+	const pixelIds = chopPixelBytes(event.params.pixels)
+	for (let i = 0; i < pixelIds.length; i++)  {
+		const pxlId = pixelIds[i]
+
+		// increase pixel balance by 1
+		balances.increment(pxlId)
 	}
 
 	pixels.last_block = event.block.number
-
-	const pixelIds = chopBytes(event.params.pixels)
-	for (let i = 0; i < pixelIds.length; i++)  {
-		const pxlId = pixelIds[i]
-		const id = conjurerId + pxlId
-
-		let pixelBalance = PixelBalance.load(id);
-		if (!pixelBalance) { 
-			pixelBalance = new PixelBalance(id);
-			pixelBalance.pixel = Bytes.fromHexString(pxlId)
-			pixelBalance.amount = BigInt.fromI32(0);
-			pixels.balances = pixels.balances.concat([id]);
-		}
-
-		// increase pixel balance by 1
-		pixelBalance.amount = pixelBalance.amount.plus(BigInt.fromI32(1))
-    
-    pixelBalance.save();
-	}
+	pixels.balances = balances.toString();
 
 	pixels.save()
 }
 
 export function handleUsed(event: UsedEvent): void {
-  const minterId = event.params.minter.toHex()
+  const userId = event.params.user.toHex()
 
-	const pixelIds = chopBytes(event.params.pixels)
+	const pixels = PixelBalance.load(userId)!
+	const balances = PixelBalances.fromString(pixels.balances);
+
+	const pixelIds = chopPixelBytes(event.params.pixels)
 	for (let i = 0; i < pixelIds.length; i++)  {
 		const pxlId = pixelIds[i]
-		const id = minterId + pxlId
-
-		const pixelBalance = PixelBalance.load(id)! // this should never be null since you can only mint if you have all pixels
 
 		// decrease pixel balance by 1
-		pixelBalance.amount = pixelBalance.amount.minus(BigInt.fromI32(1)) // this should never go below zero since you would not be able to mint
-		pixelBalance.save();
+		balances.decrement(pxlId) // this should never go below zero since you would not be able to mint
 	}
 
-	const pixels = Account.load(minterId)!
 	pixels.last_block = event.block.number
+	pixels.balances = balances.toString();
+
 	pixels.save()
 }
