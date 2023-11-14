@@ -39,6 +39,17 @@ export function consistentStore<T, K extends Readable<T> | Writable<T>>(store: K
 }
 
 /**
+ * Makes a store eager, meaning it initially subscribes to it
+ */
+export function eagerStore<T, K extends Readable<T> | Writable<T>>(store: K) {
+	setTimeout(() => {
+		const unsub = store.subscribe(() => { })
+		setTimeout(unsub, 1)
+	}, 1)
+	return store
+}
+
+/**
  * Makes a store refreshable, meaning it adds a "refresh" method which signals the store to refresh itself
  */
 export function refreshableStore<T, K extends Writable<T>>(store: K, refresh: () => Promise<T>, refreshOnInit = false) {

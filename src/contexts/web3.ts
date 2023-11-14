@@ -3,7 +3,7 @@ import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
 import { parseAbiItem, parseEther, type Hex, type Address, formatEther } from "viem";
 import { readable, writable } from "svelte/store";
 import { mantleTestnet } from "viem/chains";
-import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
+import { cachedStore, consistentStore, eagerStore } from "../helpers/reactivity-helpers";
 import { bytesToPixelIds, pixelIdsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
 import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI, trdsCoreABI, pxlsCommonABI } from "../../contracts/generated";
 
@@ -24,21 +24,21 @@ export function createWeb3Ctx() {
 	const PLTS = import.meta.env.VITE_PLTS
 	const USDC = import.meta.env.VITE_USDC
 
+	const { chains, publicClient: publicClientGetter } = configureChains(
+		[mantleTestnet],
+		[jsonRpcProvider({ rpc: (_) => ({ http: import.meta.env.VITE_RPC_URL }), })],
+	)
+
+	const { connectors } = createConfig({
+		autoConnect: true,
+		connectors: [new InjectedConnector({ chains })],
+		publicClient: publicClientGetter
+	})
+
 	const ctx = {
 		account: cachedStore(writable<`0x${string}` | null>()),
 
 		async connect() {
-			const { chains, publicClient: publicClientGetter } = configureChains(
-				[mantleTestnet],
-				[jsonRpcProvider({ rpc: (_) => ({ http: import.meta.env.VITE_RPC_URL }), })],
-			)
-
-			const { connectors } = createConfig({
-				autoConnect: true,
-				connectors: [new InjectedConnector({ chains })],
-				publicClient: publicClientGetter
-			})
-
 			const { account } = await connect({ connector: connectors[0]! });
 			console.log(account)
 			ctx.account.set(account)
@@ -49,7 +49,7 @@ export function createWeb3Ctx() {
 			ctx.account.set(null)
 		},
 
-		price: consistentStore(cachedStore(readable<number>(0.08, (set) => {
+		price: eagerStore(cachedStore(consistentStore(readable<number>(0.08, (set) => {
 			readContract({
 				address: PXLS,
 				abi: pxlsCommonABI,
@@ -57,9 +57,9 @@ export function createWeb3Ctx() {
 			}).then(r => {
 				set(Number(formatEther(r)))
 			})
-		}))),
+		})))),
 
-		usdPrice: consistentStore(readable<number>(0.378, (set) => {
+		usdPrice: eagerStore(cachedStore(consistentStore(readable<number>(0.378, (set) => {
 			readContract({
 				address: USDC,
 				abi: [parseAbiItem("function getPrice(bytes32 id) public view returns((int64, uint64, int32, uint))")],
@@ -69,9 +69,9 @@ export function createWeb3Ctx() {
 				const mntUsdPrice = Number(r[0]) * Math.pow(10, -8)
 				set(mntUsdPrice);
 			});
-		})),
+		})))),
 
-		pixels: consistentStore(writable<PixelBalances>(new PixelBalances(), (set) => {
+		pixels: eagerStore(consistentStore(writable<PixelBalances>(new PixelBalances(), (set) => {
 			ctx.account.subscribe(async acc => {
 				if (!acc) {
 					set(new PixelBalances())
@@ -102,7 +102,7 @@ export function createWeb3Ctx() {
 					savePixels(pixelBalances, lastBlock, acc)
 				}
 			})
-		})),
+		}))),
 
 		plates: consistentStore(writable<Plate[]>([], (set) => {
 			ctx.account.subscribe(async acc => {
@@ -397,8 +397,6 @@ export function createWeb3Ctx() {
 			})
 		}
 	}
-
-	ctx.connect().then(() => ctx.pixels.subscribe(() => { })()) // connect and force sub pixels
 
 	return ctx
 }
