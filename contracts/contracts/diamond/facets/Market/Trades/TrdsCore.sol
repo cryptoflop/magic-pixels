@@ -10,13 +10,12 @@ import "../../../facets/MagicPixels/PxlsCore.sol";
 import "./TrdsVault.sol";
 
 
-/// @notice facet that handles trades and auctioning
+/// @notice facet that handles trades
 contract TrdsCore {
 
 	error Unauthorized();
 	error IncorrectValue();
 	error TradeAlreadyExists();
-	error SellerInsufficientPixels();
 
 	constructor() {}
 
@@ -61,6 +60,7 @@ contract TrdsCore {
 
 		LibTrades.Trade memory trade = LibTrades.store().trades[id];
 
+		if (tx.origin == trade.creator) revert Unauthorized();
 		if (trade.receiver != address(0) && trade.receiver != tx.origin) revert Unauthorized();
 
 		if (trade.tradeType == LibTrades.TradeType.BUY) {

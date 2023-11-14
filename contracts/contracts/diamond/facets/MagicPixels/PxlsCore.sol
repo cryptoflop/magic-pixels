@@ -59,6 +59,9 @@ contract PxlsCore {
 
 			bytes4 pxlId = LibPixels.encode(pixel);
 			LibPixels.packIntoAt(conjured, pxlId, i);
+
+			// Gas Notice: this will often be zero to non-zero and therefore
+			// use a lot of gas as well as making the gas estimation harder
 			++pixels[pxlId];
 		}
 

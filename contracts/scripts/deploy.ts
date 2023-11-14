@@ -27,14 +27,14 @@ export async function deploy () {
   await plts.write.setColors([colors])
 	console.log("Colors set")
 
-	const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
+	// const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
 
-  const conjureTx = await pxls.write.conjure([64n], { value: parseEther("5.12") })
-	const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
-	const conjured = decodeEventLog({ ...conjureRcpt.logs[conjureRcpt.logs.length > 1 ? 1: 0], abi: pxls.abi, eventName: "Conjured" })
+  // const conjureTx = await pxls.write.conjure([64n], { value: parseEther("5.12") })
+	// const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
+	// const conjured = decodeEventLog({ ...conjureRcpt.logs[conjureRcpt.logs.length > 1 ? 1: 0], abi: pxls.abi, eventName: "Conjured" })
 
-  const mintTx = await pxls.write.mint([conjured.args.pixels, []])
-	await publicClient.waitForTransactionReceipt({ hash: mintTx })
+  // const mintTx = await pxls.write.mint([conjured.args.pixels, []])
+	// await publicClient.waitForTransactionReceipt({ hash: mintTx })
 
   console.log('Minted')
 	

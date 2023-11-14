@@ -423,6 +423,13 @@ export const pxlsCommonABI = [
     outputs: [{ name: 'result', internalType: 'uint32[]', type: 'uint32[]' }],
   },
   {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'price',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [{ name: 'amount', internalType: 'uint256', type: 'uint256' }],
@@ -460,7 +467,7 @@ export const pxlsCoreABI = [
     anonymous: false,
     inputs: [
       {
-        name: 'minter',
+        name: 'user',
         internalType: 'address',
         type: 'address',
         indexed: false,
@@ -535,7 +542,7 @@ export const pxlsNetherABI = [
     inputs: [
       { name: 'examiner', internalType: 'address', type: 'address' },
       { name: 'thoroughness', internalType: 'uint256', type: 'uint256' },
-      { name: 'rnd', internalType: 'uint256', type: 'uint256' },
+      { name: 'seed', internalType: 'uint256', type: 'uint256' },
     ],
     name: 'examineNether',
     outputs: [],
@@ -549,7 +556,6 @@ export const pxlsNetherABI = [
 export const trdsCoreABI = [
   { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
   { type: 'error', inputs: [], name: 'IncorrectValue' },
-  { type: 'error', inputs: [], name: 'PaymentFailed' },
   { type: 'error', inputs: [], name: 'SellerInsufficientPixels' },
   { type: 'error', inputs: [], name: 'TradeAlreadyExists' },
   { type: 'error', inputs: [], name: 'Unauthorized' },
