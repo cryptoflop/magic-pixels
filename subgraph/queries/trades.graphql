@@ -1,14 +1,15 @@
-query AllTradesForAccount($account: ID!) {
-	trades(filter: {
-    OR: [
-      { creator: { equalTo: $account } },
-      { receiver: { equalTo: $account } }
+query AllTradesForAccount($account: Bytes!) {
+	trades(where: {
+    or: [
+      { creator: $account },
+      { receiver: $account }
     ]}
 	) {
     tradeType
-    receiver
     price
     pixels
+    receiver
+		creator
     id
   }
 }

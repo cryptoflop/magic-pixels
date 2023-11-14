@@ -1,8 +1,5 @@
-query AllPixelsByAccount($account: ID!, $first: Int = 100, $skip: Int = 0) {
-	account(id: $account) {
-		balances(first: $first, skip: $skip, where: {amount_gt: "0"}) {
-			pixel
-			amount
-		}
-	}
+query AllPixelsByAccount($account: ID!) {
+	pixelBalances(where: {id: $account}) {
+    balances
+  }
 }

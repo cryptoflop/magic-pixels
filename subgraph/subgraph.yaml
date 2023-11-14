@@ -6,9 +6,9 @@ dataSources:
     name: Pixels
     network: testnet
     source:
-      address: "0x150b6ec37721cb0947646c78c40ae6e462849a06"
+      address: "0x948252676d36c680068bb67486fe00b3511ba9aa"
       abi: PxlsCore
-      startBlock: 25696054
+      startBlock: 25774161
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -29,9 +29,9 @@ dataSources:
     name: Trades
     network: testnet
     source:
-      address: "0x150b6ec37721cb0947646c78c40ae6e462849a06"
+      address: "0x948252676d36c680068bb67486fe00b3511ba9aa"
       abi: TrdsCore
-      startBlock: 25696054
+      startBlock: 25774161
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

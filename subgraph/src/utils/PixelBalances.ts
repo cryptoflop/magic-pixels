@@ -1,5 +1,20 @@
 import { StringSink } from "./StringSink";
 
+function padId(id: string): string {
+	return (id + "00000000").substring(0, 8);
+}
+
+function unpadId(id: string): string {
+	let idx = 1;
+	for (let i = id.length - 1; i > 0; i--) {
+		if (id[i] != "0") {
+			idx = i + 1;
+			break;
+		}
+	}
+	return id.substring(0, idx);
+}
+
 export class PixelBalances {
 
 	public static fromString(data: string): PixelBalances {
@@ -18,7 +33,7 @@ export class PixelBalances {
 				}
 			} else {
 				if (char == ";") {
-					balances.balances.set(id, parseInt(amount) as u32);
+					balances.balances.set(padId(id), parseInt(amount) as u32);
 					id = "";
 					amount = "";
 					parseId = true;
@@ -58,7 +73,7 @@ export class PixelBalances {
 		for (let i = 0; i < keys.length; i++) {
 			const id = keys[i];
 			const amount = this.balances.get(id).toString();
-			sink.write(id + "=" + amount + ";");
+			sink.write(unpadId(id) + "=" + amount + ";");
 		}
 		
 		return sink.toString();

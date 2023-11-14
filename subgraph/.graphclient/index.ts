@@ -44,56 +44,6 @@ export type Scalars = {
   Bytes: any;
 };
 
-export type Account = {
-  id: Scalars['ID'];
-  last_block: Scalars['BigInt'];
-  balances: Array<PixelBalance>;
-};
-
-
-export type AccountbalancesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<PixelBalance_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<PixelBalance_filter>;
-};
-
-export type Account_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  last_block?: InputMaybe<Scalars['BigInt']>;
-  last_block_not?: InputMaybe<Scalars['BigInt']>;
-  last_block_gt?: InputMaybe<Scalars['BigInt']>;
-  last_block_lt?: InputMaybe<Scalars['BigInt']>;
-  last_block_gte?: InputMaybe<Scalars['BigInt']>;
-  last_block_lte?: InputMaybe<Scalars['BigInt']>;
-  last_block_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  last_block_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  balances?: InputMaybe<Array<Scalars['String']>>;
-  balances_not?: InputMaybe<Array<Scalars['String']>>;
-  balances_contains?: InputMaybe<Array<Scalars['String']>>;
-  balances_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  balances_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  balances_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  balances_?: InputMaybe<PixelBalance_filter>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<Account_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<Account_filter>>>;
-};
-
-export type Account_orderBy =
-  | 'id'
-  | 'last_block'
-  | 'balances';
-
 export type BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
@@ -111,8 +61,8 @@ export type OrderDirection =
 
 export type PixelBalance = {
   id: Scalars['ID'];
-  pixel: Scalars['Bytes'];
-  amount: Scalars['BigInt'];
+  last_block: Scalars['BigInt'];
+  balances: Scalars['String'];
 };
 
 export type PixelBalance_filter = {
@@ -124,24 +74,34 @@ export type PixelBalance_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  pixel?: InputMaybe<Scalars['Bytes']>;
-  pixel_not?: InputMaybe<Scalars['Bytes']>;
-  pixel_gt?: InputMaybe<Scalars['Bytes']>;
-  pixel_lt?: InputMaybe<Scalars['Bytes']>;
-  pixel_gte?: InputMaybe<Scalars['Bytes']>;
-  pixel_lte?: InputMaybe<Scalars['Bytes']>;
-  pixel_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  pixel_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  pixel_contains?: InputMaybe<Scalars['Bytes']>;
-  pixel_not_contains?: InputMaybe<Scalars['Bytes']>;
-  amount?: InputMaybe<Scalars['BigInt']>;
-  amount_not?: InputMaybe<Scalars['BigInt']>;
-  amount_gt?: InputMaybe<Scalars['BigInt']>;
-  amount_lt?: InputMaybe<Scalars['BigInt']>;
-  amount_gte?: InputMaybe<Scalars['BigInt']>;
-  amount_lte?: InputMaybe<Scalars['BigInt']>;
-  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  last_block?: InputMaybe<Scalars['BigInt']>;
+  last_block_not?: InputMaybe<Scalars['BigInt']>;
+  last_block_gt?: InputMaybe<Scalars['BigInt']>;
+  last_block_lt?: InputMaybe<Scalars['BigInt']>;
+  last_block_gte?: InputMaybe<Scalars['BigInt']>;
+  last_block_lte?: InputMaybe<Scalars['BigInt']>;
+  last_block_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  last_block_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  balances?: InputMaybe<Scalars['String']>;
+  balances_not?: InputMaybe<Scalars['String']>;
+  balances_gt?: InputMaybe<Scalars['String']>;
+  balances_lt?: InputMaybe<Scalars['String']>;
+  balances_gte?: InputMaybe<Scalars['String']>;
+  balances_lte?: InputMaybe<Scalars['String']>;
+  balances_in?: InputMaybe<Array<Scalars['String']>>;
+  balances_not_in?: InputMaybe<Array<Scalars['String']>>;
+  balances_contains?: InputMaybe<Scalars['String']>;
+  balances_contains_nocase?: InputMaybe<Scalars['String']>;
+  balances_not_contains?: InputMaybe<Scalars['String']>;
+  balances_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  balances_starts_with?: InputMaybe<Scalars['String']>;
+  balances_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  balances_not_starts_with?: InputMaybe<Scalars['String']>;
+  balances_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  balances_ends_with?: InputMaybe<Scalars['String']>;
+  balances_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  balances_not_ends_with?: InputMaybe<Scalars['String']>;
+  balances_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<PixelBalance_filter>>>;
@@ -150,20 +110,14 @@ export type PixelBalance_filter = {
 
 export type PixelBalance_orderBy =
   | 'id'
-  | 'pixel'
-  | 'amount';
+  | 'last_block'
+  | 'balances';
 
 export type Query = {
   pixelBalance?: Maybe<PixelBalance>;
   pixelBalances: Array<PixelBalance>;
-  account?: Maybe<Account>;
-  accounts: Array<Account>;
   trade?: Maybe<Trade>;
   trades: Array<Trade>;
-  tradesByCreator?: Maybe<TradesByCreator>;
-  tradesByCreators: Array<TradesByCreator>;
-  tradesByReceiver?: Maybe<TradesByReceiver>;
-  tradesByReceivers: Array<TradesByReceiver>;
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
 };
@@ -187,24 +141,6 @@ export type QuerypixelBalancesArgs = {
 };
 
 
-export type QueryaccountArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryaccountsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Account_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<Account_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type QuerytradeArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
@@ -223,42 +159,6 @@ export type QuerytradesArgs = {
 };
 
 
-export type QuerytradesByCreatorArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerytradesByCreatorsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<TradesByCreator_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TradesByCreator_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerytradesByReceiverArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QuerytradesByReceiversArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<TradesByReceiver_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TradesByReceiver_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type Query_metaArgs = {
   block?: InputMaybe<Block_height>;
 };
@@ -266,14 +166,8 @@ export type Query_metaArgs = {
 export type Subscription = {
   pixelBalance?: Maybe<PixelBalance>;
   pixelBalances: Array<PixelBalance>;
-  account?: Maybe<Account>;
-  accounts: Array<Account>;
   trade?: Maybe<Trade>;
   trades: Array<Trade>;
-  tradesByCreator?: Maybe<TradesByCreator>;
-  tradesByCreators: Array<TradesByCreator>;
-  tradesByReceiver?: Maybe<TradesByReceiver>;
-  tradesByReceivers: Array<TradesByReceiver>;
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
 };
@@ -297,24 +191,6 @@ export type SubscriptionpixelBalancesArgs = {
 };
 
 
-export type SubscriptionaccountArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionaccountsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Account_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<Account_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
 export type SubscriptiontradeArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
@@ -328,42 +204,6 @@ export type SubscriptiontradesArgs = {
   orderBy?: InputMaybe<Trade_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Trade_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontradesByCreatorArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontradesByCreatorsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<TradesByCreator_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TradesByCreator_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontradesByReceiverArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontradesByReceiversArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<TradesByReceiver_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TradesByReceiver_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -450,86 +290,6 @@ export type Trade_orderBy =
   | 'pixels'
   | 'price'
   | 'tradeType';
-
-export type TradesByCreator = {
-  id: Scalars['ID'];
-  trades: Array<Trade>;
-};
-
-
-export type TradesByCreatortradesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Trade_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<Trade_filter>;
-};
-
-export type TradesByCreator_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  trades?: InputMaybe<Array<Scalars['String']>>;
-  trades_not?: InputMaybe<Array<Scalars['String']>>;
-  trades_contains?: InputMaybe<Array<Scalars['String']>>;
-  trades_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  trades_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  trades_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  trades_?: InputMaybe<Trade_filter>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<TradesByCreator_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<TradesByCreator_filter>>>;
-};
-
-export type TradesByCreator_orderBy =
-  | 'id'
-  | 'trades';
-
-export type TradesByReceiver = {
-  id: Scalars['ID'];
-  trades: Array<Trade>;
-};
-
-
-export type TradesByReceivertradesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Trade_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<Trade_filter>;
-};
-
-export type TradesByReceiver_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  trades?: InputMaybe<Array<Scalars['String']>>;
-  trades_not?: InputMaybe<Array<Scalars['String']>>;
-  trades_contains?: InputMaybe<Array<Scalars['String']>>;
-  trades_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  trades_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  trades_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  trades_?: InputMaybe<Trade_filter>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<TradesByReceiver_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<TradesByReceiver_filter>>>;
-};
-
-export type TradesByReceiver_orderBy =
-  | 'id'
-  | 'trades';
 
 export type _Block_ = {
   /** The hash of the block */
@@ -648,9 +408,6 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
-  Account: ResolverTypeWrapper<Account>;
-  Account_filter: Account_filter;
-  Account_orderBy: Account_orderBy;
   BigDecimal: ResolverTypeWrapper<Scalars['BigDecimal']>;
   BigInt: ResolverTypeWrapper<Scalars['BigInt']>;
   BlockChangedFilter: BlockChangedFilter;
@@ -670,12 +427,6 @@ export type ResolversTypes = ResolversObject<{
   Trade: ResolverTypeWrapper<Trade>;
   Trade_filter: Trade_filter;
   Trade_orderBy: Trade_orderBy;
-  TradesByCreator: ResolverTypeWrapper<TradesByCreator>;
-  TradesByCreator_filter: TradesByCreator_filter;
-  TradesByCreator_orderBy: TradesByCreator_orderBy;
-  TradesByReceiver: ResolverTypeWrapper<TradesByReceiver>;
-  TradesByReceiver_filter: TradesByReceiver_filter;
-  TradesByReceiver_orderBy: TradesByReceiver_orderBy;
   _Block_: ResolverTypeWrapper<_Block_>;
   _Meta_: ResolverTypeWrapper<_Meta_>;
   _SubgraphErrorPolicy_: _SubgraphErrorPolicy_;
@@ -683,8 +434,6 @@ export type ResolversTypes = ResolversObject<{
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
-  Account: Account;
-  Account_filter: Account_filter;
   BigDecimal: Scalars['BigDecimal'];
   BigInt: Scalars['BigInt'];
   BlockChangedFilter: BlockChangedFilter;
@@ -701,10 +450,6 @@ export type ResolversParentTypes = ResolversObject<{
   Subscription: {};
   Trade: Trade;
   Trade_filter: Trade_filter;
-  TradesByCreator: TradesByCreator;
-  TradesByCreator_filter: TradesByCreator_filter;
-  TradesByReceiver: TradesByReceiver;
-  TradesByReceiver_filter: TradesByReceiver_filter;
   _Block_: _Block_;
   _Meta_: _Meta_;
 }>;
@@ -725,13 +470,6 @@ export type derivedFromDirectiveArgs = {
 
 export type derivedFromDirectiveResolver<Result, Parent, ContextType = MeshContext, Args = derivedFromDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type AccountResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Account'] = ResolversParentTypes['Account']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  last_block?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  balances?: Resolver<Array<ResolversTypes['PixelBalance']>, ParentType, ContextType, RequireFields<AccountbalancesArgs, 'skip' | 'first'>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
 export interface BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigDecimal'], any> {
   name: 'BigDecimal';
 }
@@ -746,36 +484,24 @@ export interface BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversType
 
 export type PixelBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['PixelBalance'] = ResolversParentTypes['PixelBalance']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  pixel?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-  amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  last_block?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  balances?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type QueryResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   pixelBalance?: Resolver<Maybe<ResolversTypes['PixelBalance']>, ParentType, ContextType, RequireFields<QuerypixelBalanceArgs, 'id' | 'subgraphError'>>;
   pixelBalances?: Resolver<Array<ResolversTypes['PixelBalance']>, ParentType, ContextType, RequireFields<QuerypixelBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  account?: Resolver<Maybe<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountArgs, 'id' | 'subgraphError'>>;
-  accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
   trade?: Resolver<Maybe<ResolversTypes['Trade']>, ParentType, ContextType, RequireFields<QuerytradeArgs, 'id' | 'subgraphError'>>;
   trades?: Resolver<Array<ResolversTypes['Trade']>, ParentType, ContextType, RequireFields<QuerytradesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tradesByCreator?: Resolver<Maybe<ResolversTypes['TradesByCreator']>, ParentType, ContextType, RequireFields<QuerytradesByCreatorArgs, 'id' | 'subgraphError'>>;
-  tradesByCreators?: Resolver<Array<ResolversTypes['TradesByCreator']>, ParentType, ContextType, RequireFields<QuerytradesByCreatorsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tradesByReceiver?: Resolver<Maybe<ResolversTypes['TradesByReceiver']>, ParentType, ContextType, RequireFields<QuerytradesByReceiverArgs, 'id' | 'subgraphError'>>;
-  tradesByReceivers?: Resolver<Array<ResolversTypes['TradesByReceiver']>, ParentType, ContextType, RequireFields<QuerytradesByReceiversArgs, 'skip' | 'first' | 'subgraphError'>>;
   _meta?: Resolver<Maybe<ResolversTypes['_Meta_']>, ParentType, ContextType, Partial<Query_metaArgs>>;
 }>;
 
 export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
   pixelBalance?: SubscriptionResolver<Maybe<ResolversTypes['PixelBalance']>, "pixelBalance", ParentType, ContextType, RequireFields<SubscriptionpixelBalanceArgs, 'id' | 'subgraphError'>>;
   pixelBalances?: SubscriptionResolver<Array<ResolversTypes['PixelBalance']>, "pixelBalances", ParentType, ContextType, RequireFields<SubscriptionpixelBalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  account?: SubscriptionResolver<Maybe<ResolversTypes['Account']>, "account", ParentType, ContextType, RequireFields<SubscriptionaccountArgs, 'id' | 'subgraphError'>>;
-  accounts?: SubscriptionResolver<Array<ResolversTypes['Account']>, "accounts", ParentType, ContextType, RequireFields<SubscriptionaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
   trade?: SubscriptionResolver<Maybe<ResolversTypes['Trade']>, "trade", ParentType, ContextType, RequireFields<SubscriptiontradeArgs, 'id' | 'subgraphError'>>;
   trades?: SubscriptionResolver<Array<ResolversTypes['Trade']>, "trades", ParentType, ContextType, RequireFields<SubscriptiontradesArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tradesByCreator?: SubscriptionResolver<Maybe<ResolversTypes['TradesByCreator']>, "tradesByCreator", ParentType, ContextType, RequireFields<SubscriptiontradesByCreatorArgs, 'id' | 'subgraphError'>>;
-  tradesByCreators?: SubscriptionResolver<Array<ResolversTypes['TradesByCreator']>, "tradesByCreators", ParentType, ContextType, RequireFields<SubscriptiontradesByCreatorsArgs, 'skip' | 'first' | 'subgraphError'>>;
-  tradesByReceiver?: SubscriptionResolver<Maybe<ResolversTypes['TradesByReceiver']>, "tradesByReceiver", ParentType, ContextType, RequireFields<SubscriptiontradesByReceiverArgs, 'id' | 'subgraphError'>>;
-  tradesByReceivers?: SubscriptionResolver<Array<ResolversTypes['TradesByReceiver']>, "tradesByReceivers", ParentType, ContextType, RequireFields<SubscriptiontradesByReceiversArgs, 'skip' | 'first' | 'subgraphError'>>;
   _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
 }>;
 
@@ -786,18 +512,6 @@ export type TradeResolvers<ContextType = MeshContext, ParentType extends Resolve
   pixels?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   price?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   tradeType?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type TradesByCreatorResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['TradesByCreator'] = ResolversParentTypes['TradesByCreator']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  trades?: Resolver<Array<ResolversTypes['Trade']>, ParentType, ContextType, RequireFields<TradesByCreatortradesArgs, 'skip' | 'first'>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type TradesByReceiverResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['TradesByReceiver'] = ResolversParentTypes['TradesByReceiver']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  trades?: Resolver<Array<ResolversTypes['Trade']>, ParentType, ContextType, RequireFields<TradesByReceivertradesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -816,7 +530,6 @@ export type _Meta_Resolvers<ContextType = MeshContext, ParentType extends Resolv
 }>;
 
 export type Resolvers<ContextType = MeshContext> = ResolversObject<{
-  Account?: AccountResolvers<ContextType>;
   BigDecimal?: GraphQLScalarType;
   BigInt?: GraphQLScalarType;
   Bytes?: GraphQLScalarType;
@@ -824,8 +537,6 @@ export type Resolvers<ContextType = MeshContext> = ResolversObject<{
   Query?: QueryResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   Trade?: TradeResolvers<ContextType>;
-  TradesByCreator?: TradesByCreatorResolvers<ContextType>;
-  TradesByReceiver?: TradesByReceiverResolvers<ContextType>;
   _Block_?: _Block_Resolvers<ContextType>;
   _Meta_?: _Meta_Resolvers<ContextType>;
 }>;
@@ -984,63 +695,46 @@ export type AccountLastBlockQueryVariables = Exact<{
 }>;
 
 
-export type AccountLastBlockQuery = { account?: Maybe<Pick<Account, 'last_block'>> };
+export type AccountLastBlockQuery = { pixelBalances: Array<Pick<PixelBalance, 'last_block'>> };
 
 export type AllPixelsByAccountQueryVariables = Exact<{
   account: Scalars['ID'];
-  first?: InputMaybe<Scalars['Int']>;
-  skip?: InputMaybe<Scalars['Int']>;
 }>;
 
 
-export type AllPixelsByAccountQuery = { account?: Maybe<{ balances: Array<Pick<PixelBalance, 'pixel' | 'amount'>> }> };
+export type AllPixelsByAccountQuery = { pixelBalances: Array<Pick<PixelBalance, 'balances'>> };
 
 export type AllTradesForAccountQueryVariables = Exact<{
-  account: Scalars['ID'];
+  account: Scalars['Bytes'];
 }>;
 
 
-export type AllTradesForAccountQuery = { tradesByCreator?: Maybe<{ trades: Array<Pick<Trade, 'id' | 'creator' | 'receiver' | 'pixels' | 'price' | 'tradeType'>> }>, tradesByReceiver?: Maybe<{ trades: Array<Pick<Trade, 'id' | 'creator' | 'receiver' | 'pixels' | 'price' | 'tradeType'>> }> };
+export type AllTradesForAccountQuery = { trades: Array<Pick<Trade, 'tradeType' | 'price' | 'pixels' | 'receiver' | 'creator' | 'id'>> };
 
 
 export const AccountLastBlockDocument = gql`
     query AccountLastBlock($account: ID!) {
-  account(id: $account) {
+  pixelBalances(where: {id: $account}) {
     last_block
   }
 }
     ` as unknown as DocumentNode<AccountLastBlockQuery, AccountLastBlockQueryVariables>;
 export const AllPixelsByAccountDocument = gql`
-    query AllPixelsByAccount($account: ID!, $first: Int = 100, $skip: Int = 0) {
-  account(id: $account) {
-    balances(first: $first, skip: $skip, where: {amount_gt: "0"}) {
-      pixel
-      amount
-    }
+    query AllPixelsByAccount($account: ID!) {
+  pixelBalances(where: {id: $account}) {
+    balances
   }
 }
     ` as unknown as DocumentNode<AllPixelsByAccountQuery, AllPixelsByAccountQueryVariables>;
 export const AllTradesForAccountDocument = gql`
-    query AllTradesForAccount($account: ID!) {
-  tradesByCreator(id: $account) {
-    trades {
-      id
-      creator
-      receiver
-      pixels
-      price
-      tradeType
-    }
-  }
-  tradesByReceiver(id: $account) {
-    trades {
-      id
-      creator
-      receiver
-      pixels
-      price
-      tradeType
-    }
+    query AllTradesForAccount($account: Bytes!) {
+  trades(where: {or: [{creator: $account}, {receiver: $account}]}) {
+    tradeType
+    price
+    pixels
+    receiver
+    creator
+    id
   }
 }
     ` as unknown as DocumentNode<AllTradesForAccountQuery, AllTradesForAccountQueryVariables>;
