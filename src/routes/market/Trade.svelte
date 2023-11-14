@@ -4,7 +4,6 @@
 	import { fullPixelName } from "../../helpers/color-utils";
 	import Pixel from "../../elements/Pixel.svelte";
 	import { tooltip } from "../../directives/tooltip";
-	import { NULL_ADDR } from "../../values";
 	import { formatEther } from "viem";
 	import { decodePixel } from "../../../contracts/scripts/libraries/pixel-parser";
 
@@ -31,7 +30,7 @@
 				{trade.tradeType == 0 ? "Seller" : "Buyer"}:
 				{formatAcc(trade.creator)}
 			</div>
-			<div class="{trade.receiver == NULL_ADDR && 'opacity-30'} mr-auto">
+			<div class="{trade.receiver == global.NULL_ADDR && 'opacity-30'} mr-auto">
 				{trade.tradeType == 0 ? "Buyer" : "Seller"}:
 				{formatAcc(trade.receiver)}
 			</div>

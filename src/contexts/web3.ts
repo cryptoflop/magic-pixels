@@ -5,8 +5,6 @@ import { readable, writable } from "svelte/store";
 import { mantleTestnet } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
 import { bytesToPixelIds, pixelIdsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
-import { NULL_ADDR, PIXEL_PRICE } from "../values";
-
 import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI, trdsCoreABI, pxlsCommonABI } from "../../contracts/generated";
 
 import { execute, AllPixelsByAccountDocument, AccountLastBlockDocument, AllTradesForAccountDocument } from "../../subgraph/.graphclient"
@@ -51,7 +49,7 @@ export function createWeb3Ctx() {
 			ctx.account.set(null)
 		},
 
-		price: consistentStore(readable<number>(0.008, (set) => {
+		price: consistentStore(cachedStore(readable<number>(0.08, (set) => {
 			readContract({
 				address: PXLS,
 				abi: pxlsCommonABI,
@@ -59,7 +57,7 @@ export function createWeb3Ctx() {
 			}).then(r => {
 				set(Number(formatEther(r)))
 			})
-		})),
+		}))),
 
 		usdPrice: consistentStore(readable<number>(0.378, (set) => {
 			readContract({
@@ -263,7 +261,7 @@ export function createWeb3Ctx() {
 				abi: pxlsCoreABI,
 				functionName: 'conjure',
 				args: [BigInt(numPixels)],
-				value: parseEther(PIXEL_PRICE.toString()) * BigInt(numPixels)
+				value: parseEther(ctx.price.current!.toString()) * BigInt(numPixels)
 			})
 
 			const { status, blockNumber } = await waitForTransaction({ hash })
@@ -327,7 +325,7 @@ export function createWeb3Ctx() {
 				abi: magicPlatesABI,
 				eventName: "Transfer",
 				args: {
-					from: NULL_ADDR,
+					from: global.NULL_ADDR,
 					to: ctx.account.current!
 				},
 				fromBlock: blockNumber,

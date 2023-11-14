@@ -5,7 +5,6 @@
 	import { tooltip } from "../directives/tooltip";
 	import { fullPixelName } from "../helpers/color-utils";
 	import { rndBtwn } from "../helpers/utils";
-	import { PIXEL_PRICE } from "../values";
 	import type { createWeb3Ctx } from "../contexts/web3";
 	import { formatEther } from "viem";
 
@@ -22,6 +21,7 @@
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const usd = web3.usdPrice;
+	const pixelPrice = web3.price;
 
 	let numPixelBase = 4;
 	$: numPixels = numPixelBase ** 2;
@@ -99,7 +99,7 @@
 		}
 	}
 
-	$: price = PIXEL_PRICE * numPixels;
+	$: price = $pixelPrice * numPixels;
 
 	let container: HTMLDivElement;
 
