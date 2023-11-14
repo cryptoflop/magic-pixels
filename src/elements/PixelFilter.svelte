@@ -27,20 +27,22 @@
 			selected,
 		});
 	}
+
+	let indicies = Array(MAX_PIXEL)
+		.fill(1)
+		.map((_, i) => i + 1);
 </script>
 
 <div class="absolute border-2 {className}">
 	<div class="grid grid-cols-9">
-		{#each Array(MAX_PIXEL) as _, i}
-			{#if i > 1}
-				<button
-					on:mousedown={() => select(i)}
-					class="h-5 w-5 border-hover-blackandwhite {selected[i] &&
-						'border-blackandwhite'}"
-					use:tooltip={pixelName(i)}
-					style="background-color: {pixelColor(i)}"
-				/>
-			{/if}
+		{#each indicies as i}
+			<button
+				on:mousedown={() => select(i)}
+				class="h-5 w-5 border-hover-blackandwhite {selected[i] &&
+					'border-blackandwhite'}"
+				use:tooltip={pixelName(i)}
+				style="background-color: {pixelColor(i)}"
+			/>
 		{/each}
 	</div>
 

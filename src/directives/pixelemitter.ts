@@ -11,7 +11,7 @@ export type EmitterOptions = {
 }
 
 export function pixelemitter(element: HTMLElement, options: EmitterOptions) {
-	const amount = Math.floor((element.clientHeight * element.clientWidth / 280) * (options.density ?? 1))
+	const amount = Math.floor(((element.clientHeight + element.clientWidth) / 10) * (options.density ?? 1))
 
 	const pool = document.createElement("div")
 
@@ -72,7 +72,7 @@ export function pixelemitter(element: HTMLElement, options: EmitterOptions) {
 			const [xStart, xEnd, yStart, yEnd] = rndPoint();
 			el.animate([
 				{ transform: `translate(${xStart}px, ${yStart}px)`, backgroundColor: "transparent" },
-				{ backgroundColor: ((options.colored ?? true) ? pixelColor(rndColorIdx(true)) : "white") + (options.opacity ? Math.floor(options.opacity * 255).toString(16) : '') },
+				{ backgroundColor: ((options.colored ?? true) ? pixelColor(rndColorIdx(true)) : "#ffffff") + (options.opacity ? Math.floor(options.opacity * 255).toString(16) : '') },
 				{ transform: `translate(${xEnd}px, ${yEnd}px)`, backgroundColor: "transparent" }
 			], {
 				duration: duration,

@@ -74,13 +74,13 @@
 
 	async function openTrade() {
 		selecting = false;
-		await web3.openTrade(
+		const id = await web3.openTrade(
 			selectedPixels,
 			(receiver || NULL_ADDR) as Address,
 			parseEther(price),
 			tradeType
 		);
-		routing.goback();
+		routing.goto("trade", { id: id.substring(2) }, "market");
 	}
 </script>
 
@@ -125,7 +125,7 @@
 		{/if}
 
 		<div class="grid">
-			<div>Price (eth)</div>
+			<div>Price ({import.meta.env.VITE_VALUE_SYMBOL})</div>
 			<input
 				placeholder="0.00"
 				class="border-2 bg-transparent outline-none text-base/5 px-1 mr-auto"

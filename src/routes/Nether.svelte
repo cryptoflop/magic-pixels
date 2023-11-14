@@ -10,15 +10,13 @@
 	import { formatEther } from "viem";
 
 	import qackSrc from "../assets/quack.mp3";
-	import tokSrc from "../assets/tok.mp3";
+	import clickSrc from "../assets/click.mp3";
 	import sparkleSrc from "../assets/sparkle.mp3";
 	import winSrc from "../assets/win.mp3";
 	import { createAudio } from "../helpers/audio";
 	import { decodePixel } from "../../contracts/scripts/libraries/pixel-parser";
 	import { createToastCtx } from "../contexts/toast";
 	import UnexpectedFind from "../elements/UnexpectedFind.svelte";
-
-	const qack = createAudio(qackSrc, { volume: 0.2 });
 
 	const toast = getContext<ReturnType<typeof createToastCtx>>("toast");
 
@@ -38,13 +36,14 @@
 			.map(() => []);
 	}
 
-	const tok = createAudio(tokSrc, { volume: 0.6 });
+	const qack = createAudio(qackSrc, { volume: 0.2 });
+	const click = createAudio(clickSrc, { volume: 0.1 });
 
 	$: {
-		numPixels && 1;
-		tok.currentTime = 0;
-		if (tok.paused ?? true) {
-			tok.play();
+		numPixels && false;
+		click.currentTime = 0;
+		if (click.paused ?? true) {
+			click.play();
 		}
 	}
 

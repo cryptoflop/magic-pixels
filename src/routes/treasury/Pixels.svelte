@@ -8,6 +8,16 @@
 	const pixels = web3.pixels;
 
 	const pixelArr = $pixels.toArray().map((id) => decodePixel(id));
+
+	let filteredPixels: Pixel[] = [];
 </script>
 
-<PixelPalette pixels={pixelArr} cols={14} />
+<div>
+	<PixelPalette
+		pixels={pixelArr}
+		cols={14}
+		classPixel="cursor-default"
+		bind:filtered={filteredPixels}
+	/>
+	<div class="text-xs mt-1 absolute">{filteredPixels.length} pixels</div>
+</div>

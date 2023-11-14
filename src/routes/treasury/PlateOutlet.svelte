@@ -76,7 +76,7 @@
 	</div>
 
 	{#if plate && isOwnPlate}
-		<div class="ml-auto">
+		<div class="flex">
 			<PixelizedButton action={shatter}>
 				<span slot="default">Shatter</span>
 				<span slot="executing">Smashing...</span>

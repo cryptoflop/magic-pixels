@@ -16,6 +16,15 @@
 	import { fade } from "svelte/transition";
 	import { createAudio } from "../helpers/audio";
 	import forgeSrc from "../assets/forging.mp3";
+	import type { createToastCtx } from "../contexts/toast";
+
+	import clickSrc from "../assets/click.mp3";
+	import clackSrc from "../assets/clack.mp3";
+
+	const click = createAudio(clickSrc, { volume: 0.1 });
+	const clack = createAudio(clackSrc, { volume: 0.05 });
+
+	const toast = getContext<ReturnType<typeof createToastCtx>>("toast");
 
 	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
 
@@ -100,17 +109,25 @@
 
 		const el = document.createElement("div");
 		el.style.position = "absolute";
-		el.style.left = e.clientX - 14 + "px";
-		el.style.top = e.clientY - 14 + "px";
-		el.style.pointerEvents = "none";
-		el.className = "h-6 w-6 border-2 border-dashed";
-		pixelizeElement(el, pxl);
+		el.className = "cursor-grabbing";
+		el.style.zIndex = "0";
+		const elVis = document.createElement("div");
+		pixelizeElement(elVis, pxl);
+		elVis.style.zIndex = "2";
+		elVis.style.pointerEvents = "none";
+		elVis.style.left = e.clientX - 14 + "px";
+		elVis.style.top = e.clientY - 14 + "px";
+		elVis.className = "h-6 w-6 border-2";
+		el.append(elVis);
 		document.body.appendChild(el);
 
 		function onMove(e: MouseEvent) {
 			el.style.left = e.clientX - 14 + "px";
 			el.style.top = e.clientY - 14 + "px";
 		}
+
+		onMove(e);
+
 		function onRelease(e: MouseEvent) {
 			el.remove();
 			document.body.classList.remove("cursor-grabbing");
@@ -118,7 +135,10 @@
 			document.body.removeEventListener("mouseup", onRelease);
 
 			const target = e.target as HTMLElement;
-			if (target.tagName != "IMG") return;
+			if (target.id != "drop-overlay") {
+				grabbed = null;
+				return;
+			}
 			drop(
 				Math.floor(e.offsetY / size) * dimension + Math.floor(e.offsetX / size)
 			);
@@ -132,16 +152,18 @@
 			placedPixels[i] = "" as PixelId;
 			delete delays[i];
 			delays = { ...delays };
+			clack.play();
 		} else {
 			placedPixels[i] = grabbed;
 			grabbed = null;
+			click.play();
 		}
 		placedPixels = [...placedPixels];
 	}
 
 	function updateHover(e: MouseEvent & { layerX?: number; layerY?: number }) {
 		const target = e.target as HTMLElement;
-		if (target.tagName == "IMG") {
+		if (target.id == "drop-overlay") {
 			const idx =
 				Math.floor(e.offsetY / size) * dimension + Math.floor(e.offsetX / size);
 			if (idx == hovering) return;
@@ -188,8 +210,6 @@
 	}
 
 	function releasePixel(e: MouseEvent) {
-		const target = e.target as HTMLElement;
-		if (target.tagName != "IMG") return;
 		const idx =
 			Math.floor(e.offsetY / size) * dimension + Math.floor(e.offsetX / size);
 		drop(idx);
@@ -204,6 +224,7 @@
 		});
 		const tokenId = await web3.mint(placedPixels, delaysPacked);
 		routing.goto("plate", { id: tokenId.toString() }, "treasury");
+		toast.show("You successfully forged plate #" + tokenId.toString());
 	}
 </script>
 
@@ -215,22 +236,15 @@
 		cols={5}
 		on:mousedown={(e) => grab(e.detail.pxl, e.detail.ev)}
 		bind:filtered={filteredPixels}
-		classPixel="cursor-grab"
 	/>
 
-	<div
-		class="border-2 grid group relative"
-		on:mousemove={updateHover}
-		on:mouseleave={() => (hovering = -1)}
-		on:wheel={onHoverWheel}
-		on:click={releasePixel}
-	>
+	<div class="border-2 grid group relative">
 		{#if flash}
 			<div class="absolute inset-0 bg-white/80 animate-pulse z-[-1]" />
 		{/if}
 
 		<select
-			class="absolute ml-auto right-0 -translate-y-8 translate-x-0.5"
+			class="absolute select-none ml-auto right-0 -translate-y-8 translate-x-0.5"
 			bind:value={dimension}
 		>
 			{#each PLATE_DIMENSIONS as dim}
@@ -248,6 +262,15 @@
 				placedPixels.map((p) => (p ? decodePixel(p) : [])),
 				delaysPacked
 			)}
+		/>
+
+		<div
+			id="drop-overlay"
+			class="absolute inset-0 z-[1]"
+			on:click={releasePixel}
+			on:mousemove={updateHover}
+			on:mouseleave={() => (hovering = -1)}
+			on:wheel={onHoverWheel}
 		/>
 	</div>
 

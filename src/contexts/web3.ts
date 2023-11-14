@@ -1,15 +1,15 @@
 import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, getPublicClient } from "@wagmi/core";
 import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
-import { parseAbiItem, parseEther, type Hex, type Address } from "viem";
+import { parseAbiItem, parseEther, type Hex, type Address, formatEther } from "viem";
 import { readable, writable } from "svelte/store";
 import { mantleTestnet } from "viem/chains";
 import { cachedStore, consistentStore } from "../helpers/reactivity-helpers";
 import { bytesToPixelIds, pixelIdsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
 import { NULL_ADDR, PIXEL_PRICE } from "../values";
 
-import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI, auctionHouseABI } from "../../contracts/generated";
+import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI, trdsCoreABI, pxlsCommonABI } from "../../contracts/generated";
 
-import { execute, AllPixelsByAccountDocument, AccountLastBlockDocument } from "../../subgraph/.graphclient"
+import { execute, AllPixelsByAccountDocument, AccountLastBlockDocument, AllTradesForAccountDocument } from "../../subgraph/.graphclient"
 import PixelBalances from "../helpers/pixel-balances";
 
 function savePixels(balances: PixelBalances, blockNumber: bigint, addr: Address) {
@@ -51,6 +51,16 @@ export function createWeb3Ctx() {
 			ctx.account.set(null)
 		},
 
+		price: consistentStore(readable<number>(0.008, (set) => {
+			readContract({
+				address: PXLS,
+				abi: pxlsCommonABI,
+				functionName: "price"
+			}).then(r => {
+				set(Number(formatEther(r)))
+			})
+		})),
+
 		usdPrice: consistentStore(readable<number>(0.378, (set) => {
 			readContract({
 				address: USDC,
@@ -73,18 +83,23 @@ export function createWeb3Ctx() {
 				set(getPixels(acc)) // optimistically load pixels from storage 
 
 				const lastBlockRes = await execute(AccountLastBlockDocument, { account: acc.toLowerCase() })
-				const lastBlock = BigInt(lastBlockRes.data?.account?.last_block ?? "0")
+				const lastBlock = BigInt(lastBlockRes.data?.pixelBalances?.[0]?.last_block ?? "0")
 
 				const storedLastBlock = BigInt(localStorage.getItem("pixels_last_block_" + acc) ?? "0")
 
 				if (lastBlock > storedLastBlock) {
 					// if out of sync fetch pixel balances from subgraph
-					const result = await execute(AllPixelsByAccountDocument, { account: acc.toLowerCase(), first: 18050, skip: 0 })
-					const data: { pixel: Hex, amount: string }[] = result.data?.account?.balances ?? []
-					const pixelBalances = data.reduce((prev, curr) => {
-						prev.set(curr.pixel, Number(curr.amount))
+					const result = await execute(AllPixelsByAccountDocument, { account: acc.toLowerCase() })
+					const data: { balances: string } = (result.data?.pixelBalances ?? [{ balances: "" }])[0]
+
+					const pixelBalances = data.balances.split(";").reduce((prev, curr) => {
+						const raw = curr.split("=")
+						if (raw.length > 1) {
+							prev.set('0x' + raw[0].padEnd(8, "0") as Hex, Number(raw[1]))
+						}
 						return prev
 					}, new PixelBalances())
+
 					set(pixelBalances)
 					savePixels(pixelBalances, lastBlock, acc)
 				}
@@ -116,86 +131,121 @@ export function createWeb3Ctx() {
 					return
 				}
 
-				// TODO: 
+				const result = await execute(AllTradesForAccountDocument, { account: acc.toLowerCase() })
+				const trades: P2PTrade[] = (result.data?.trades ?? []).map((t: P2PTrade) => (
+					{ ...t, pixels: bytesToPixelIds(t.pixels as unknown as Hex), price: BigInt(t.price) }
+				))
 
-				set([])
+				set(trades)
 			})
 		})),
 
 		async openTrade(pixels: PixelId[], receiver: Address, price: bigint, tradeType: number) {
 			const { hash } = await writeContract({
 				address: PXLS,
-				abi: auctionHouseABI,
+				abi: trdsCoreABI,
 				functionName: "openTrade",
 				args: [receiver, pixelIdsToBytes(pixels), price, tradeType],
-				value: price
+				value: tradeType === 0 ? 0n : price
 			});
 
 			const { status, blockNumber } = await waitForTransaction({ hash })
 			if (status == "reverted") throw "reverted"
 
-			const logs = await getPublicClient().getLogs({
+			const openedEvents = await getPublicClient().getContractEvents({
 				address: PXLS,
-				event: parseAbiItem('event TradeOpened(address indexed creator, bytes32 id)'),
+				abi: trdsCoreABI,
+				eventName: "TradeOpened",
 				args: {
-					creator: ctx.account.current
+					trade: {
+						creator: ctx.account.current!
+					}
 				},
 				fromBlock: blockNumber,
 				toBlock: blockNumber
 			})
 
-			const tradeId = logs[0]!.args.id!
+			const tradeId = openedEvents[0]!.args.id!
 
-			ctx.trades.update(curr => {
-				curr.push({
-					id: tradeId,
-					creator: ctx.account.current!,
-					receiver,
-					pixels,
-					price,
-					tradeType
+			if (tradeType == 0) {
+				// subtract pixels
+				ctx.pixels.update(c => {
+					pixels.forEach(id => c.decrease(id))
+					const updated = c.copy()
+					savePixels(updated, blockNumber, ctx.account.current!)
+					return updated
 				})
-				return curr
-			})
+			}
+
+			ctx.trades.update(c => c.concat([{
+				id: tradeId,
+				creator: ctx.account.current!,
+				receiver,
+				pixels,
+				price,
+				tradeType
+			}]))
 
 			return tradeId
 		},
 
-		async closeTrade(trade: P2PTrade) {
-			// const ptx = await prepareWriteContract({
-			// 	address: PXLS,
-			// 	abi: [parseAbiItem("function closeTrade(bytes32 id) external payable")],
-			// 	functionName: "closeTrade",
-			// 	args: [trade.id],
-			// 	value: trade.price
-			// })
-
+		async cancelTrade(trade: P2PTrade) {
 			const { hash } = await writeContract({
 				address: PXLS,
-				abi: [parseAbiItem("function closeTrade(bytes32 id) external payable")],
-				functionName: "closeTrade",
-				args: [trade.id],
-				value: trade.price
+				abi: trdsCoreABI,
+				functionName: "cancelTrade",
+				args: [trade.id]
 			});
 
-			const { status } = await waitForTransaction({ hash })
+			const { status, blockNumber } = await waitForTransaction({ hash })
 			if (status == "reverted") throw "reverted"
 
-			// await walletClient.writeContract({
-			// 	address: PXLS,
-			// 	abi: [parseAbiItem("function closeTrade(bytes32 id) external payable")],
-			// 	functionName: "closeTrade",
-			// 	args: [trade.id],
-			// 	value: trade.price,
-			// 	chain: base,
-			// 	gas: 10000000n
-			// })
+			if (trade.tradeType == 0) {
+				// restore pixels
+				ctx.pixels.update(c => {
+					trade.pixels.forEach(id => c.increase(id))
+					const updated = c.copy()
+					savePixels(updated, blockNumber, ctx.account.current!)
+					return updated
+				})
+			}
+
+			ctx.trades.update(c => {
+				c.splice(c.findIndex(t => t.id === trade.id), 1)
+				return [...c]
+			})
 		},
 
-		async getTrade(id: `0x${string}`) {
+		async closeTrade(trade: P2PTrade) {
+			const { hash } = await writeContract({
+				address: PXLS,
+				abi: trdsCoreABI,
+				functionName: "closeTrade",
+				args: [trade.id],
+				value: trade.tradeType === 0 ? trade.price : 0n
+			});
+
+			const { status, blockNumber } = await waitForTransaction({ hash })
+			if (status == "reverted") throw "reverted"
+
+			ctx.pixels.update(c => {
+				const isSell = trade.tradeType === 0
+				trade.pixels.forEach(id => isSell ? c.increase(id) : c.decrease(id))
+				const updated = c.copy()
+				savePixels(updated, blockNumber, ctx.account.current!)
+				return updated
+			})
+
+			ctx.trades.update(c => {
+				c.splice(c.findIndex(t => t.id === trade.id), 1)
+				return [...c]
+			})
+		},
+
+		async getTrade(id: Hex) {
 			const trade = await readContract({
 				address: PXLS,
-				abi: auctionHouseABI,
+				abi: trdsCoreABI,
 				functionName: "getTrade",
 				args: [id]
 			});
@@ -243,7 +293,7 @@ export function createWeb3Ctx() {
 				abi: pxlsNetherABI,
 				eventName: "UnexpectedFind",
 				args: {
-					to: ctx.account.current
+					to: ctx.account.current!
 				},
 				fromBlock: blockNumber,
 				toBlock: blockNumber

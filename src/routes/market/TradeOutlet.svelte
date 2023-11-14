@@ -2,11 +2,18 @@
 	import { getContext } from "svelte";
 	import type { createWeb3Ctx } from "../../contexts/web3";
 	import type { createRoutingCtx } from "../../contexts/routing";
-	import Trade from "./Trade.svelte";
+	import type { createToastCtx } from "../../contexts/toast";
+	import { formatEther, type Hex } from "viem";
 	import PixelizedButton from "../../elements/PixelizedButton.svelte";
-	import { tooltip } from "../../directives/tooltip";
+	import Trade from "./Trade.svelte";
+
+	import { createAudio } from "../../helpers/audio";
+	import sparkleSrc from "../../assets/sparkle.mp3";
+
+	const toast = getContext<ReturnType<typeof createToastCtx>>("toast");
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
+	const acc = web3.account;
 	const trades = web3.trades;
 
 	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
@@ -14,17 +21,16 @@
 
 	let trade: undefined | null | P2PTrade = undefined;
 
-	let isOwnTrade = false;
+	$: isOwnTrade = trade?.creator.toLowerCase() == $acc?.toLowerCase();
 
 	$: {
 		if ($param?.id) {
-			const ownTrade = $trades.find((t) => t.id == `0x${$param!.id}`);
-			if (ownTrade) {
-				isOwnTrade = true;
-				trade = ownTrade;
+			const id = `0x${$param!.id}` as Hex;
+			const t = $trades.find((t) => t.id == id);
+			if (t) {
+				trade = t;
 			} else {
-				isOwnTrade = false;
-				web3.getTrade(`0x${$param!.id}`).then((t) => (trade = t));
+				web3.getTrade(id).then((t) => (trade = t));
 			}
 		} else {
 			trade = null;
@@ -34,9 +40,34 @@
 	async function closeTrade() {
 		try {
 			await web3.closeTrade(trade!);
+			routing.goto("treasury", { view: "pixels" }, "treasury");
+			createAudio(sparkleSrc, {
+				autoPlay: true,
+				volume: 0.08,
+				disposable: true,
+			});
+			toast.show(
+				`You successfully closed a ${
+					trade!.tradeType === 0 ? "sell" : "buy"
+				} trade for ${formatEther(trade!.price)} ${
+					import.meta.env.VITE_VALUE_SYMBOL
+				}.`
+			);
 		} catch (err) {
 			console.log(err);
 		}
+	}
+
+	async function cancelTrade() {
+		await web3.cancelTrade(trade!);
+		routing.goback();
+		toast.show(
+			`You successfully canceled your trade\n restoring ${
+				trade!.tradeType == 0 ? trade!.pixels.length : formatEther(trade!.price)
+			} ${
+				trade!.tradeType == 0 ? "pixels" : import.meta.env.VITE_VALUE_SYMBOL
+			}.`
+		);
 	}
 </script>
 
@@ -56,15 +87,15 @@
 	{#if trade}
 		<Trade {trade} />
 
-		<div class="ml-auto relative">
-			<PixelizedButton action={closeTrade} disabled={isOwnTrade}>
-				<span slot="default">Close Trade</span>
-				<span slot="executing">Closing Trade...</span>
-			</PixelizedButton>
-
-			{#if isOwnTrade}
-				<div class="absolute inset-0" use:tooltip={"This is your own trade"} />
-			{/if}
-		</div>
+		<PixelizedButton
+			action={isOwnTrade ? cancelTrade : closeTrade}
+			class={isOwnTrade ? "mr-auto" : "ml-auto"}
+			options={{ colored: !isOwnTrade }}
+		>
+			<span slot="default">{isOwnTrade ? "Cancel" : "Close"} Trade</span>
+			<span slot="executing"
+				>{isOwnTrade ? "Canceling" : "Closing"} Trade...</span
+			>
+		</PixelizedButton>
 	{/if}
 </div>
