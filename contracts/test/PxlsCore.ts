@@ -29,7 +29,8 @@ describe('PxlsCore', function () {
 	it('Should conjure 256 pixels', async function () {
 		const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
 
-		const conjureTx = await pxls.write.conjure([256n], { value: parseEther("21") })
+		const price = await (await viem.getContractAt("PxlsCommon", pxlsAddress)).read.price()
+		const conjureTx = await pxls.write.conjure([256n], { value: price * 256n })
 		const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 		const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 

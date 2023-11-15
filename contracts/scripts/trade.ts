@@ -8,7 +8,9 @@ export async function openTrade(acc: Awaited<ReturnType<typeof viem.getWalletCli
 	const pxls = await viem.getContractAt('PxlsCore', pxlsAddress, { walletClient: acc })
 	const trds = await viem.getContractAt('TrdsCore', pxlsAddress, { walletClient: acc })
 
-	const conjureTx = await pxls.write.conjure([2n], { value: parseEther("0.16") })
+	const price = await (await viem.getContractAt("PxlsCommon", pxlsAddress)).read.price()
+
+	const conjureTx = await pxls.write.conjure([2n], { value: price * 2n })
 	const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 	const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 

@@ -11,7 +11,7 @@ describe('Trades', function () {
 
 	let pxlsAddress: `0x${string}`
 
-	before(async function() {
+	beforeEach(async function() {
 		publicClient = await viem.getPublicClient()
 		pxlsAddress = await deployPxls()
 	})
@@ -75,7 +75,9 @@ describe('Trades', function () {
 		const pxls = await viem.getContractAt('PxlsCore', pxlsAddress, { walletClient: acc1 })
 		const trds = await viem.getContractAt('TrdsCore', pxlsAddress, { walletClient: acc1 })
 
-		const conjureTx = await pxls.write.conjure([2n], { account: acc2.account, value: parseEther("0.16") })
+		const price = await (await viem.getContractAt("PxlsCommon", pxlsAddress)).read.price()
+
+		const conjureTx = await pxls.write.conjure([2n], { account: acc2.account, value: price * 2n })
 		const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 		const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 

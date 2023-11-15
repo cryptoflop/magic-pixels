@@ -33,7 +33,9 @@ describe('PixelsAndPlates', function () {
 		const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
 		const plts = await viem.getContractAt("MagicPlates", pltsAddress)
 
-		const conjureTx = await pxls.write.conjure([256n], { value: parseEther("21") })
+		const price = await (await viem.getContractAt("PxlsCommon", pxlsAddress)).read.price()
+
+		const conjureTx = await pxls.write.conjure([256n], { value: price * 256n })
 		const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 		const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 
@@ -83,7 +85,9 @@ describe('PixelsAndPlates', function () {
 	it('Should mint 8x8 plate', async function () {
 		const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
 
-		const conjureTx = await pxls.write.conjure([64n], { value: parseEther("10") })
+		const price = await (await viem.getContractAt("PxlsCommon", pxlsAddress)).read.price()
+
+		const conjureTx = await pxls.write.conjure([64n], { value: price * 64n })
 		const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 		const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 

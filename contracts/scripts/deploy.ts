@@ -9,8 +9,8 @@ import { colors } from './colors'
 
 
 export async function deploy () {
-	const [acc1, acc2] = await viem.getWalletClients()
-	const publicClient = await viem.getPublicClient()
+	// const [acc1, acc2] = await viem.getWalletClients()
+	// const publicClient = await viem.getPublicClient()
 
 	const pxlsAddress = await deployPxls() as `0x${string}`
 	const pxSetters = await viem.getContractAt('PxlsSetters', pxlsAddress)

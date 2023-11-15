@@ -1,6 +1,6 @@
 import { viem } from 'hardhat'
 
-import { decodeEventLog, parseEther } from 'viem'
+import { decodeEventLog } from 'viem'
 import { bytesToPixels } from './libraries/pixel-parser'
 
 import { deployPxls } from './MagicPixels'
@@ -41,9 +41,11 @@ export async function testPixels() {
 		}
 	}
 
+	const price = await (await viem.getContractAt("PxlsCommon", pxlsAddress)).read.price() * 256n
+
 	let i = 1
 	while (searching) {
-		const conjureTx = await pxls.write.conjure([256n], { value: parseEther("20.5") })
+		const conjureTx = await pxls.write.conjure([256n], { value: price })
 		const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 		const conjured = decodeEventLog({ ...conjureRcpt.logs[conjureRcpt.logs.length > 1 ? 1 : 0], abi: pxls.abi, eventName: "Conjured" })
 		examinePixels(bytesToPixels(conjured.args.pixels))
