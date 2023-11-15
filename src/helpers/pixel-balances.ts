@@ -1,8 +1,46 @@
-import { decodePixel } from "../../contracts/scripts/libraries/pixel-parser"
+function padId(id: string): string {
+	return (id + "00000000").substring(0, 8);
+}
+
+function unpadId(id: string): string {
+	let idx = 1;
+	for (let i = id.length - 1; i > 0; i--) {
+		if (id[i] != "0") {
+			idx = i + 1;
+			break;
+		}
+	}
+	return id.substring(0, idx);
+}
 
 export default class PixelBalances {
 	static fromString(data: string) {
-		return new PixelBalances(new Map(JSON.parse(data)))
+		const balances = new Map<PixelId, number>()
+
+		let id = "";
+		let amount = "";
+		let parseId = true;
+		for (let i = 0; i < data.length; i++) {
+			const char = data[i];
+			if (parseId) {
+				if (char == "=") {
+					parseId = false;
+				} else {
+					id += char;
+				}
+			} else {
+				if (char == ";") {
+					balances.set(`0x${padId(id)}`, parseInt(amount));
+					id = "";
+					amount = "";
+					parseId = true;
+				} else {
+					amount += char;
+				}
+			}
+		}
+
+		return new PixelBalances(balances)
 	}
 
 	private balances
@@ -21,10 +59,6 @@ export default class PixelBalances {
 		return this.balances.get(id) ?? 0
 	}
 
-	toString() {
-		return JSON.stringify(Array.from(this.balances.entries()))
-	}
-
 	get(id: PixelId) {
 		return this._get(id)
 	}
@@ -39,9 +73,24 @@ export default class PixelBalances {
 	}
 
 	decrease(id: PixelId) {
-		this.balances.set(id, this._get(id) - 1)
-		if (this._get(id) < 0) throw `Negative balance: ${decodePixel(id)}`
+		const amount = this._get(id)
+		if (amount > 1) {
+			this.balances.set(id, amount - 1)
+		} else {
+			this.balances.delete(id)
+		}
 		this._total--
+	}
+
+	toString(): string {
+		let result = "";
+
+		for (const id of this.balances.keys()) {
+			const amount = this.balances.get(id)!.toString();
+			result += unpadId(id.substring(2)) + "=" + amount + ";";
+		}
+
+		return result;
 	}
 
 	toArray() {

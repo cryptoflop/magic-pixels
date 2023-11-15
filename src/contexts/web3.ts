@@ -1,5 +1,5 @@
-import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, getPublicClient } from "@wagmi/core";
-import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
+import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, getPublicClient, switchNetwork, getNetwork, watchAccount } from "@wagmi/core";
+import { publicProvider } from "@wagmi/core/providers/public";
 import { parseAbiItem, parseEther, type Hex, type Address, formatEther } from "viem";
 import { readable, writable } from "svelte/store";
 import { mantleTestnet } from "viem/chains";
@@ -7,7 +7,7 @@ import { cachedStore, consistentStore, eagerStore } from "../helpers/reactivity-
 import { bytesToPixelIds, pixelIdsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
 import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI, trdsCoreABI, pxlsCommonABI } from "../../contracts/generated";
 
-import { execute, AllPixelsByAccountDocument, AccountLastBlockDocument, AllTradesForAccountDocument } from "../../subgraph/.graphclient"
+import { execute, AllPixelsByAccountDocument, AllTradesForAccountDocument } from "../../subgraph/.graphclient"
 import PixelBalances from "../helpers/pixel-balances";
 
 function savePixels(balances: PixelBalances, blockNumber: bigint, addr: Address) {
@@ -16,7 +16,7 @@ function savePixels(balances: PixelBalances, blockNumber: bigint, addr: Address)
 }
 
 function getPixels(addr: Address) {
-	return PixelBalances.fromString(localStorage.getItem("pixels_" + addr) ?? "[]")
+	return PixelBalances.fromString(localStorage.getItem("pixels_" + addr) ?? "")
 }
 
 export function createWeb3Ctx() {
@@ -26,12 +26,10 @@ export function createWeb3Ctx() {
 
 	const { chains, publicClient: publicClientGetter } = configureChains(
 		[mantleTestnet],
-		[jsonRpcProvider({ rpc: (_) => ({ http: import.meta.env.VITE_RPC_URL }), })],
+		[publicProvider()],
 	)
 
-	const { connectors } = createConfig({
-		autoConnect: true,
-		connectors: [new InjectedConnector({ chains })],
+	createConfig({
 		publicClient: publicClientGetter
 	})
 
@@ -39,7 +37,17 @@ export function createWeb3Ctx() {
 		account: cachedStore(writable<`0x${string}` | null>()),
 
 		async connect() {
-			const { account } = await connect({ connector: connectors[0]! });
+			await disconnect()
+			const { account } = await connect({ connector: new InjectedConnector({ chains }) });
+			if (getNetwork()?.chain?.id !== mantleTestnet.id) {
+				await switchNetwork({ chainId: chains[0].id })
+			}
+			const unwatch = watchAccount(a => {
+				if (a.address !== account) {
+					unwatch()
+					ctx.disconnect()
+				}
+			})
 			console.log(account)
 			ctx.account.set(account)
 		},
@@ -80,16 +88,13 @@ export function createWeb3Ctx() {
 
 				set(getPixels(acc)) // optimistically load pixels from storage 
 
-				const lastBlockRes = await execute(AccountLastBlockDocument, { account: acc.toLowerCase() })
-				const lastBlock = BigInt(lastBlockRes.data?.pixelBalances?.[0]?.last_block ?? "0")
-
 				const storedLastBlock = BigInt(localStorage.getItem("pixels_last_block_" + acc) ?? "0")
 
-				if (lastBlock > storedLastBlock) {
-					// if out of sync fetch pixel balances from subgraph
-					const result = await execute(AllPixelsByAccountDocument, { account: acc.toLowerCase() })
-					const data: { balances: string } = (result.data?.pixelBalances ?? [{ balances: "" }])[0]
+				// if out of sync fetch pixel balances from subgraph
+				const result = await execute(AllPixelsByAccountDocument, { account: acc.toLowerCase(), block: storedLastBlock.toString() })
+				const data: { balances: string, last_block: string } = (result.data?.pixelBalances ?? [])[0]
 
+				if (data) {
 					const pixelBalances = data.balances.split(";").reduce((prev, curr) => {
 						const raw = curr.split("=")
 						if (raw.length > 1) {
@@ -99,7 +104,7 @@ export function createWeb3Ctx() {
 					}, new PixelBalances())
 
 					set(pixelBalances)
-					savePixels(pixelBalances, lastBlock, acc)
+					savePixels(pixelBalances, BigInt(data.last_block), acc)
 				}
 			})
 		}))),
@@ -325,7 +330,7 @@ export function createWeb3Ctx() {
 				abi: magicPlatesABI,
 				eventName: "Transfer",
 				args: {
-					from: global.NULL_ADDR,
+					from: import.meta.env.VITE_NULL_ADDR,
 					to: ctx.account.current!
 				},
 				fromBlock: blockNumber,
@@ -397,6 +402,8 @@ export function createWeb3Ctx() {
 			})
 		}
 	}
+
+	ctx.connect()
 
 	return ctx
 }
