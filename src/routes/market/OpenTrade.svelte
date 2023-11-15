@@ -39,9 +39,9 @@
 
 	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
 
-	let selecting = true;
+	let selecting = false;
 
-	let tradeType = 1;
+	let tradeType = 0;
 
 	let price = "";
 
