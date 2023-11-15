@@ -36,11 +36,11 @@ export async function deploy () {
   // const mintTx = await pxls.write.mint([conjured.args.pixels, []])
 	// await publicClient.waitForTransactionReceipt({ hash: mintTx })
 
-  console.log('Minted')
+  // console.log('Minted')
 	
-	await openTrade(acc1, pxlsAddress, "0x0000000000000000000000000000000000000000")
-	const [id] = await openTrade(acc2, pxlsAddress, acc1.account.address)
-	console.log('Test trade: ' + id)
+	// await openTrade(acc1, pxlsAddress, "0x0000000000000000000000000000000000000000")
+	// const [id] = await openTrade(acc2, pxlsAddress, acc1.account.address)
+	// console.log('Test trade: ' + id)
 }
 
 deploy().catch((error) => {

@@ -5,16 +5,15 @@ library LibPixels {
 	bytes32 constant STORAGE_POSITION = keccak256("diamond.pixels.storage");
 
 	struct Storage {
-		uint8 PLATE_SIZE;
 		uint8 MIN_PIXEL;
 		uint8 MAX_PIXEL;
 		uint8 PIXEL_DEPTH;
 
 		address plts;
 
-		uint256 ETH_PROB; // 0.01%
-		uint256 ETH_PERC; // 10% percentage not the pill
-		uint256 ETH_LAST_BLOCK; // last block eth was found
+		uint256 UF_PROB; // 0.01%
+		uint256 UF_PERC; // 10% percentage not the pill
+		uint256 UF_LAST_BLOCK; // last block a unexpected find was made
 
 		uint256 PRICE;
 

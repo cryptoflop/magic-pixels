@@ -20,16 +20,16 @@ contract PxlsNether {
 		LibPRNG.seed(rnd, seed);
 
 		if (address(this).balance < 0.01 ether) { return; }
-		if (block.number - s.ETH_LAST_BLOCK < 10) { return; }
+		if (block.number - s.UF_LAST_BLOCK < 10) { return; }
 		
-		uint256 b = uint256(LibPRNG.next(rnd) % s.ETH_PROB);
+		uint256 b = uint256(LibPRNG.next(rnd) % s.UF_PROB);
 		for (uint i = 0; i < thoroughness; i++) {
-			uint256 w = uint256(LibPRNG.next(rnd) % s.ETH_PROB);
+			uint256 w = uint256(LibPRNG.next(rnd) % s.UF_PROB);
 			if (w == b) {
-				uint256 eth = address(this).balance / s.ETH_PERC;
+				uint256 eth = address(this).balance / s.UF_PERC;
 				(bool success, ) = examiner.call{value: eth}("");
 				if (success) {
-					s.ETH_LAST_BLOCK = block.number;
+					s.UF_LAST_BLOCK = block.number;
 					emit UnexpectedFind(examiner, eth);
 					return;
 				}

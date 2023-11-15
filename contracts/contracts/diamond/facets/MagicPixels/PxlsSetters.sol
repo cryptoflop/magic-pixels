@@ -12,10 +12,6 @@ contract PxlsSetters is Ownable {
     LibPixels.store().plts = plts;
   }
 
-  function setPlateSize(uint8 s) external onlyOwner {
-    LibPixels.store().PLATE_SIZE = s;
-  }
-
   function setMaxPixel(uint8 m) external onlyOwner {
     LibPixels.store().MAX_PIXEL = m;
   }
