@@ -1,3 +1,5 @@
+import { encodePixel } from "../../contracts/scripts/libraries/pixel-parser";
+
 function padId(id: string): string {
 	return (id + "00000000").substring(0, 8);
 }
@@ -43,6 +45,16 @@ export default class PixelBalances {
 		return new PixelBalances(balances)
 	}
 
+	static fromIds(ids: PixelId[]) {
+		const balances = new PixelBalances()
+
+		for (const id of ids) {
+			balances.increase(id)
+		}
+
+		return balances
+	}
+
 	private balances
 
 	private _total = 0
@@ -82,7 +94,32 @@ export default class PixelBalances {
 		this._total--
 	}
 
-	toString(): string {
+	has(pixels: Pixel[]): boolean
+	has(pixels: PixelId[]): boolean
+	has(pixels: PixelBalances): boolean
+	has(pixels: Pixel[] | PixelId[] | PixelBalances): boolean {
+		let b: PixelBalances;
+		if (pixels instanceof Array) {
+			b = new PixelBalances();
+			if (typeof pixels[0] === "string") {
+				pixels.forEach(id => b.increase(id as PixelId))
+			} else {
+				pixels.forEach(pxl => b.increase(encodePixel(pxl as Pixel)))
+			}
+		} else {
+			b = pixels;
+		}
+
+		for (const entry of b.balances.entries()) {
+			if (this.get(entry[0]) < entry[1]) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	toString() {
 		let result = "";
 
 		for (const id of this.balances.keys()) {

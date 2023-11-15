@@ -1,4 +1,4 @@
-import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, getPublicClient, switchNetwork, getNetwork, watchAccount } from "@wagmi/core";
+import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, getPublicClient, switchNetwork, getNetwork, watchAccount, fetchBalance } from "@wagmi/core";
 import { publicProvider } from "@wagmi/core/providers/public";
 import { parseAbiItem, parseEther, type Hex, type Address, formatEther } from "viem";
 import { readable, writable } from "svelte/store";
@@ -55,6 +55,10 @@ export function createWeb3Ctx() {
 		async disconnect() {
 			await disconnect()
 			ctx.account.set(null)
+		},
+
+		async getBalance() {
+			return await fetchBalance({ address: ctx.account.current! })
 		},
 
 		price: eagerStore(cachedStore(consistentStore(readable<number>(0.08, (set) => {

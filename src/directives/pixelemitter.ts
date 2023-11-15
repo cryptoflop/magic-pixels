@@ -55,8 +55,10 @@ export function pixelemitter(element: HTMLElement, options: EmitterOptions) {
 		const w = element.clientWidth;
 		const h = element.clientHeight;
 
-		const x = rndBtwn(1, w) - centerX;
-		const y = rndBtwn(1, h) - centerY;
+		let x = rndBtwn(1, w) - centerX;
+		let y = rndBtwn(1, h) - centerY;
+		x = x == 0 ? rndBtwn(1, 2) : x;
+		y = y == 0 ? rndBtwn(1, 2) : y;
 
 		const [ex, ey] = moveAlongLine(x, y, 1.5)
 

@@ -9,10 +9,12 @@
 
 	import { createAudio } from "../../helpers/audio";
 	import sparkleSrc from "../../assets/sounds/sparkle.mp3";
+	import { tooltip } from "../../directives/tooltip";
 
 	const toast = getContext<ReturnType<typeof createToastCtx>>("toast");
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
+	const pixels = web3.pixels;
 	const acc = web3.account;
 	const trades = web3.trades;
 
@@ -22,6 +24,25 @@
 	let trade: undefined | null | P2PTrade = undefined;
 
 	$: isOwnTrade = trade?.creator.toLowerCase() == $acc?.toLowerCase();
+
+	let cannotCloseReason: string | null = null;
+
+	$: {
+		if (!trade || isOwnTrade) {
+			cannotCloseReason = null;
+		} else {
+			if (trade.tradeType == 0) {
+				web3.getBalance().then((r) => {
+					cannotCloseReason =
+						r.value > trade!.price ? null : "Insufficient funds.";
+				});
+			} else {
+				cannotCloseReason = $pixels.has(trade.pixels)
+					? null
+					: "Insufficient pixels.";
+			}
+		}
+	}
 
 	$: {
 		if ($param?.id) {
@@ -87,15 +108,21 @@
 	{#if trade}
 		<Trade {trade} />
 
-		<PixelizedButton
-			action={isOwnTrade ? cancelTrade : closeTrade}
-			class={isOwnTrade ? "mr-auto" : "ml-auto"}
-			options={{ colored: !isOwnTrade }}
-		>
-			<span slot="default">{isOwnTrade ? "Cancel" : "Close"} Trade</span>
-			<span slot="executing"
-				>{isOwnTrade ? "Canceling" : "Closing"} Trade...</span
+		<div class="{isOwnTrade ? 'mr-auto' : 'ml-auto'} relative">
+			<PixelizedButton
+				action={isOwnTrade ? cancelTrade : closeTrade}
+				options={{ colored: !isOwnTrade }}
+				disabled={!!cannotCloseReason}
 			>
-		</PixelizedButton>
+				<span slot="default">{isOwnTrade ? "Cancel" : "Close"} Trade</span>
+				<span slot="executing"
+					>{isOwnTrade ? "Canceling" : "Closing"} Trade...</span
+				>
+			</PixelizedButton>
+
+			{#if cannotCloseReason}
+				<div class="absolute inset-0" use:tooltip={cannotCloseReason} />
+			{/if}
+		</div>
 	{/if}
 </div>

@@ -311,7 +311,7 @@
 		<PixelizedButton
 			class="-mt-0.5 text-lg"
 			disabled={placedPixelsCount < dimension ** 2}
-			options={{ colored: true, density: 3 }}
+			options={{ colored: true }}
 			action={mint}
 			on:mouseenter={() => (flash = true)}
 			on:mouseleave={() => (flash = false)}

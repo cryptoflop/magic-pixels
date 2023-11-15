@@ -32,7 +32,7 @@
 				break;
 			case 1:
 			case 2:
-				pixels = [ids].sort((a, b) => a[0] - b[0]);
+				pixels = [ids.sort((a, b) => a - b)].sort((a, b) => a[0] - b[0]);
 				break;
 			default:
 				pixels = [];
