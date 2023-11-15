@@ -75,7 +75,7 @@
 		selecting = false;
 		const id = await web3.openTrade(
 			selectedPixels,
-			(receiver || global.NULL_ADDR) as Address,
+			(receiver || import.meta.env.VITE_NULL_ADDR) as Address,
 			parseEther(price),
 			tradeType
 		);
@@ -102,7 +102,7 @@
 			<div class="grid">
 				<div>Receiver (optional)</div>
 				<input
-					placeholder={global.NULL_ADDR}
+					placeholder={import.meta.env.VITE_NULL_ADDR}
 					class="border-2 bg-transparent outline-none text-base/5 px-1 w-full"
 					bind:value={receiver}
 				/>
@@ -116,7 +116,7 @@
 			<div class="grid">
 				<div>Receiver (optional)</div>
 				<input
-					placeholder={global.NULL_ADDR}
+					placeholder={import.meta.env.VITE_NULL_ADDR}
 					class="border-2 bg-transparent outline-none text-base/5 px-1 w-full"
 					bind:value={receiver}
 				/>

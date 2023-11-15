@@ -30,7 +30,10 @@
 				{trade.tradeType == 0 ? "Seller" : "Buyer"}:
 				{formatAcc(trade.creator)}
 			</div>
-			<div class="{trade.receiver == global.NULL_ADDR && 'opacity-30'} mr-auto">
+			<div
+				class="{trade.receiver == import.meta.env.VITE_NULL_ADDR &&
+					'opacity-30'} mr-auto"
+			>
 				{trade.tradeType == 0 ? "Buyer" : "Seller"}:
 				{formatAcc(trade.receiver)}
 			</div>
