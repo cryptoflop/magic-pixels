@@ -4,7 +4,10 @@ pragma solidity ^0.8.0;
 library LibTrades {
 	bytes32 constant STORAGE_POSITION = keccak256("diamond.trades.storage");
 
-	enum TradeType { SELL, BUY }
+	enum TradeType {
+		SELL,
+		BUY
+	}
 
 	struct Trade {
 		address creator;
@@ -25,5 +28,4 @@ library LibTrades {
 			s.slot := position
 		}
 	}
-
 }

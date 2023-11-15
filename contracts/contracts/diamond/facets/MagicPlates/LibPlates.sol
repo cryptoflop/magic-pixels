@@ -10,18 +10,17 @@ library LibPlates {
 
 	using Counters for Counters.Counter;
 
-	struct Delay { uint256 idx; uint16 delay;}
+	struct Delay {
+		uint256 idx;
+		uint16 delay;
+	}
 
 	struct Storage {
 		Counters.Counter _tokenIdCounter;
-
 		mapping(uint256 => uint8[][]) plates;
 		mapping(uint256 => Delay[]) pixelDelays;
-
 		mapping(uint8 => string) pixelColors;
-
 		uint96 fee;
-
 		PxlsCore mgcpxl;
 	}
 
@@ -37,5 +36,4 @@ library LibPlates {
 		tokenId = s._tokenIdCounter.current();
 		s._tokenIdCounter.increment();
 	}
-
 }

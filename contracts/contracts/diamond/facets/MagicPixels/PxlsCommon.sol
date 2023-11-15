@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: UNKNOWN
 pragma solidity ^0.8.18;
 
-import { Ownable } from "../../Ownable.sol";
-import { LibPixels } from "../../libraries/LibPixels.sol";
+import {Ownable} from "../../Ownable.sol";
+import {LibPixels} from "../../libraries/LibPixels.sol";
 
 contract PxlsCommon is Ownable {
+	constructor() {}
 
-  constructor() {}
-
-	function pixelsOf(address addr, bytes calldata ids) external view returns (uint32[] memory result) {
+	function pixelsOf(
+		address addr,
+		bytes calldata ids
+	) external view returns (uint32[] memory result) {
 		LibPixels.Storage storage store = LibPixels.store();
 
 		mapping(bytes4 => uint32) storage pixelBalances = store.pixelMap[addr];
@@ -31,5 +33,4 @@ contract PxlsCommon is Ownable {
 	function price() external view returns (uint256) {
 		return LibPixels.store().PRICE;
 	}
-
 }

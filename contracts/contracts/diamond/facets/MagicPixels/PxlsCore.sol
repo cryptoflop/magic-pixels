@@ -4,18 +4,17 @@ pragma solidity ^0.8.18;
 import "./PxlsRng.sol";
 import "./PxlsNether.sol";
 import "../../../MagicPlates.sol";
-import { LibDiamond } from "../../libraries/LibDiamond.sol";
-import { LibPixels } from "../../libraries/LibPixels.sol";
-import { LibPRNG } from "solady/src/utils/LibPRNG.sol";
+import {LibDiamond} from "../../libraries/LibDiamond.sol";
+import {LibPixels} from "../../libraries/LibPixels.sol";
+import {LibPRNG} from "solady/src/utils/LibPRNG.sol";
 
 contract PxlsCore {
-
 	error Unauthorized();
 	error InvalidIndicies();
 	error InsufficientValue();
 	error InsufficientPixels();
 
-  constructor() {}
+	constructor() {}
 
 	event Conjured(address conjurer, bytes pixels);
 	event Used(address user, bytes pixels);
@@ -27,7 +26,10 @@ contract PxlsCore {
 		if (msg.value < (s.PRICE * numPixels)) revert InsufficientValue();
 
 		LibPRNG.PRNG memory rnd = LibPRNG.PRNG(0);
-		LibPRNG.seed(rnd, PxlsRng(LibDiamond.diamondStorage().diamondAddress).rnd(msg.sender));
+		LibPRNG.seed(
+			rnd,
+			PxlsRng(LibDiamond.diamondStorage().diamondAddress).rnd(msg.sender)
+		);
 
 		mapping(bytes4 => uint32) storage pixels = s.pixelMap[msg.sender];
 
@@ -53,7 +55,12 @@ contract PxlsCore {
 				// - a uint8 higher than the preceeding one
 				// - a uint8 between MIN_PIXEL - MAX_PIXEL (both inclusive)
 				// - a uint8 that can't be MAX_PIXEL if it's not the last entry
-				last = last + uint8(LibPRNG.next(rnd) % ((s.MAX_PIXEL - ((depth - 1) - j)) - last)) + s.MIN_PIXEL;
+				last =
+					last +
+					uint8(
+						LibPRNG.next(rnd) % ((s.MAX_PIXEL - ((depth - 1) - j)) - last)
+					) +
+					s.MIN_PIXEL;
 				pixel[j] = last;
 			}
 
@@ -65,8 +72,12 @@ contract PxlsCore {
 			++pixels[pxlId];
 		}
 
-		PxlsNether(LibDiamond.diamondStorage().diamondAddress).examineNether(msg.sender, numPixels / 8, LibPRNG.next(rnd));
-		
+		PxlsNether(LibDiamond.diamondStorage().diamondAddress).examineNether(
+			msg.sender,
+			numPixels / 8,
+			LibPRNG.next(rnd)
+		);
+
 		emit Conjured(msg.sender, conjured);
 	}
 
@@ -89,13 +100,13 @@ contract PxlsCore {
 
 		emit Used(msg.sender, pixelBytes);
 	}
-	
+
 	/// @dev restores pixels from a shattered plate
 	function restore(address to, uint8[][] calldata plate) external {
 		LibPixels.Storage storage s = LibPixels.store();
 		if (msg.sender != s.plts) revert Unauthorized();
 
-		mapping(bytes4 => uint32) storage pixels = s.pixelMap[to]; 
+		mapping(bytes4 => uint32) storage pixels = s.pixelMap[to];
 
 		bytes memory restored = new bytes(plate.length * 4);
 
@@ -129,5 +140,4 @@ contract PxlsCore {
 		emit Used(from, pixelBytes);
 		emit Conjured(to, pixelBytes);
 	}
-
 }

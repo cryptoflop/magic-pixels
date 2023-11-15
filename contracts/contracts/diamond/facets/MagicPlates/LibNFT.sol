@@ -14,5 +14,4 @@ library LibNFT {
 			s.slot := position
 		}
 	}
-
 }
