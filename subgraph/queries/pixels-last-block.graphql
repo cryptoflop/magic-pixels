@@ -1,5 +1,0 @@
-query AccountLastBlock($account: ID!) {
-	pixelBalances(where: {id: $account}) {
-    last_block
-  }
-}

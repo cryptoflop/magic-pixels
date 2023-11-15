@@ -699,10 +699,11 @@ export type AccountLastBlockQuery = { pixelBalances: Array<Pick<PixelBalance, 'l
 
 export type AllPixelsByAccountQueryVariables = Exact<{
   account: Scalars['ID'];
+  block: Scalars['BigInt'];
 }>;
 
 
-export type AllPixelsByAccountQuery = { pixelBalances: Array<Pick<PixelBalance, 'balances'>> };
+export type AllPixelsByAccountQuery = { pixelBalances: Array<Pick<PixelBalance, 'balances' | 'last_block'>> };
 
 export type AllTradesForAccountQueryVariables = Exact<{
   account: Scalars['Bytes'];
@@ -720,9 +721,10 @@ export const AccountLastBlockDocument = gql`
 }
     ` as unknown as DocumentNode<AccountLastBlockQuery, AccountLastBlockQueryVariables>;
 export const AllPixelsByAccountDocument = gql`
-    query AllPixelsByAccount($account: ID!) {
-  pixelBalances(where: {id: $account}) {
+    query AllPixelsByAccount($account: ID!, $block: BigInt!) {
+  pixelBalances(where: {id: $account, last_block_gt: $block}) {
     balances
+    last_block
   }
 }
     ` as unknown as DocumentNode<AllPixelsByAccountQuery, AllPixelsByAccountQueryVariables>;

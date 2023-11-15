@@ -1,5 +1,6 @@
-query AllPixelsByAccount($account: ID!) {
-	pixelBalances(where: {id: $account}) {
+query AllPixelsByAccount($account: ID!, $block: BigInt!) {
+	pixelBalances(where: {id: $account, last_block_gt: $block}) {
     balances
+		last_block
   }
 }
