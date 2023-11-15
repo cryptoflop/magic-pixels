@@ -46,21 +46,22 @@ export function pixelColor(idx: number) {
 	return colorPallet[groupIdx][palletIdx]
 }
 
-export function pixelizeElement(el: HTMLElement, pixel: Pixel) {
+export function pixelizeElement(el: HTMLElement, pixel: Pixel, sync = true) {
 	if (pixel.length === 1) {
 		el.style.background = pixelColor(pixel[0]);
 	} else {
 		const stops = pixel.map((color) => pixelColor(color));
+		const len = (stops.length + 1) * 1000
 		el.animate(
 			stops
 				.map((s) => ({ backgroundColor: s }))
 				.concat([{ backgroundColor: stops[0] }]),
 			{
-				duration: (stops.length + 1) * 1000,
+				duration: len,
 				iterations: Infinity,
 				// easing: 'cubic-bezier(0, 1, 1, 0)'
 			}
-		) //.currentTime = rndBtwn(0, 900);
+		).currentTime = sync ? performance.now() % len : 0;
 	}
 }
 
