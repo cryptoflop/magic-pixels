@@ -7,7 +7,7 @@ import grabCursor from './assets/images/cursor-grab.png';
 import grabbingCursor from './assets/images/cursor-grabbing.png';
 
 document.documentElement.style.setProperty('--cursor-default', `url(${cursor}), auto`);
-document.documentElement.style.setProperty('--cursor-point', `url(${pointCursor}), auto`);
+document.documentElement.style.setProperty('--cursor-pointer', `url(${pointCursor}), auto`);
 document.documentElement.style.setProperty('--cursor-grab', `url(${grabCursor}), auto`);
 document.documentElement.style.setProperty('--cursor-grabbing', `url(${grabbingCursor}), auto`);
 

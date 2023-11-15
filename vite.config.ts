@@ -8,8 +8,8 @@ export default defineConfig({
 		svelte(),
 		viteSingleFile()
 	],
-	build: {
-		minify: false,
-		sourcemap: true
-	}
+	// build: {
+	// 	minify: false,
+	// 	sourcemap: true
+	// }
 })
