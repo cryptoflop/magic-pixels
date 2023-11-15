@@ -12,6 +12,7 @@
 		decodePixel,
 		encodePixel,
 	} from "../../../contracts/scripts/libraries/pixel-parser";
+	import PixelSelector from "../../elements/PixelSelector.svelte";
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const acc = web3.account;
@@ -38,9 +39,9 @@
 
 	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
 
-	let selecting = false;
+	let selecting = true;
 
-	let tradeType = 0;
+	let tradeType = 1;
 
 	let price = "";
 
@@ -158,6 +159,15 @@
 	{#if tradeType == 0}
 		<PixelPalette
 			pixels={availablePixels}
+			cols={6}
+			on:mousedown={(e) => select(encodePixel(e.detail.pxl))}
+			class="absolute -translate-x-44 translate-y-8 {!selecting &&
+				'opacity-0 pointer-events-none'}"
+		/>
+	{/if}
+
+	{#if tradeType == 1}
+		<PixelSelector
 			cols={6}
 			on:mousedown={(e) => select(encodePixel(e.detail.pxl))}
 			class="absolute -translate-x-44 translate-y-8 {!selecting &&

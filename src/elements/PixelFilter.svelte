@@ -23,7 +23,7 @@
 	}
 
 	function done() {
-		dispatch("onselect", {
+		dispatch("select", {
 			selected,
 		});
 	}

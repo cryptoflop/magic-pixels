@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
 	import { tooltip } from "../directives/tooltip";
-	import { fullPixelName } from "../helpers/color-utils";
+	import { MAX_PIXEL, fullPixelName } from "../helpers/color-utils";
 	import Pxl from "./Pixel.svelte";
 	import PixelFilter from "./PixelFilter.svelte";
 	import VirtualList from "./VirtualList.svelte";
@@ -20,23 +20,31 @@
 
 	export let cols = 4;
 
-	export let pixels: Pixel[] = [];
+	let pixels: Pixel[] = [];
 
-	$: availablePixels = pixels
-		.filter((pxl) => (filterLength ? pxl.some((i) => filter[i]) : true)) // removed filtered pixels
-		.sort((a, b) => a[0] - b[0]); // sort by color (number asc)
-
-	export let filtered = availablePixels;
 	$: {
-		filtered = availablePixels;
+		const ids = Object.keys(filter).map((id) => Number(id));
+		switch (ids.length) {
+			case 0:
+				pixels = Array(MAX_PIXEL)
+					.fill(1)
+					.map((_, i) => [i + 1]);
+				break;
+			case 1:
+			case 2:
+				pixels = [ids].sort((a, b) => a[0] - b[0]);
+				break;
+			default:
+				pixels = [];
+		}
 	}
 
-	$: pixelRows = Array(Math.ceil(availablePixels.length / cols))
+	$: pixelRows = Array(Math.ceil(pixels.length / cols))
 		.fill(1)
 		.map((_, r) =>
 			Array(cols)
 				.fill(1)
-				.map((_, i) => availablePixels[r * cols + i])
+				.map((_, i) => pixels[r * cols + i])
 				.filter((p) => !!p)
 		);
 </script>
@@ -66,7 +74,7 @@
 	</div>
 
 	<div class="relative h-[352px]">
-		{#if availablePixels.length == 0}
+		{#if pixels.length == 0}
 			<div class="absolute text-center text-xs opacity-60 pl-2 left-0 right-0">
 				No pixels
 			</div>
