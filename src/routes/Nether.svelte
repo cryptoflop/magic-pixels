@@ -8,10 +8,10 @@
 	import type { createWeb3Ctx } from "../contexts/web3";
 	import { formatEther } from "viem";
 
-	import qackSrc from "../assets/quack.mp3";
-	import clickSrc from "../assets/click.mp3";
-	import sparkleSrc from "../assets/sparkle.mp3";
-	import winSrc from "../assets/win.mp3";
+	import qackSrc from "../assets/sounds/quack.mp3";
+	import clickSrc from "../assets/sounds/click.mp3";
+	import sparkleSrc from "../assets/sounds/sparkle.mp3";
+	import winSrc from "../assets/sounds/win.mp3";
 	import { createAudio } from "../helpers/audio";
 	import { decodePixel } from "../../contracts/scripts/libraries/pixel-parser";
 	import { createToastCtx } from "../contexts/toast";

@@ -1,7 +1,7 @@
 import { createAudio } from "../helpers/audio";
 
-import clickSrc from "../assets/click.mp3"
-import clackSrc from "../assets/clack.mp3"
+import clickSrc from "../assets/sounds/click.mp3"
+import clackSrc from "../assets/sounds/clack.mp3"
 import { onDestroy, onMount } from "svelte";
 
 export default function hookButtonAudioQues() {

@@ -13,7 +13,7 @@
 	import RpcState from "./elements/RPCState.svelte";
 	import ToastOutlet from "./elements/ToastOutlet.svelte";
 
-	import atmosphereSrc from "./assets/atmoshpere.mp3";
+	import atmosphereSrc from "./assets/sounds/atmoshpere.mp3";
 	import DiscordLink from "./elements/DiscordLink.svelte";
 
 	createAudio(atmosphereSrc, { autoPlay: true, loop: true, volume: 0.1 });

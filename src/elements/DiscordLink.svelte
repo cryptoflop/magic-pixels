@@ -1,5 +1,5 @@
 <script lang="ts">
-	import discordImg from "../assets/dc.png";
+	import discordImg from "../assets/images/dc.png";
 </script>
 
 <a

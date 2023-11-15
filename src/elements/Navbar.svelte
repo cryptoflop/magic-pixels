@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { getContext } from "svelte";
 	import type { createRoutingCtx } from "../contexts/routing";
-	import netherSrc from "../assets/nether.png";
-	import forgeSrc from "../assets/forge.png";
-	import treasurySrc from "../assets/treasury.png";
-	import auctionhouseSrc from "../assets/auctionhouse.png";
+	import netherSrc from "../assets/images/nether.png";
+	import forgeSrc from "../assets/images/forge.png";
+	import treasurySrc from "../assets/images/treasury.png";
+	import auctionhouseSrc from "../assets/images/auctionhouse.png";
 	import { pixelemitter } from "../directives/pixelemitter";
 
 	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");

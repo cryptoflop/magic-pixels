@@ -3,7 +3,7 @@
 	import type { createToastCtx } from "../contexts/toast";
 	import { pixelemitter } from "../directives/pixelemitter";
 	import { createAudio } from "../helpers/audio";
-	import sparkleSrc from "../assets/sparkle.mp3";
+	import sparkleSrc from "../assets/sounds/sparkle.mp3";
 
 	export let amount: string;
 

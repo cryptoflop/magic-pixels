@@ -6,7 +6,7 @@
 	import Plt from "../../elements/Plate.svelte";
 	import type { createToastCtx } from "../../contexts/toast";
 	import { createAudio } from "../../helpers/audio";
-	import shatterSrc from "../../assets/shatter.mp3";
+	import shatterSrc from "../../assets/sounds/shatter.mp3";
 
 	const toast = getContext<ReturnType<typeof createToastCtx>>("toast");
 

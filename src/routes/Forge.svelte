@@ -15,11 +15,11 @@
 	import type { createRoutingCtx } from "../contexts/routing";
 	import { fade } from "svelte/transition";
 	import { createAudio } from "../helpers/audio";
-	import forgeSrc from "../assets/forging.mp3";
 	import type { createToastCtx } from "../contexts/toast";
 
-	import clickSrc from "../assets/click.mp3";
-	import clackSrc from "../assets/clack.mp3";
+	import forgeSrc from "../assets/sounds/forging.mp3";
+	import clickSrc from "../assets/sounds/click.mp3";
+	import clackSrc from "../assets/sounds/clack.mp3";
 
 	const click = createAudio(clickSrc, { volume: 0.1 });
 	const clack = createAudio(clackSrc, { volume: 0.05 });

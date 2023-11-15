@@ -155,13 +155,15 @@
 		</div>
 	</div>
 
-	<PixelPalette
-		pixels={availablePixels}
-		cols={6}
-		on:mousedown={(e) => select(encodePixel(e.detail.pxl))}
-		class="absolute -translate-x-44 translate-y-8 {!selecting &&
-			'opacity-0 pointer-events-none'}"
-	/>
+	{#if tradeType == 0}
+		<PixelPalette
+			pixels={availablePixels}
+			cols={6}
+			on:mousedown={(e) => select(encodePixel(e.detail.pxl))}
+			class="absolute -translate-x-44 translate-y-8 {!selecting &&
+				'opacity-0 pointer-events-none'}"
+		/>
+	{/if}
 
 	<PixelizedButton
 		class="ml-auto"

@@ -8,7 +8,7 @@
 	import Trade from "./Trade.svelte";
 
 	import { createAudio } from "../../helpers/audio";
-	import sparkleSrc from "../../assets/sparkle.mp3";
+	import sparkleSrc from "../../assets/sounds/sparkle.mp3";
 
 	const toast = getContext<ReturnType<typeof createToastCtx>>("toast");
 
