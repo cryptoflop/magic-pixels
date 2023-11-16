@@ -32,7 +32,7 @@
 				v.route.toLowerCase() != $root &&
 				routing.goto(v.route.toLowerCase(), undefined, v.route.toLowerCase())}
 		>
-			<img src={v.icon} class="pointer-events-none h-6 w-6 mt-px mr-1" />
+			<img src={v.icon} class="pointer-events-none h-4 w-4 self-center mr-2" />
 			{v.route}
 		</button>
 	{/each}
