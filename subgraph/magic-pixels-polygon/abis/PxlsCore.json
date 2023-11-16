@@ -1,0 +1,85 @@
+[
+  { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
+  { "inputs": [], "name": "InsufficientPixels", "type": "error" },
+  { "inputs": [], "name": "InsufficientValue", "type": "error" },
+  { "inputs": [], "name": "InvalidIndicies", "type": "error" },
+  { "inputs": [], "name": "Unauthorized", "type": "error" },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "conjurer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "pixels",
+        "type": "bytes"
+      }
+    ],
+    "name": "Conjured",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "pixels",
+        "type": "bytes"
+      }
+    ],
+    "name": "Used",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "numPixels", "type": "uint256" }
+    ],
+    "name": "conjure",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes", "name": "pixelBytes", "type": "bytes" },
+      { "internalType": "uint32[][]", "name": "delays", "type": "uint32[][]" }
+    ],
+    "name": "mint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "from", "type": "address" },
+      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "bytes", "name": "pixelBytes", "type": "bytes" }
+    ],
+    "name": "movePixels",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "to", "type": "address" },
+      { "internalType": "uint8[][]", "name": "plate", "type": "uint8[][]" }
+    ],
+    "name": "restore",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

@@ -1,0 +1,17 @@
+type Conjured @entity(immutable: true) {
+  id: Bytes!
+  conjurer: Bytes! # address
+  pixels: Bytes! # bytes
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Used @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  pixels: Bytes! # bytes
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

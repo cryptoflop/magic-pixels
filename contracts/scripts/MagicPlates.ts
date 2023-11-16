@@ -5,14 +5,14 @@ export async function deployPlts () {
 
 	const MagicPlates = await ethers.getContractFactory('MagicPlates');
 	const plts = await upgrades.deployProxy(MagicPlates);
-	await plts.deployTransaction.wait()
+	await plts.waitForDeployment()
 	
 	// upgrade
 	// const MagicPlatesV2 = await ethers.getContractFactory("MagicPlatesV2");
   // const pltsv2 = await upgrades.upgradeProxy(PLTS_ADDRESS, MagicPlatesV2);
   // console.log("MagicPlates upgraded");
 
-	return plts.address as `0x${string}`
+	return (await plts.getAddress()) as `0x${string}`
 }
 
 if (require.main === module) {

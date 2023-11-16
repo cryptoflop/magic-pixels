@@ -1,0 +1,27 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: PxlsCore
+    network: matic
+    source:
+      address: "0x4dbcaf2e87662cde8618b3ae6da2df3feb63b01f"
+      abi: PxlsCore
+      startBlock: 10000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Conjured
+        - Used
+      abis:
+        - name: PxlsCore
+          file: ./abis/PxlsCore.json
+      eventHandlers:
+        - event: Conjured(address,bytes)
+          handler: handleConjured
+        - event: Used(address,bytes)
+          handler: handleUsed
+      file: ./src/pxls-core.ts

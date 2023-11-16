@@ -11,18 +11,29 @@ const config: HardhatUserConfig = {
     hardhat: {
       chainId: 8453
     },
-		tenderly: {
-      url: process.env['RPC_TENDERLY'],
-      accounts: [process.env['TENDERLY_PK']!, "ed5503c89d022a64b2ebee67ab0447159e5e2354d6fd902fe00ddf497602f414"],
-			chainId: 8453
+		poly: {
+			url: process.env['RPC_POLY'],
+			accounts: [process.env['PK1']!, process.env['PK2']!],
+			chainId: 137
+		},
+		arb: {
+      url: process.env['RPC_ARB'],
+			accounts: [process.env['PK1']!, process.env['PK2']!],
+			chainId: 42161
+    },
+		basetest: {
+      url: process.env['RPC_BASETEST'],
+			accounts: [process.env['PK1']!, process.env['PK2']!],
+			chainId: 84531
     },
 		base: {
 			url: process.env['RPC_BASE'],
+			accounts: [process.env['PK1']!, process.env['PK2']!],
 			chainId: 8453
 		},
 		mantest: {
 			url: process.env['RPC_MANTLE_TEST'],
-      accounts: [process.env['MANTLE_PK1']!, process.env['MANTLE_PK2']!],
+      accounts: [process.env['PK1']!, process.env['PK2']!],
 			chainId: 5001
 		}
   },

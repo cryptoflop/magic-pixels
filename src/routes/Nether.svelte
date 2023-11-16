@@ -101,6 +101,16 @@
 
 	$: price = $pixelPrice * numPixels;
 
+	const fPrice = (raw: string | number) => {
+		const s = raw.toString().split(".");
+		if (!s[1]) return raw;
+		return (
+			s[0] +
+			"." +
+			s[1].substring(0, Array.from(s[1]).findIndex((c) => c !== "0") + 1)
+		);
+	};
+
 	let container: HTMLDivElement;
 
 	let lastNumPixels = 0;
@@ -184,10 +194,12 @@
 		}`}
 	>
 		<div class="flex mx-auto">
-			<div>{price.toFixed(2)} {import.meta.env.VITE_VALUE_SYMBOL}</div>
+			<div>{fPrice(price)} {import.meta.env.VITE_VALUE_SYMBOL}</div>
 			<span>&ensp;=&ensp;</span>
-			<span use:tooltip={`1mnt = $${$usd.toFixed(2)}`}
-				>${(price * $usd).toFixed(2)}</span
+			<span
+				use:tooltip={`1 ${import.meta.env.VITE_VALUE_SYMBOL} = $${$usd.toFixed(
+					2
+				)}`}>${fPrice(price * $usd)}</span
 			>
 			<span>&ensp;=&ensp;</span>
 			<span>{numPixels} pixels</span>

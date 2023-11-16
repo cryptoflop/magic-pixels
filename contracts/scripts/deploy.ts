@@ -27,6 +27,8 @@ export async function deploy () {
   await plts.write.setColors([colors])
 	console.log("Colors set")
 
+	pxSetters.write.setPrice([parseEther("0.00004")])
+
 	// const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
 
   // const conjureTx = await pxls.write.conjure([64n], { value: parseEther("5.12") })

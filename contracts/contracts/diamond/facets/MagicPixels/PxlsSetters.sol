@@ -23,4 +23,9 @@ contract PxlsSetters is Ownable {
 		LibPixels.store().DEPTH_PROBS = dp;
 		LibPixels.store().PIXEL_DEPTH = uint8(dp.length);
 	}
+
+	function setUF(uint256 prob, uint256 perc) external onlyOwner {
+		LibPixels.store().UF_PROB = prob;
+		LibPixels.store().UF_PERC = perc;
+	}
 }

@@ -1,8 +1,8 @@
 import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, getPublicClient, switchNetwork, getNetwork, watchAccount, fetchBalance } from "@wagmi/core";
 import { publicProvider } from "@wagmi/core/providers/public";
-import { parseAbiItem, parseEther, type Hex, type Address, formatEther } from "viem";
+import { parseEther, type Hex, type Address, formatEther } from "viem";
 import { readable, writable } from "svelte/store";
-import { mantleTestnet } from "viem/chains";
+import { polygon } from "viem/chains";
 import { cachedStore, consistentStore, eagerStore } from "../helpers/reactivity-helpers";
 import { bytesToPixelIds, pixelIdsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
 import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI, trdsCoreABI, pxlsCommonABI } from "../../contracts/generated";
@@ -25,7 +25,7 @@ export function createWeb3Ctx() {
 	const USDC = import.meta.env.VITE_USDC
 
 	const { chains, publicClient: publicClientGetter } = configureChains(
-		[mantleTestnet],
+		[polygon],
 		[publicProvider()],
 	)
 
@@ -39,7 +39,7 @@ export function createWeb3Ctx() {
 		async connect() {
 			await disconnect()
 			const { account } = await connect({ connector: new InjectedConnector({ chains }) });
-			if (getNetwork()?.chain?.id !== mantleTestnet.id) {
+			if (getNetwork()?.chain?.id !== polygon.id) {
 				await switchNetwork({ chainId: chains[0].id })
 			}
 			const unwatch = watchAccount(a => {
@@ -61,7 +61,7 @@ export function createWeb3Ctx() {
 			return await fetchBalance({ address: ctx.account.current! })
 		},
 
-		price: eagerStore(cachedStore(consistentStore(readable<number>(0.08, (set) => {
+		price: eagerStore(cachedStore(consistentStore(readable<number>(0.0, (set) => {
 			readContract({
 				address: PXLS,
 				abi: pxlsCommonABI,
@@ -71,16 +71,10 @@ export function createWeb3Ctx() {
 			})
 		})))),
 
-		usdPrice: eagerStore(cachedStore(consistentStore(readable<number>(0.378, (set) => {
-			readContract({
-				address: USDC,
-				abi: [parseAbiItem("function getPrice(bytes32 id) public view returns((int64, uint64, int32, uint))")],
-				functionName: "getPrice",
-				args: [import.meta.env.VITE_MNT_UDC_ID]
-			}).then(r => {
-				const mntUsdPrice = Number(r[0]) * Math.pow(10, -8)
-				set(mntUsdPrice);
-			});
+		usdPrice: eagerStore(cachedStore(consistentStore(readable<number>(0.0, (set) => {
+			fetch(`https://api.redstone.finance/prices/?symbol=${(import.meta.env.VITE_VALUE_SYMBOL as string).toUpperCase()}&provider=redstone&limit=1`).then(r => {
+				r.json().then(v => set(v?.[0]?.value))
+			})
 		})))),
 
 		pixels: eagerStore(consistentStore(writable<PixelBalances>(new PixelBalances(), (set) => {
