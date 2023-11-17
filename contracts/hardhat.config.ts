@@ -37,6 +37,13 @@ const config: HardhatUserConfig = {
 			chainId: 5001
 		}
   },
+
+	etherscan: {
+    apiKey: {
+      arbitrumOne: process.env['ETHERSCAN_ARB']!
+    }
+  },
+
   solidity: {
     version: '0.8.18',
     settings: {
