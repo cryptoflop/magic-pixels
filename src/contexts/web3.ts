@@ -1,14 +1,14 @@
 import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, getPublicClient, switchNetwork, getNetwork, watchAccount, fetchBalance } from "@wagmi/core";
-import { publicProvider } from "@wagmi/core/providers/public";
 import { parseEther, type Hex, type Address, formatEther } from "viem";
 import { readable, writable } from "svelte/store";
-import { polygon } from "viem/chains";
+import { arbitrum } from "viem/chains";
 import { cachedStore, consistentStore, eagerStore } from "../helpers/reactivity-helpers";
 import { bytesToPixelIds, pixelIdsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
 import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI, trdsCoreABI, pxlsCommonABI } from "../../contracts/generated";
 
 import { execute, AllPixelsByAccountDocument, AllTradesForAccountDocument } from "../../subgraph/.graphclient"
 import PixelBalances from "../helpers/pixel-balances";
+import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
 
 function savePixels(balances: PixelBalances, blockNumber: bigint, addr: Address) {
 	localStorage.setItem("pixels_" + addr, balances.toString())
@@ -22,11 +22,14 @@ function getPixels(addr: Address) {
 export function createWeb3Ctx() {
 	const PXLS = import.meta.env.VITE_PXLS
 	const PLTS = import.meta.env.VITE_PLTS
-	const USDC = import.meta.env.VITE_USDC
 
 	const { chains, publicClient: publicClientGetter } = configureChains(
-		[polygon],
-		[publicProvider()],
+		[arbitrum],
+		[jsonRpcProvider({
+			rpc: (_) => ({
+				http: import.meta.env.VITE_RPC,
+			}),
+		}),],
 	)
 
 	createConfig({
@@ -39,7 +42,7 @@ export function createWeb3Ctx() {
 		async connect() {
 			await disconnect()
 			const { account } = await connect({ connector: new InjectedConnector({ chains }) });
-			if (getNetwork()?.chain?.id !== polygon.id) {
+			if (getNetwork()?.chain?.id !== arbitrum.id) {
 				await switchNetwork({ chainId: chains[0].id })
 			}
 			const unwatch = watchAccount(a => {
