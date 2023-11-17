@@ -15,8 +15,6 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 
 import "./diamond/facets/MagicPixels/PxlsCore.sol";
 
-import "hardhat/console.sol";
-
 contract MagicPlates is
 	Initializable,
 	ERC721Upgradeable,
@@ -199,9 +197,6 @@ contract MagicPlates is
 						colors,
 						string.concat(pixelColors[pixel[j % pixel.length]], "%3B" /* ";" */)
 					);
-					if (bytes(pixelColors[pixel[j % pixel.length]]).length == 0) {
-						console.log(pixel[j % pixel.length]);
-					}
 				}
 
 				inner = string.concat(
