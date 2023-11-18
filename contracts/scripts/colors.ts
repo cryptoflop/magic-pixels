@@ -189,4 +189,4 @@ export const colors = [
 	'be123c',
 	'9f1239',
 	'881337'
-].map((c) => '%23' + c)
+].map((c) => '#' + c)

@@ -1,4 +1,5 @@
-import { ethers, upgrades } from 'hardhat'
+import { viem, ethers, upgrades } from 'hardhat'
+import { colors } from './colors';
 
 export async function deployPlts () {
   // const [creatooor] = await ethers.getSigners();
@@ -12,6 +13,12 @@ export async function deployPlts () {
   const plts = await upgrades.upgradeProxy("0x192E81ab95900dcEb05Efd646a8f224af34BDF9B", MagicPlates);
   // console.log("MagicPlates upgraded");
 	await plts.waitForDeployment()
+
+	// console.log(await plts.getAddress())
+
+	// const p = await viem.getContractAt("MagicPlates", "0x192E81ab95900dcEb05Efd646a8f224af34BDF9B")
+	// await p.write.setMagicPixels(["0x2d40d461556A9F198CdA1377E61aD4d60A866E44"])
+	// await p.write.setColors([colors])
 
 	return (await plts.getAddress()) as `0x${string}`
 }
