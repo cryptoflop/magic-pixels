@@ -1,9 +1,9 @@
 sources:
   - name: magic-pixels
     handler:
-      graphql:
-        endpoint: https://graph.testnet.mantle.xyz/subgraphs/name/magic-pixels
-    transforms:
+      graphql: 
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/66f60fa965ddfb22b14e78b847a0770e/subgraphs/id/6VhWxDsd9jXrCKoCzszP9FFUUGcGhrvEYKQXfV6Ha1Fp # https://api.studio.thegraph.com/query/58444/magic-pixels-arbitrum/version/latest
+    transforms: 
       - autoPagination:
           validateSchema: true
           limitOfRecords: 100

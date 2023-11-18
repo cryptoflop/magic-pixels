@@ -2,13 +2,13 @@ specVersion: 0.0.5
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum/contract
+  - kind: ethereum
     name: Pixels
-    network: testnet
+    network: arbitrum-one
     source:
-      address: "0x948252676d36c680068bb67486fe00b3511ba9aa"
+      address: "0x2d40d461556a9f198cda1377e61ad4d60a866e44"
       abi: PxlsCore
-      startBlock: 25774161
+      startBlock: 150775916
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -25,13 +25,13 @@ dataSources:
         - event: Used(address,bytes)
           handler: handleUsed
       file: ./src/pixels.ts
-  - kind: ethereum/contract
+  - kind: ethereum
     name: Trades
-    network: testnet
+    network: arbitrum-one
     source:
-      address: "0x948252676d36c680068bb67486fe00b3511ba9aa"
+      address: "0x2d40d461556a9f198cda1377e61ad4d60a866e44"
       abi: TrdsCore
-      startBlock: 25774161
+      startBlock: 150775916
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

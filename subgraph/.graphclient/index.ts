@@ -42,6 +42,7 @@ export type Scalars = {
   BigDecimal: any;
   BigInt: any;
   Bytes: any;
+  Int8: any;
 };
 
 export type BlockChangedFilter = {
@@ -417,6 +418,7 @@ export type ResolversTypes = ResolversObject<{
   Float: ResolverTypeWrapper<Scalars['Float']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  Int8: ResolverTypeWrapper<Scalars['Int8']>;
   OrderDirection: OrderDirection;
   PixelBalance: ResolverTypeWrapper<PixelBalance>;
   PixelBalance_filter: PixelBalance_filter;
@@ -443,6 +445,7 @@ export type ResolversParentTypes = ResolversObject<{
   Float: Scalars['Float'];
   ID: Scalars['ID'];
   Int: Scalars['Int'];
+  Int8: Scalars['Int8'];
   PixelBalance: PixelBalance;
   PixelBalance_filter: PixelBalance_filter;
   Query: {};
@@ -480,6 +483,10 @@ export interface BigIntScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
 
 export interface BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Bytes'], any> {
   name: 'Bytes';
+}
+
+export interface Int8ScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Int8'], any> {
+  name: 'Int8';
 }
 
 export type PixelBalanceResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['PixelBalance'] = ResolversParentTypes['PixelBalance']> = ResolversObject<{
@@ -533,6 +540,7 @@ export type Resolvers<ContextType = MeshContext> = ResolversObject<{
   BigDecimal?: GraphQLScalarType;
   BigInt?: GraphQLScalarType;
   Bytes?: GraphQLScalarType;
+  Int8?: GraphQLScalarType;
   PixelBalance?: PixelBalanceResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
@@ -592,7 +600,7 @@ const magicPixelsTransforms = [];
 const additionalTypeDefs = [] as any[];
 const magicPixelsHandler = new GraphqlHandler({
               name: "magic-pixels",
-              config: {"endpoint":"https://graph.testnet.mantle.xyz/subgraphs/name/magic-pixels"},
+              config: {"endpoint":"https://gateway-arbitrum.network.thegraph.com/api/66f60fa965ddfb22b14e78b847a0770e/subgraphs/id/6VhWxDsd9jXrCKoCzszP9FFUUGcGhrvEYKQXfV6Ha1Fp"},
               baseDir,
               cache,
               pubsub,
@@ -635,12 +643,6 @@ const merger = new(BareMerger as any)({
     get documents() {
       return [
       {
-        document: AccountLastBlockDocument,
-        get rawSDL() {
-          return printWithCache(AccountLastBlockDocument);
-        },
-        location: 'AccountLastBlockDocument.graphql'
-      },{
         document: AllPixelsByAccountDocument,
         get rawSDL() {
           return printWithCache(AllPixelsByAccountDocument);
@@ -690,13 +692,6 @@ export function getBuiltGraphSDK<TGlobalContext = any, TOperationContext = any>(
   const sdkRequester$ = getBuiltGraphClient().then(({ sdkRequesterFactory }) => sdkRequesterFactory(globalContext));
   return getSdk<TOperationContext, TGlobalContext>((...args) => sdkRequester$.then(sdkRequester => sdkRequester(...args)));
 }
-export type AccountLastBlockQueryVariables = Exact<{
-  account: Scalars['ID'];
-}>;
-
-
-export type AccountLastBlockQuery = { pixelBalances: Array<Pick<PixelBalance, 'last_block'>> };
-
 export type AllPixelsByAccountQueryVariables = Exact<{
   account: Scalars['ID'];
   block: Scalars['BigInt'];
@@ -713,13 +708,6 @@ export type AllTradesForAccountQueryVariables = Exact<{
 export type AllTradesForAccountQuery = { trades: Array<Pick<Trade, 'tradeType' | 'price' | 'pixels' | 'receiver' | 'creator' | 'id'>> };
 
 
-export const AccountLastBlockDocument = gql`
-    query AccountLastBlock($account: ID!) {
-  pixelBalances(where: {id: $account}) {
-    last_block
-  }
-}
-    ` as unknown as DocumentNode<AccountLastBlockQuery, AccountLastBlockQueryVariables>;
 export const AllPixelsByAccountDocument = gql`
     query AllPixelsByAccount($account: ID!, $block: BigInt!) {
   pixelBalances(where: {id: $account, last_block_gt: $block}) {
@@ -743,13 +731,9 @@ export const AllTradesForAccountDocument = gql`
 
 
 
-
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
-    AccountLastBlock(variables: AccountLastBlockQueryVariables, options?: C): Promise<AccountLastBlockQuery> {
-      return requester<AccountLastBlockQuery, AccountLastBlockQueryVariables>(AccountLastBlockDocument, variables, options) as Promise<AccountLastBlockQuery>;
-    },
     AllPixelsByAccount(variables: AllPixelsByAccountQueryVariables, options?: C): Promise<AllPixelsByAccountQuery> {
       return requester<AllPixelsByAccountQuery, AllPixelsByAccountQueryVariables>(AllPixelsByAccountDocument, variables, options) as Promise<AllPixelsByAccountQuery>;
     },
