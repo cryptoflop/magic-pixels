@@ -42,7 +42,8 @@
 
 		{#each filteredTrades as trade}
 			<button
-				on:click={() => routing.goto("trade", { id: trade.id.substring(2) })}
+				on:click={() =>
+					routing.goto("market", "trade", { id: trade.id.substring(2) })}
 				class="group"
 			>
 				<Trade {trade} class="group-hover:scale-95" />
@@ -57,7 +58,7 @@
 			<option value={2}>For You</option>
 		</select>
 
-		<button class="button" on:click={() => routing.goto("opentrade")}>
+		<button class="button" on:click={() => routing.goto("market", "opentrade")}>
 			Open Trade
 		</button>
 	</div>

@@ -115,10 +115,6 @@ contract TrdsCore {
 	}
 
 	function movePixels(address from, address to, bytes memory pixels) internal {
-		PxlsCore(LibDiamond.diamondStorage().diamondAddress).movePixels(
-			from,
-			to,
-			pixels
-		);
+		PxlsCore(LibDiamond.diamondStorage().diamondAddress).move(from, to, pixels);
 	}
 }

@@ -9,7 +9,8 @@ require('dotenv').config()
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
-      chainId: 8453
+      chainId: 8453,
+			blockGasLimit: 120000000
     },
 		poly: {
 			url: process.env['RPC_POLY'],

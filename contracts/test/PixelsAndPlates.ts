@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 
 import { ethers, viem } from 'hardhat'
-import { decodeEventLog, parseEther } from 'viem'
+import { decodeEventLog, hexToString, stringToHex } from 'viem'
 import { bytesToPixels } from '../scripts/libraries/pixel-parser'
 
 import { deployPxls } from '../scripts/MagicPixels'
@@ -44,14 +44,16 @@ describe('PixelsAndPlates', function () {
 			.map((_, i) => pixels.findIndex((pxl, j) => pxl.length > 1 && (i > 0 ? (j > 100) : true)))
 			.map(idx => [idx, Math.round(Math.random() * (199 - 0) + 0)])
 
-		await pxls.write.mint([conjured.args.pixels, delays])
+		await pxls.write.mint([stringToHex("Test", { size: 16 }), conjured.args.pixels, delays])
 
 		const svgDataURI = await (await ethers.getContractAt("MagicPlates", pltsAddress)).tokenURI(0, { gasLimit: 999999999999999999n }) // viem fails in this case, ethers doesn't...
-		expect(svgDataURI, "invalid svg data uri").includes("data:image/svg+xml")
+		expect(svgDataURI, "invalid svg data uri").includes("data:application/json;base64")
 		// TODO: check if pixels are the correct color...
 
-		const { pixels: underlyingPixels, delays: underlyingDelays } = await plts.read.plateById([0n])
+		const { pixels: underlyingPixels, delays: underlyingDelays, name } = await plts.read.plateById([0n])
 		expect(pixels.length, "conjured / underlying pixel length mismatch.").eq(underlyingPixels.length)
+
+		expect(hexToString(name, { size: 16 }) == "Test", "Incorrect name.").to.be.true
 
 		expect(underlyingDelays.map(d => [d.idx, d.delay]).every((d, i) => d.every((v, j) => v === delays[i][j])), "delays do not match").to.be.true
 
@@ -91,7 +93,7 @@ describe('PixelsAndPlates', function () {
 		const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 		const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 
-		await pxls.write.mint([conjured.args.pixels, []])
+		await pxls.write.mint([stringToHex("Test", { size: 16 }), conjured.args.pixels, []])
 	})
 
 })

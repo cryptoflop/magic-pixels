@@ -7,6 +7,7 @@
 	import type { createToastCtx } from "../../contexts/toast";
 	import { createAudio } from "../../helpers/audio";
 	import shatterSrc from "../../assets/sounds/shatter.mp3";
+	import { hexToString, type Hex } from "viem";
 
 	const toast = getContext<ReturnType<typeof createToastCtx>>("toast");
 
@@ -14,14 +15,14 @@
 	const plates = web3.plates;
 
 	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
-	const param = routing.param;
+	const params = routing.params;
 
 	let isOwnPlate = false;
 	let plate: undefined | null | Plate = undefined;
 
 	$: {
-		if ($param?.id) {
-			const tokenId = BigInt($param!.id);
+		if ($params?.id) {
+			const tokenId = BigInt($params!.id);
 			const ownPlate = $plates.find((p) => p.id == tokenId);
 			if (ownPlate) {
 				isOwnPlate = true;
@@ -29,7 +30,13 @@
 			} else {
 				web3
 					.getPlate(tokenId)
-					.then((p) => (plate = p?.pixels.length > 0 ? p : null));
+					.then(
+						(p) =>
+							(plate =
+								p?.pixels.length > 0
+									? { ...p, name: hexToString(p.name as Hex, { size: 16 }) }
+									: null)
+					);
 				isOwnPlate = false;
 			}
 		} else {
@@ -44,7 +51,7 @@
 
 	async function shatter() {
 		await web3.shatter(plate!.id);
-		routing.goto("treasury", { view: "pixels" }, "treasury");
+		routing.goto("treasury", undefined, { view: "pixels" });
 		createAudio(shatterSrc, {
 			autoPlay: true,
 			volume: 0.1,
@@ -68,19 +75,34 @@
 
 		{#if plate}
 			<div class="flex justify-between text-xl px-2">
-				<span>#{plate.id.toString()}</span>
+				<span>{plate.name}</span>
 				<span>{plateSize(plate)}</span>
 			</div>
 			<Plt class="w-[40vh]" {plate} />
 		{/if}
 	</div>
 
-	{#if plate && isOwnPlate}
-		<div class="flex">
-			<PixelizedButton action={shatter}>
-				<span slot="default">Shatter</span>
-				<span slot="executing">Smashing...</span>
-			</PixelizedButton>
-		</div>
-	{/if}
+	<div class="flex">
+		{#if plate}
+			{#if isOwnPlate}
+				<PixelizedButton action={shatter}>
+					<span slot="default">Shatter</span>
+					<span slot="executing">Smashing...</span>
+				</PixelizedButton>
+			{/if}
+
+			<a
+				href="https://opensea.io/assets/{import.meta.env
+					.VITE_CHAIN}/{import.meta.env.VITE_PLTS}/{plate.id}"
+				target="”_blank”"
+				class="button ml-auto flex items-center gap-1"
+			>
+				Marketplace
+				<img
+					src="https://opensea.io/static/images/logos/opensea-logo.svg"
+					class="w-4 h-4"
+				/>
+			</a>
+		{/if}
+	</div>
 </div>

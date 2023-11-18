@@ -30,18 +30,24 @@ contract MagicPlates is
 	CountersUpgradeable.Counter private _tokenIdCounter;
 
 	struct Delay {
-		uint32 idx;
+		uint16 idx;
 		uint16 delay;
 	}
 
-	mapping(uint256 => uint8[][]) private plates;
-	mapping(uint256 => Delay[]) private pixelDelays;
-
-	mapping(uint8 => string) private pixelColors;
+	struct Plate {
+		uint256 id;
+		bytes16 name;
+		uint8[][] pixels;
+		Delay[] delays;
+	}
 
 	uint96 private fee; // royalty fee
 
-	PxlsCore public pxls;
+	mapping(uint256 => Plate) private plates;
+
+	mapping(uint8 => string) private pixelColors;
+
+	address payable public pxls;
 
 	/// @custom:oz-upgrades-unsafe-allow constructor
 	constructor() {
@@ -60,7 +66,7 @@ contract MagicPlates is
 	/// Setters
 
 	function setMagicPixels(address addr) external onlyOwner {
-		pxls = PxlsCore(payable(addr));
+		pxls = payable(addr);
 		_setDefaultRoyalty(addr, fee);
 	}
 
@@ -76,12 +82,6 @@ contract MagicPlates is
 
 	/// Getters
 
-	struct Plate {
-		uint256 id;
-		uint8[][] pixels;
-		Delay[] delays;
-	}
-
 	function platesOf(address owner) external view returns (Plate[] memory plts) {
 		uint256 num = super.balanceOf(owner);
 
@@ -95,7 +95,7 @@ contract MagicPlates is
 
 	/// @dev Returns the pixels that the plate is made of.
 	function plateById(uint256 tokenId) public view returns (Plate memory plate) {
-		return Plate(tokenId, plates[tokenId], pixelDelays[tokenId]);
+		return plates[tokenId];
 	}
 
 	/// Public
@@ -103,22 +103,23 @@ contract MagicPlates is
 	/// @notice Mints a MagicPlate nft that will be made up of the given pixels.
 	function mint(
 		address to,
+		bytes16 name,
 		uint8[][] memory pixels,
-		uint32[][] calldata delays
+		uint16[][] calldata delays
 	) external {
-		require(msg.sender == address(pxls), "not allowed.");
+		require(msg.sender == pxls, "not allowed.");
 
 		uint256 tokenId = _tokenIdCounter.current();
 		_tokenIdCounter.increment();
 		_safeMint(to, tokenId);
 
-		plates[tokenId] = pixels;
-
-		if (delays.length > 0) {
-			Delay[] storage d = pixelDelays[tokenId];
-			for (uint i = 0; i < delays.length; i++) {
-				d.push(Delay(delays[i][0], uint16(delays[i][1])));
-			}
+		Plate storage plate = plates[tokenId];
+		plate.id = tokenId;
+		plate.name = name;
+		plate.pixels = pixels;
+		Delay[] storage d = plate.delays;
+		for (uint i = 0; i < delays.length; i++) {
+			d.push(Delay(delays[i][0], delays[i][1]));
 		}
 	}
 
@@ -135,9 +136,15 @@ contract MagicPlates is
 	{
 		address to = ownerOf(tokenId);
 		super._burn(tokenId);
-		pxls.restore(to, plates[tokenId]);
+		PxlsCore(pxls).restore(to, plates[tokenId].pixels);
 		delete plates[tokenId];
-		delete pixelDelays[tokenId];
+	}
+
+	function isApprovedForAll(
+		address owner,
+		address operator
+	) public view override(ERC721Upgradeable, IERC721Upgradeable) returns (bool) {
+		return operator == pxls || super.isApprovedForAll(owner, operator);
 	}
 
 	/// @dev gas guzzler, but it's only read, you need the pixel data use "plateById".
@@ -149,14 +156,16 @@ contract MagicPlates is
 		override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
 		returns (string memory)
 	{
-		uint8[][] memory plate = plates[tokenId];
-		Delay[] memory delays = pixelDelays[tokenId];
-		uint256 dim = Math.sqrt(plate.length);
+		Plate storage plate = plates[tokenId];
+		uint8[][] storage pixels = plate.pixels;
+		Delay[] storage delays = plate.delays;
+
+		uint256 dim = Math.sqrt(pixels.length);
 
 		string memory inner = "";
 
-		for (uint i = 0; i < plate.length; i++) {
-			uint8[] memory pixel = plate[i];
+		for (uint i = 0; i < pixels.length; i++) {
+			uint8[] memory pixel = pixels[i];
 
 			if (pixel.length == 1) {
 				// singlecolor
@@ -240,12 +249,25 @@ contract MagicPlates is
 			)
 		);
 
+		// sanitize name
+		uint8 len = 0;
+		for (uint8 i = 0; i < 16; i++) {
+			if (plate.name[i] == 0) {
+				len = i;
+				break;
+			}
+		}
+		bytes memory nameBytes = new bytes(len);
+		for (uint8 i = 0; i < len; i++) {
+			nameBytes[i] = plate.name[i];
+		}
+
 		string memory json = Base64.encode(
 			bytes(
 				string.concat(
 					"{",
-					'"name": "Plate #',
-					Strings.toString(tokenId),
+					'"name": "',
+					string(nameBytes),
 					'",',
 					'"background_color": "000000",',
 					'"description": "Plates forged in the nether.",',

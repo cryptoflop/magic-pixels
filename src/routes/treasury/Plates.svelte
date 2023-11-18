@@ -22,11 +22,12 @@
 	{#each $plates as plate}
 		<button
 			class="group cursor-pointer"
-			on:click={() => routing.goto("plate", { id: plate.id.toString() })}
+			on:click={() =>
+				routing.goto("treasury", "plate", { id: plate.id.toString() })}
 		>
 			<div class="border-2 group-hover:scale-95 pointer-events-none">
 				<div class="px-1.5 flex justify-between">
-					<div>#{plate.id.toString()}</div>
+					<div>{plate.name}</div>
 					<div class="text-xs mt-[5px]">{plateSize(plate)}</div>
 				</div>
 				<Plt class="w-36" {plate} />

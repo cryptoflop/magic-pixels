@@ -176,8 +176,9 @@ export const magicPlatesABI = [
     type: 'function',
     inputs: [
       { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'name', internalType: 'bytes16', type: 'bytes16' },
       { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
-      { name: 'delays', internalType: 'uint32[][]', type: 'uint32[][]' },
+      { name: 'delays', internalType: 'uint16[][]', type: 'uint16[][]' },
     ],
     name: 'mint',
     outputs: [],
@@ -215,13 +216,14 @@ export const magicPlatesABI = [
         type: 'tuple',
         components: [
           { name: 'id', internalType: 'uint256', type: 'uint256' },
+          { name: 'name', internalType: 'bytes16', type: 'bytes16' },
           { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
           {
             name: 'delays',
             internalType: 'struct MagicPlates.Delay[]',
             type: 'tuple[]',
             components: [
-              { name: 'idx', internalType: 'uint32', type: 'uint32' },
+              { name: 'idx', internalType: 'uint16', type: 'uint16' },
               { name: 'delay', internalType: 'uint16', type: 'uint16' },
             ],
           },
@@ -241,13 +243,14 @@ export const magicPlatesABI = [
         type: 'tuple[]',
         components: [
           { name: 'id', internalType: 'uint256', type: 'uint256' },
+          { name: 'name', internalType: 'bytes16', type: 'bytes16' },
           { name: 'pixels', internalType: 'uint8[][]', type: 'uint8[][]' },
           {
             name: 'delays',
             internalType: 'struct MagicPlates.Delay[]',
             type: 'tuple[]',
             components: [
-              { name: 'idx', internalType: 'uint32', type: 'uint32' },
+              { name: 'idx', internalType: 'uint16', type: 'uint16' },
               { name: 'delay', internalType: 'uint16', type: 'uint16' },
             ],
           },
@@ -260,7 +263,7 @@ export const magicPlatesABI = [
     type: 'function',
     inputs: [],
     name: 'pxls',
-    outputs: [{ name: '', internalType: 'contract PxlsCore', type: 'address' }],
+    outputs: [{ name: '', internalType: 'address payable', type: 'address' }],
   },
   {
     stateMutability: 'nonpayable',
@@ -444,9 +447,7 @@ export const pxlsCommonABI = [
 
 export const pxlsCoreABI = [
   { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
-  { type: 'error', inputs: [], name: 'InsufficientPixels' },
   { type: 'error', inputs: [], name: 'InsufficientValue' },
-  { type: 'error', inputs: [], name: 'InvalidIndicies' },
   { type: 'error', inputs: [], name: 'Unauthorized' },
   {
     type: 'event',
@@ -487,8 +488,9 @@ export const pxlsCoreABI = [
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
+      { name: 'name', internalType: 'bytes16', type: 'bytes16' },
       { name: 'pixelBytes', internalType: 'bytes', type: 'bytes' },
-      { name: 'delays', internalType: 'uint32[][]', type: 'uint32[][]' },
+      { name: 'delays', internalType: 'uint16[][]', type: 'uint16[][]' },
     ],
     name: 'mint',
     outputs: [],
@@ -501,7 +503,7 @@ export const pxlsCoreABI = [
       { name: 'to', internalType: 'address', type: 'address' },
       { name: 'pixelBytes', internalType: 'bytes', type: 'bytes' },
     ],
-    name: 'movePixels',
+    name: 'move',
     outputs: [],
   },
   {
@@ -556,7 +558,6 @@ export const pxlsNetherABI = [
 export const trdsCoreABI = [
   { stateMutability: 'nonpayable', type: 'constructor', inputs: [] },
   { type: 'error', inputs: [], name: 'IncorrectValue' },
-  { type: 'error', inputs: [], name: 'SellerInsufficientPixels' },
   { type: 'error', inputs: [], name: 'TradeAlreadyExists' },
   { type: 'error', inputs: [], name: 'Unauthorized' },
   {

@@ -3,7 +3,7 @@
 	import type { createWeb3Ctx } from "../../contexts/web3";
 	import type { createRoutingCtx } from "../../contexts/routing";
 	import type { createToastCtx } from "../../contexts/toast";
-	import { formatEther, type Hex } from "viem";
+	import { formatEther, zeroAddress, type Hex } from "viem";
 	import PixelizedButton from "../../elements/PixelizedButton.svelte";
 	import Trade from "./Trade.svelte";
 
@@ -19,7 +19,7 @@
 	const trades = web3.trades;
 
 	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
-	const param = routing.param;
+	const params = routing.params;
 
 	let trade: undefined | null | P2PTrade = undefined;
 
@@ -31,22 +31,29 @@
 		if (!trade || isOwnTrade) {
 			cannotCloseReason = null;
 		} else {
-			if (trade.tradeType == 0) {
-				web3.getBalance().then((r) => {
-					cannotCloseReason =
-						r.value > trade!.price ? null : "Insufficient funds.";
-				});
+			if (
+				trade.receiver !== zeroAddress &&
+				trade.receiver.toLowerCase() !== $acc?.toLowerCase()
+			) {
+				cannotCloseReason = "You are not the trade receiver.";
 			} else {
-				cannotCloseReason = $pixels.has(trade.pixels)
-					? null
-					: "Insufficient pixels.";
+				if (trade.tradeType == 0) {
+					web3.getBalance().then((r) => {
+						cannotCloseReason =
+							r.value > trade!.price ? null : "Insufficient funds.";
+					});
+				} else {
+					cannotCloseReason = $pixels.has(trade.pixels)
+						? null
+						: "Insufficient pixels.";
+				}
 			}
 		}
 	}
 
 	$: {
-		if ($param?.id) {
-			const id = `0x${$param!.id}` as Hex;
+		if ($params?.id) {
+			const id = `0x${$params!.id}` as Hex;
 			const t = $trades.find((t) => t.id == id);
 			if (t) {
 				trade = t;
@@ -61,7 +68,7 @@
 	async function closeTrade() {
 		try {
 			await web3.closeTrade(trade!);
-			routing.goto("treasury", { view: "pixels" }, "treasury");
+			routing.goto("treasury", undefined, { view: "pixels" });
 			createAudio(sparkleSrc, {
 				autoPlay: true,
 				volume: 0.08,

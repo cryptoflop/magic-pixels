@@ -6,7 +6,7 @@
 	import { tooltip } from "../../directives/tooltip";
 	import Pxl from "../../elements/Pixel.svelte";
 	import PixelPalette from "../../elements/PixelPalette.svelte";
-	import { parseEther, type Address } from "viem";
+	import { parseEther, type Address, zeroAddress } from "viem";
 	import PixelizedButton from "../../elements/PixelizedButton.svelte";
 	import {
 		decodePixel,
@@ -76,11 +76,11 @@
 		selecting = false;
 		const id = await web3.openTrade(
 			selectedPixels,
-			(receiver || import.meta.env.VITE_NULL_ADDR) as Address,
+			(receiver || zeroAddress) as Address,
 			parseEther(price),
 			tradeType
 		);
-		routing.goto("trade", { id: id.substring(2) }, "market");
+		routing.goto("market", "trade", { id: id.substring(2) });
 	}
 </script>
 
@@ -103,7 +103,7 @@
 			<div class="grid">
 				<div>Receiver (optional)</div>
 				<input
-					placeholder={import.meta.env.VITE_NULL_ADDR}
+					placeholder={zeroAddress}
 					class="border-2 bg-transparent outline-none text-base/5 px-1 w-full"
 					bind:value={receiver}
 				/>
@@ -117,7 +117,7 @@
 			<div class="grid">
 				<div>Receiver (optional)</div>
 				<input
-					placeholder={import.meta.env.VITE_NULL_ADDR}
+					placeholder={zeroAddress}
 					class="border-2 bg-transparent outline-none text-base/5 px-1 w-full"
 					bind:value={receiver}
 				/>

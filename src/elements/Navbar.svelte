@@ -29,8 +29,7 @@
 			}}
 			class="button flex {v.route.toLowerCase() == $root && 'underline'}"
 			on:click={() =>
-				v.route.toLowerCase() != $root &&
-				routing.goto(v.route.toLowerCase(), undefined, v.route.toLowerCase())}
+				v.route.toLowerCase() != $root && routing.goto(v.route.toLowerCase())}
 		>
 			<img src={v.icon} class="pointer-events-none h-4 w-4 self-center mr-2" />
 			{v.route}

@@ -5,9 +5,9 @@
 	import type { createRoutingCtx } from "../../contexts/routing";
 
 	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
-	const param = routing.param;
+	const params = routing.params;
 
-	let view: "pixels" | "plates" = ($param?.view as "pixels") ?? "plates";
+	let view: "pixels" | "plates" = ($params?.view as "pixels") ?? "plates";
 </script>
 
 <div class="grid grid-rows-[min-content,1fr] m-auto gap-4">

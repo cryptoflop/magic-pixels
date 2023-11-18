@@ -4,7 +4,7 @@
 	import { fullPixelName } from "../../helpers/color-utils";
 	import Pixel from "../../elements/Pixel.svelte";
 	import { tooltip } from "../../directives/tooltip";
-	import { formatEther } from "viem";
+	import { formatEther, zeroAddress } from "viem";
 	import { decodePixel } from "../../../contracts/scripts/libraries/pixel-parser";
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
@@ -30,10 +30,7 @@
 				{trade.tradeType == 0 ? "Seller" : "Buyer"}:
 				{formatAcc(trade.creator)}
 			</div>
-			<div
-				class="{trade.receiver == import.meta.env.VITE_NULL_ADDR &&
-					'opacity-30'} mr-auto"
-			>
+			<div class="{trade.receiver == zeroAddress && 'opacity-30'} mr-auto">
 				{trade.tradeType == 0 ? "Buyer" : "Seller"}:
 				{formatAcc(trade.receiver)}
 			</div>
@@ -49,7 +46,9 @@
 				use:tooltip={"Copy the link to this trade."}
 				on:click|stopPropagation={() =>
 					navigator.clipboard.writeText(
-						window.location.origin + "/market/trade?id=" + trade.id.substring(2)
+						window.location.origin +
+							"?root=market&route=trade&id=" +
+							trade.id.substring(2)
 					)}
 			>
 				Share

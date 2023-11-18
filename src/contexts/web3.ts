@@ -1,5 +1,5 @@
 import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, getPublicClient, switchNetwork, getNetwork, watchAccount, fetchBalance } from "@wagmi/core";
-import { parseEther, type Hex, type Address, formatEther } from "viem";
+import { parseEther, type Hex, type Address, formatEther, stringToHex, hexToString, zeroAddress } from "viem";
 import { readable, writable } from "svelte/store";
 import { arbitrum } from "viem/chains";
 import { cachedStore, consistentStore, eagerStore } from "../helpers/reactivity-helpers";
@@ -64,6 +64,13 @@ export function createWeb3Ctx() {
 			return await fetchBalance({ address: ctx.account.current! })
 		},
 
+		async ensureConnected() {
+			if (!ctx.account.current) {
+				await ctx.connect()
+			}
+			return true;
+		},
+
 		price: eagerStore(cachedStore(consistentStore(readable<number>(0.0, (set) => {
 			readContract({
 				address: PXLS,
@@ -122,7 +129,12 @@ export function createWeb3Ctx() {
 					abi: magicPlatesABI,
 					functionName: "platesOf",
 					args: [acc],
-				})).map(p => ({ id: p.id, pixels: p.pixels.map(pxl => pxl.map(i => i)), delays: p.delays.map(d => ({ idx: d.idx, delay: d.delay })) }));
+				})).map(p => ({
+					id: p.id,
+					name: hexToString(p.name, { size: 16 }),
+					pixels: p.pixels.map(pxl => pxl.map(i => i)),
+					delays: p.delays.map(d => ({ idx: d.idx, delay: d.delay }))
+				}));
 
 				set(plates)
 			})
@@ -145,6 +157,8 @@ export function createWeb3Ctx() {
 		})),
 
 		async openTrade(pixels: PixelId[], receiver: Address, price: bigint, tradeType: number) {
+			await ctx.ensureConnected();
+
 			const { hash } = await writeContract({
 				address: PXLS,
 				abi: trdsCoreABI,
@@ -153,7 +167,7 @@ export function createWeb3Ctx() {
 				value: tradeType === 0 ? 0n : price
 			});
 
-			const { status, blockNumber } = await waitForTransaction({ hash })
+			const { status, blockNumber } = await waitForTransaction({ hash, confirmations: 2 })
 			if (status == "reverted") throw "reverted"
 
 			const openedEvents = await getPublicClient().getContractEvents({
@@ -194,6 +208,8 @@ export function createWeb3Ctx() {
 		},
 
 		async cancelTrade(trade: P2PTrade) {
+			await ctx.ensureConnected();
+
 			const { hash } = await writeContract({
 				address: PXLS,
 				abi: trdsCoreABI,
@@ -201,7 +217,7 @@ export function createWeb3Ctx() {
 				args: [trade.id]
 			});
 
-			const { status, blockNumber } = await waitForTransaction({ hash })
+			const { status, blockNumber } = await waitForTransaction({ hash, confirmations: 2 })
 			if (status == "reverted") throw "reverted"
 
 			if (trade.tradeType == 0) {
@@ -221,6 +237,8 @@ export function createWeb3Ctx() {
 		},
 
 		async closeTrade(trade: P2PTrade) {
+			await ctx.ensureConnected();
+
 			const { hash } = await writeContract({
 				address: PXLS,
 				abi: trdsCoreABI,
@@ -229,7 +247,7 @@ export function createWeb3Ctx() {
 				value: trade.tradeType === 0 ? trade.price : 0n
 			});
 
-			const { status, blockNumber } = await waitForTransaction({ hash })
+			const { status, blockNumber } = await waitForTransaction({ hash, confirmations: 2 })
 			if (status == "reverted") throw "reverted"
 
 			ctx.pixels.update(c => {
@@ -262,6 +280,8 @@ export function createWeb3Ctx() {
 		},
 
 		async conjure(numPixels: number): Promise<[PixelId[], bigint]> {
+			await ctx.ensureConnected();
+
 			const { hash } = await writeContract({
 				address: PXLS,
 				abi: pxlsCoreABI,
@@ -270,7 +290,7 @@ export function createWeb3Ctx() {
 				value: parseEther(ctx.price.current!.toString()) * BigInt(numPixels)
 			})
 
-			const { status, blockNumber } = await waitForTransaction({ hash })
+			const { status, blockNumber } = await waitForTransaction({ hash, confirmations: 2 })
 			if (status == "reverted") throw "reverted"
 
 			const conjuredEvents = await getPublicClient().getContractEvents({
@@ -308,15 +328,17 @@ export function createWeb3Ctx() {
 			return [pixelIds, ethFound]
 		},
 
-		async mint(pixels: PixelId[], delays: Delay[]) {
+		async mint(name: string, pixels: PixelId[], delays: Delay[]) {
+			await ctx.ensureConnected();
+
 			const { hash } = await writeContract({
 				address: PXLS,
 				abi: pxlsCoreABI,
 				functionName: 'mint',
-				args: [pixelIdsToBytes(pixels), delays.map(delay => [delay.idx, delay.delay] as const)]
+				args: [stringToHex(name, { size: 16 }), pixelIdsToBytes(pixels), delays.map(delay => [delay.idx, delay.delay] as const)]
 			})
 
-			const { status, blockNumber } = await waitForTransaction({ hash })
+			const { status, blockNumber } = await waitForTransaction({ hash, confirmations: 2 })
 			if (status == "reverted") throw "reverted"
 
 			ctx.pixels.update(c => {
@@ -331,7 +353,7 @@ export function createWeb3Ctx() {
 				abi: magicPlatesABI,
 				eventName: "Transfer",
 				args: {
-					from: import.meta.env.VITE_NULL_ADDR,
+					from: zeroAddress,
 					to: ctx.account.current!
 				},
 				fromBlock: blockNumber,
@@ -340,20 +362,23 @@ export function createWeb3Ctx() {
 
 			const tokenId = mintedEvents[0].args.tokenId!
 
-			const plate = (await readContract({
+			const rawPlate = (await readContract({
 				address: PLTS,
 				abi: magicPlatesABI,
 				functionName: "plateById",
 				args: [tokenId],
 			}))
 
-			ctx.plates.update(c => c.concat([{
-				id: plate.id,
-				pixels: plate.pixels.map(pxl => pxl.map(i => i)),
-				delays: plate.delays.map(d => ({ idx: d.idx, delay: d.delay }))
-			}]))
+			const plate = {
+				id: rawPlate.id,
+				name: hexToString(rawPlate.name, { size: 16 }),
+				pixels: rawPlate.pixels.map(pxl => pxl.map(i => i)),
+				delays: rawPlate.delays.map(d => ({ idx: d.idx, delay: d.delay }))
+			}
 
-			return tokenId
+			ctx.plates.update(c => c.concat([plate]))
+
+			return plate
 		},
 
 		async getPlate(tokenId: bigint) {
@@ -366,6 +391,8 @@ export function createWeb3Ctx() {
 		},
 
 		async shatter(tokenId: bigint) {
+			await ctx.ensureConnected();
+
 			const { hash } = await writeContract({
 				address: PLTS,
 				abi: magicPlatesABI,
@@ -373,7 +400,7 @@ export function createWeb3Ctx() {
 				args: [tokenId],
 			})
 
-			const { status, blockNumber } = await waitForTransaction({ hash })
+			const { status, blockNumber } = await waitForTransaction({ hash, confirmations: 2 })
 			if (status == "reverted") throw "reverted"
 
 			const restoredEvents = await getPublicClient().getContractEvents({

@@ -10,9 +10,7 @@ import {LibPRNG} from "solady/src/utils/LibPRNG.sol";
 
 contract PxlsCore {
 	error Unauthorized();
-	error InvalidIndicies();
 	error InsufficientValue();
-	error InsufficientPixels();
 
 	constructor() {}
 
@@ -82,7 +80,11 @@ contract PxlsCore {
 	}
 
 	/// @notice Uses pixels to mint a MagicPixels nft
-	function mint(bytes calldata pixelBytes, uint32[][] memory delays) external {
+	function mint(
+		bytes16 name,
+		bytes calldata pixelBytes,
+		uint16[][] memory delays
+	) external {
 		LibPixels.Storage storage s = LibPixels.store();
 
 		mapping(bytes4 => uint32) storage pixelsOfOwner = s.pixelMap[msg.sender];
@@ -96,7 +98,19 @@ contract PxlsCore {
 			pixels[i] = LibPixels.decode(pxlId);
 		}
 
-		MagicPlates(s.plts).mint(msg.sender, pixels, delays);
+		// check name
+		for (uint256 i = 0; i < name.length; i++) {
+			if (
+				!(name[i] >= bytes1("a") && name[i] <= bytes1("z")) &&
+				!(name[i] >= bytes1("A") && name[i] <= bytes1("Z")) &&
+				(name[i] != bytes1(0x0)) &&
+				(name[i] != bytes1(" "))
+			) {
+				revert();
+			}
+		}
+
+		MagicPlates(s.plts).mint(msg.sender, name, pixels, delays);
 
 		emit Used(msg.sender, pixelBytes);
 	}
@@ -119,11 +133,7 @@ contract PxlsCore {
 		emit Conjured(to, restored);
 	}
 
-	function movePixels(
-		address from,
-		address to,
-		bytes memory pixelBytes
-	) public {
+	function move(address from, address to, bytes memory pixelBytes) public {
 		LibDiamond.enforceDiamondItself();
 		LibPixels.Storage storage s = LibPixels.store();
 

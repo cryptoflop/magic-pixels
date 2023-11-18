@@ -33,14 +33,14 @@
 
 	$: pixelsArr = $pixels.toArray();
 
-	const PLATE_DIMENSIONS = [8, 16, 32];
+	const PLATE_DIMENSIONS = [8, 16, 24];
 
 	let dimension = PLATE_DIMENSIONS[1];
 
 	const PIXEL_SIZES = {
 		8: 48,
 		16: 24,
-		32: 12,
+		24: 16,
 	};
 
 	$: size = PIXEL_SIZES[dimension as keyof typeof PIXEL_SIZES];
@@ -216,15 +216,21 @@
 		delete delays[idx];
 	}
 
+	let name = "";
+
+	function validateName(input: HTMLInputElement) {
+		name = input.value.replaceAll(/[^a-zA-Z\s]+/g, "");
+	}
+
 	async function mint() {
 		createAudio(forgeSrc, {
 			autoPlay: true,
 			volume: 0.1,
 			disposable: true,
 		});
-		const tokenId = await web3.mint(placedPixels, delaysPacked);
-		routing.goto("plate", { id: tokenId.toString() }, "treasury");
-		toast.show("You successfully forged plate #" + tokenId.toString());
+		const plate = await web3.mint(name!.trim(), placedPixels, delaysPacked);
+		routing.goto("treasury", "plate", { id: plate.id.toString() });
+		toast.show('You successfully forged plate "' + plate.name + '"');
 	}
 </script>
 
@@ -243,8 +249,15 @@
 			<div class="absolute inset-0 bg-white/80 animate-pulse z-[-1]" />
 		{/if}
 
+		<input
+			class="absolute left-0 -translate-y-8 h-[22px] w-[18ch] px-1 -translate-x-0.5 outline-none border-2 bg-transparent"
+			placeholder="Name"
+			bind:value={name}
+			on:input={(e) => validateName(e.currentTarget)}
+		/>
+
 		<select
-			class="absolute select-none ml-auto right-0 -translate-y-8 translate-x-0.5"
+			class="absolute select-none right-0 -translate-y-8 translate-x-0.5"
 			bind:value={dimension}
 		>
 			{#each PLATE_DIMENSIONS as dim}
@@ -310,7 +323,7 @@
 
 		<PixelizedButton
 			class="-mt-0.5 text-lg"
-			disabled={placedPixelsCount < dimension ** 2}
+			disabled={placedPixelsCount < dimension ** 2 || !name}
 			options={{ colored: true }}
 			action={mint}
 			on:mouseenter={() => (flash = true)}
