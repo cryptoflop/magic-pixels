@@ -25,11 +25,6 @@ contract PxlsCommon is Ownable {
 		}
 	}
 
-	function withdraw(uint256 amount) external onlyOwner returns (bool) {
-		(bool success, ) = owner().call{value: amount}("");
-		return success;
-	}
-
 	function price() external view returns (uint256) {
 		return LibPixels.store().PRICE;
 	}
