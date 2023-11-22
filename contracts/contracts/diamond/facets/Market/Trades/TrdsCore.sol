@@ -68,6 +68,8 @@ contract TrdsCore {
 		if (trade.receiver != address(0) && trade.receiver != tx.origin)
 			revert Unauthorized();
 
+		uint256 fee = (trade.price * 1) / 100; // 0.10% fee
+
 		if (trade.tradeType == LibTrades.TradeType.BUY) {
 			// close as seller
 
@@ -76,7 +78,9 @@ contract TrdsCore {
 			deleteTrade(id);
 
 			// send the trade price from the vault to the seller
-			TrdsVault(s.vault).withdrawTo(tx.origin, trade.price);
+			TrdsVault(s.vault).withdrawTo(tx.origin, trade.price - fee);
+			// deduct fee
+			TrdsVault(s.vault).withdrawTo(address(this), fee);
 		} else {
 			// close as buyer
 			if (msg.value != trade.price) revert IncorrectValue();
@@ -85,8 +89,8 @@ contract TrdsCore {
 			movePixels(s.vault, tx.origin, trade.pixels);
 			deleteTrade(id);
 
-			// send the trade price to the seller
-			SafeTransferLib.safeTransferETH(trade.creator, trade.price);
+			// send the trade price - fee to the seller
+			SafeTransferLib.safeTransferETH(trade.creator, trade.price - fee);
 		}
 
 		emit TradeClosed(id, trade);

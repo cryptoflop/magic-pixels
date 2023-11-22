@@ -34,39 +34,41 @@ contract PxlsCore {
 		bytes memory conjured = new bytes(numPixels * 4);
 
 		// conjure actual pixels
-		for (uint i = 0; i < numPixels; i++) {
+		for (uint256 i = 0; i < numPixels; i++) {
 			uint8 depth;
 			uint256 pd = LibPRNG.next(rnd) % 100_000;
-			for (uint j = 0; j < s.DEPTH_PROBS.length; j++) {
+			for (uint256 j = 0; j < s.DEPTH_PROBS.length; j++) {
 				if (pd <= s.DEPTH_PROBS[j]) {
-					// set the depth of the pixel to the idx where "pd" falls in DEPTH_PROBS
 					depth = uint8(j + 1);
 					break;
 				}
 			}
 
 			uint8[] memory pixel = new uint8[](depth);
-			uint8 last = 0;
-			for (uint j = 0; j < depth; j++) {
-				// this formular respects a couple of things:
-				// - a uint8 thats "random" based on a seed
-				// - a uint8 higher than the preceeding one
-				// - a uint8 between MIN_PIXEL - MAX_PIXEL (both inclusive)
-				// - a uint8 that can't be MAX_PIXEL if it's not the last entry
-				last =
-					last +
-					uint8(
-						LibPRNG.next(rnd) % ((s.MAX_PIXEL - ((depth - 1) - j)) - last)
-					) +
-					s.MIN_PIXEL;
-				pixel[j] = last;
+			for (uint256 j = 0; j < depth; j++) {
+				uint8 idx = 0;
+				while (idx == 0) {
+					uint8 candidate = uint8(LibPRNG.next(rnd) % s.MAX_PIXEL) +
+						s.MIN_PIXEL;
+					for (uint256 k = 0; k < pixel.length; k++) {
+						if (candidate == pixel[k]) break;
+						if (k == pixel.length - 1) idx = candidate;
+					}
+				}
+				pixel[j] = idx;
+			}
+			if (depth > 1 && pixel[0] > pixel[1]) {
+				// for now just switch
+				uint8 tmp = pixel[0];
+				pixel[0] = pixel[1];
+				pixel[1] = tmp;
 			}
 
 			bytes4 pxlId = LibPixels.encode(pixel);
 			LibPixels.packIntoAt(conjured, pxlId, i);
 
 			// Gas Notice: this will be zero to non-zero often and therefore
-			// use a lot of gas as well as making the gas estimation harder
+			// use a lot of gas as well as making the gas estimation inaccurate
 			++pixels[pxlId];
 		}
 
@@ -83,7 +85,7 @@ contract PxlsCore {
 	function mint(
 		bytes16 name,
 		bytes calldata pixelBytes,
-		uint16[][] memory delays
+		bytes calldata delayBytes
 	) external {
 		LibPixels.Storage storage s = LibPixels.store();
 
@@ -91,8 +93,8 @@ contract PxlsCore {
 
 		uint8[][] memory pixels = new uint8[][](pixelBytes.length / 4);
 
-		// subtract pixels
-		for (uint i = 0; i < pixels.length; i++) {
+		// pixels
+		for (uint256 i = 0; i < pixels.length; i++) {
 			bytes4 pxlId = LibPixels.unpackFromAt(pixelBytes, i);
 			--pixelsOfOwner[pxlId];
 			pixels[i] = LibPixels.decode(pxlId);
@@ -108,6 +110,16 @@ contract PxlsCore {
 			) {
 				revert();
 			}
+		}
+
+		// delays
+		uint16[][] memory delays = new uint16[][](delayBytes.length / 4);
+		for (uint256 i = 0; i < delays.length; i++) {
+			uint16[] memory delay = new uint16[](2);
+			bytes4 b = LibPixels.unpackFromAt(delayBytes, i);
+			delay[0] = uint16(bytes2(b));
+			delay[1] = uint16(bytes2(b << 16));
+			delays[i] = delay;
 		}
 
 		MagicPlates(s.plts).mint(msg.sender, name, pixels, delays);

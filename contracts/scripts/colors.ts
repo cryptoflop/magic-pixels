@@ -1,5 +1,5 @@
 export const colors = [
-	'000000', // idx 0 is never used
+	'xxxxxx', // idx 0 is never used
 	'f1f5f9',
 	'e2e8f0',
 	'cbd5e1',
@@ -188,5 +188,7 @@ export const colors = [
 	'e11d48',
 	'be123c',
 	'9f1239',
-	'881337'
+	'881337',
+	'000000',
+	'ffffff'
 ].map((c) => '#' + c)

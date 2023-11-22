@@ -11,7 +11,7 @@ contract MagicPixelsInit is DiamondInit {
 		LibPixels.Storage storage s = LibPixels.store();
 
 		s.MIN_PIXEL = 1;
-		s.MAX_PIXEL = 189;
+		s.MAX_PIXEL = 191;
 		s.PIXEL_DEPTH = 2;
 
 		s.UF_PROB = 10000;

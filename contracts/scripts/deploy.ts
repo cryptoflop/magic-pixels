@@ -1,6 +1,6 @@
 import { ethers, viem } from 'hardhat'
 
-import { Hex, decodeEventLog, parseEther, stringToHex } from 'viem'
+import { Hex, decodeEventLog, numberToHex, parseEther, stringToHex } from 'viem'
 
 import { deployPxls } from './MagicPixels'
 import { deployPlts } from './MagicPlates'
@@ -32,23 +32,21 @@ export async function deploy () {
 
 	const price = await (await viem.getContractAt("PxlsCommon", pxlsAddress)).read.price()
 
-  const conjureTx = await pxls.write.conjure([(24n * 24n)], { value: price * (24n * 24n) })
+  const conjureTx = await pxls.write.conjure([(8n * 8n)], { value: price * (24n * 24n) })
 	const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 	const conjured = decodeEventLog({ ...conjureRcpt.logs[conjureRcpt.logs.length > 1 ? 1: 0], abi: pxls.abi, eventName: "Conjured" })
 
 	const pixels = bytesToPixels(conjured.args.pixels)
 
-	const delays = Array(2).fill(1)
+	const delayBytes = "0x" + Array(2).fill(1)
 			.map((_, i) => pixels.findIndex((pxl, j) => pxl.length > 1 && (i > 0 ? (j > 10) : true)))
-			.map(idx => [idx, Math.round(Math.random() * (199 - 0) + 0)])
+			.map(idx => [idx, Math.round(Math.random() * (199 - 0) + 0)]).map(d => d.map(n => numberToHex(n, { size: 2 }).substring(2)).join(""))
+			.join("") as Hex
 
-  const mintTx = await pxls.write.mint([stringToHex("Testio test", { size: 16 }), conjured.args.pixels, delays], { gas: 60000000n })
+  const mintTx = await pxls.write.mint([stringToHex("Testio test", { size: 16 }), conjured.args.pixels, delayBytes], { gas: 60000000n })
 	await publicClient.waitForTransactionReceipt({ hash: mintTx })
 
-	console.log(await (await ethers.getContractAt("MagicPlates", pltsAddress)).tokenURI(0, { gasLimit: 999999999999999999n }))
 
-  // console.log('Minted')
-	
 	// await openTrade(acc1, pxlsAddress, "0x0000000000000000000000000000000000000000")
 	// const [id] = await openTrade(acc2, pxlsAddress, acc1.account.address)
 	// console.log('Test trade: ' + id)

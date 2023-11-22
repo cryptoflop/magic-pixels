@@ -4,7 +4,7 @@ import { viem } from 'hardhat'
 
 import { deployPxls } from '../scripts/MagicPixels'
 import { openTrade } from '../scripts/trade'
-import { decodeEventLog, parseEther } from 'viem'
+import { decodeEventLog, formatEther, parseEther } from 'viem'
 
 describe('Trades', function () {
 	let publicClient: Awaited<ReturnType<typeof viem.getPublicClient>>
@@ -32,9 +32,9 @@ describe('Trades', function () {
 		
 		const [id, pixelBytes] = await openTrade(acc1, pxlsAddress, "0x0000000000000000000000000000000000000000")
 
-		await expect(trds.write.closeTrade([id], { account: acc2.account, value: parseEther("1") }), "Trade price not enforced").to.be.rejected
+		await expect(trds.write.closeTrade([id], { account: acc2.account, value: parseEther("0.9") }), "Trade price not enforced").to.be.rejected
 
-		const closeTx = await trds.write.closeTrade([id], { account: acc2.account, value: parseEther("1.1") })
+		const closeTx = await trds.write.closeTrade([id], { account: acc2.account, value: parseEther("1") })
 
 		const closeRcpt = await publicClient.waitForTransactionReceipt({ hash: closeTx })
 		const tradeClosed = decodeEventLog({ ...closeRcpt.logs[2], abi: trds.abi, eventName: "TradeClosed" })
@@ -57,9 +57,9 @@ describe('Trades', function () {
 		
 		const [id] = await openTrade(acc1, pxlsAddress, acc2.account.address)
 
-		await expect(trds.write.closeTrade([id], { account: acc3.account, value: parseEther("1.1") }), "Trade receiver not enforced").to.be.rejected
+		await expect(trds.write.closeTrade([id], { account: acc3.account, value: parseEther("1") }), "Trade receiver not enforced").to.be.rejected
 
-		const closeTx = await trds.write.closeTrade([id], { account: acc2.account, value: parseEther("1.1") })
+		const closeTx = await trds.write.closeTrade([id], { account: acc2.account, value: parseEther("1") })
 		const closeRcpt = await publicClient.waitForTransactionReceipt({ hash: closeTx })
 		const tradeClosed = decodeEventLog({ ...closeRcpt.logs[2], abi: trds.abi, eventName: "TradeClosed" })
 
@@ -84,12 +84,12 @@ describe('Trades', function () {
 		const blncBuyer = await publicClient.getBalance({ address: acc1.account.address })
 		const blncSeller = await publicClient.getBalance({ address: acc2.account.address })
 
-		const tradeTx = await trds.write.openTrade([acc2.account.address, conjured.args.pixels, parseEther("1.1"), 1], { value: parseEther("1.1") })
+		const tradeTx = await trds.write.openTrade([acc2.account.address, conjured.args.pixels, parseEther("1"), 1], { value: parseEther("1") })
 		const tradeRcpt = await publicClient.waitForTransactionReceipt({ hash: tradeTx })
 		const tradeOpened = decodeEventLog({ ...tradeRcpt.logs[0], abi: trds.abi, eventName: "TradeOpened" })
-
+				
 		const closeTx = await trds.write.closeTrade([tradeOpened.args.id], { account: acc2.account })
-		await publicClient.waitForTransactionReceipt({ hash: closeTx })
+		const cliseTxRec = await publicClient.waitForTransactionReceipt({ hash: closeTx })
 
 		const pxlsC = await viem.getContractAt('PxlsCommon', pxlsAddress)
 		const pxlsBuyer = await pxlsC.read.pixelsOf([acc1.account.address, conjured.args.pixels])
@@ -103,6 +103,8 @@ describe('Trades', function () {
 
 		expect(blncBuyerA < blncBuyer, "buyer has higher balance than expected.").to.be.true
 		expect(blncSellerA > blncSeller, "seller has lower balance than expected.").to.be.true
+
+		console.log(formatEther(blncSellerA - blncSeller + cliseTxRec.effectiveGasPrice))
 	})
 
 })

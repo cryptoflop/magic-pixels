@@ -14,7 +14,7 @@ export async function openTrade(acc: Awaited<ReturnType<typeof viem.getWalletCli
 	const conjureRcpt = await publicClient.waitForTransactionReceipt({ hash: conjureTx })
 	const conjured = decodeEventLog({ ...conjureRcpt.logs[0], abi: pxls.abi, eventName: "Conjured" })
 
-	const tradeTx = await trds.write.openTrade([receiver, conjured.args.pixels, parseEther("1.1"), 0])
+	const tradeTx = await trds.write.openTrade([receiver, conjured.args.pixels, parseEther("1"), 0])
 	const tradeRcpt = await publicClient.waitForTransactionReceipt({ hash: tradeTx })
 	const tradeOpened = decodeEventLog({ ...tradeRcpt.logs[2], abi: trds.abi, eventName: "TradeOpened" })
 

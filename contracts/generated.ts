@@ -432,13 +432,6 @@ export const pxlsCommonABI = [
     name: 'price',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
-  {
-    stateMutability: 'nonpayable',
-    type: 'function',
-    inputs: [{ name: 'amount', internalType: 'uint256', type: 'uint256' }],
-    name: 'withdraw',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
-  },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -490,7 +483,7 @@ export const pxlsCoreABI = [
     inputs: [
       { name: 'name', internalType: 'bytes16', type: 'bytes16' },
       { name: 'pixelBytes', internalType: 'bytes', type: 'bytes' },
-      { name: 'delays', internalType: 'uint16[][]', type: 'uint16[][]' },
+      { name: 'delayBytes', internalType: 'bytes', type: 'bytes' },
     ],
     name: 'mint',
     outputs: [],

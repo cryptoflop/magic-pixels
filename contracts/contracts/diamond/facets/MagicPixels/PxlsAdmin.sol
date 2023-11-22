@@ -15,7 +15,7 @@ contract PxlsAdmin is Ownable {
 	function adminMint(
 		bytes16 name,
 		bytes calldata pixelBytes,
-		uint16[][] memory delays
+		bytes calldata delayBytes
 	) external onlyOwner {
 		LibPixels.Storage storage s = LibPixels.store();
 
@@ -24,6 +24,15 @@ contract PxlsAdmin is Ownable {
 		for (uint i = 0; i < pixels.length; i++) {
 			bytes4 pxlId = LibPixels.unpackFromAt(pixelBytes, i);
 			pixels[i] = LibPixels.decode(pxlId);
+		}
+
+		uint16[][] memory delays = new uint16[][](delayBytes.length / 4);
+		for (uint256 i = 0; i < delays.length; i++) {
+			uint16[] memory delay = new uint16[](2);
+			bytes4 b = LibPixels.unpackFromAt(delayBytes, i);
+			delay[0] = uint16(bytes2(b));
+			delay[1] = uint16(bytes2(b << 16));
+			delays[i] = delay;
 		}
 
 		MagicPlates(s.plts).mint(msg.sender, name, pixels, delays);
