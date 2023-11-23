@@ -2,7 +2,7 @@ import { expect } from 'chai'
 
 import { ethers, viem } from 'hardhat'
 import { Hex, decodeEventLog, hexToBytes, hexToString, numberToHex, stringToHex } from 'viem'
-import { bytesToPixels } from '../scripts/libraries/pixel-parser'
+import { bytesToDelays, bytesToPixels } from '../scripts/libraries/pixel-parser'
 
 import { deployPxls } from '../scripts/MagicPixels'
 import { deployPlts } from '../scripts/MagicPlates'
@@ -65,15 +65,7 @@ describe('PixelsAndPlates', function () {
 
 		const { pixels: underlyingPixelsB, delays: underlyingDelaysB, name } = await plts.read.plateById([0n])
 		const underlyingPixels = bytesToPixels(underlyingPixelsB)
-		const underlyingDelays = hexToBytes(underlyingDelaysB).reduce((arr, _, i, bytes) => {
-			if (i % 4 === 0) {
-				arr.push([
-					(bytes[i] << 8) | bytes[i + 1],
-					(bytes[i + 2] << 8) | bytes[i + 3]
-				])
-			}
-			return arr
-		}, [] as number[][])
+		const underlyingDelays = bytesToDelays(underlyingDelaysB)
 
 		expect(pixels.length, "conjured / underlying pixel length mismatch.").eq(underlyingPixels.length)
 

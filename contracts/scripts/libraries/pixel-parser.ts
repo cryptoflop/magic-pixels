@@ -33,6 +33,18 @@ export function bytesToPixels(bytes: Hex) {
 	}, [] as number[][]).map(pxl => pxl.filter(idx => idx > 0))
 }
 
+export function bytesToDelays(bytes: Hex) {
+	return hexToBytes(bytes).reduce((arr, _, i, bytes) => {
+		if (i % 4 === 0) {
+			arr.push([
+				(bytes[i] << 8) | bytes[i + 1],
+				(bytes[i + 2] << 8) | bytes[i + 3]
+			])
+		}
+		return arr
+	}, [] as number[][])
+}
+
 export function encodePixel(pxl: number[]) {
 	return ("0x" + Array(MAX_PIXEL_LENGTH).fill(1).map((_, i) => numberToHex(pxl[i] ?? 0, { size: 1 }).substring(2)).join("")) as Hex
 }
