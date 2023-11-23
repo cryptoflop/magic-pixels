@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 
 import { ethers, viem } from 'hardhat'
-import { Hex, decodeEventLog, hexToString, numberToHex, stringToHex } from 'viem'
+import { Hex, decodeEventLog, hexToBytes, hexToString, numberToHex, stringToHex } from 'viem'
 import { bytesToPixels } from '../scripts/libraries/pixel-parser'
 
 import { deployPxls } from '../scripts/MagicPixels'
@@ -63,18 +63,29 @@ describe('PixelsAndPlates', function () {
 			pixels.every((pxl, i) => pxl.every((idx, j) => { return idx === svgPixels[i][j] ? true : (false || console.log(pxl, svgPixels[i])) })), 
 			"conjured/minted pixels don't match svg.").to.be.true
 
-		const { pixels: underlyingPixels, delays: underlyingDelays, name } = await plts.read.plateById([0n])
+		const { pixels: underlyingPixelsB, delays: underlyingDelaysB, name } = await plts.read.plateById([0n])
+		const underlyingPixels = bytesToPixels(underlyingPixelsB)
+		const underlyingDelays = hexToBytes(underlyingDelaysB).reduce((arr, _, i, bytes) => {
+			if (i % 4 === 0) {
+				arr.push([
+					(bytes[i] << 8) | bytes[i + 1],
+					(bytes[i + 2] << 8) | bytes[i + 3]
+				])
+			}
+			return arr
+		}, [] as number[][])
+
 		expect(pixels.length, "conjured / underlying pixel length mismatch.").eq(underlyingPixels.length)
 
 		expect(hexToString(name, { size: 16 }) == "Test", "Incorrect name.").to.be.true
 
-		expect(underlyingDelays.map(d => [d.idx, d.delay]).every((d, i) => d.every((v, j) => v === delays[i][j])), "delays do not match").to.be.true
+		expect(underlyingDelays.every((d, i) => d.every((v, j) => v === delays[i][j])), "delays do not match").to.be.true
 
 		expect(pixels.every((pxl, i) => pxl.every((idx, j) => idx === underlyingPixels[i][j])), "conjured/minted pixels don't match underlying.").to.be.true
 
 		const plates = await plts.read.platesOf([acc.account.address])
 
-		expect(plates[0].pixels.length, "plateById/platesOf pixels length mismatch.").eq(underlyingPixels.length)
+		expect((plates[0].pixels.length - 2) / 4, "plateById/platesOf pixels length mismatch.").eq(underlyingPixels.length)
 
 		const burnTx = await plts.write.burn([0n])
 		const burnRcpt = await publicClient.waitForTransactionReceipt({ hash: burnTx })

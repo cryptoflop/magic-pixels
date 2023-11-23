@@ -15,6 +15,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
 import "./diamond/facets/MagicPixels/PxlsCore.sol";
+import "./diamond/libraries/LibPixels.sol";
 
 contract MagicPlates is
 	Initializable,
@@ -37,8 +38,8 @@ contract MagicPlates is
 	struct Plate {
 		uint256 id;
 		bytes16 name;
-		uint8[][] pixels;
-		Delay[] delays;
+		bytes pixels;
+		bytes delays;
 	}
 
 	uint96 private fee; // royalty fee
@@ -104,8 +105,8 @@ contract MagicPlates is
 	function mint(
 		address to,
 		bytes16 name,
-		uint8[][] memory pixels,
-		uint16[][] calldata delays
+		bytes calldata pixels,
+		bytes calldata delays
 	) external {
 		require(msg.sender == pxls, "not allowed.");
 
@@ -113,14 +114,7 @@ contract MagicPlates is
 		_tokenIdCounter.increment();
 		_safeMint(to, tokenId);
 
-		Plate storage plate = plates[tokenId];
-		plate.id = tokenId;
-		plate.name = name;
-		plate.pixels = pixels;
-		Delay[] storage d = plate.delays;
-		for (uint i = 0; i < delays.length; i++) {
-			d.push(Delay(delays[i][0], delays[i][1]));
-		}
+		plates[tokenId] = Plate(tokenId, name, pixels, delays);
 	}
 
 	/// @dev Also frees the underlying pixels the plate was made of.
@@ -157,17 +151,29 @@ contract MagicPlates is
 		returns (string memory)
 	{
 		Plate storage plate = plates[tokenId];
-		uint8[][] storage pixels = plate.pixels;
-		Delay[] storage delays = plate.delays;
+		bytes storage pixels = plate.pixels;
+
+		bytes storage delayBytes = plate.delays;
+		uint256 lenD = delayBytes.length / 4;
+		Delay[] memory delays = new Delay[](lenD);
+		for (uint i = 0; i < lenD; i++) {
+			delays[i] = Delay(
+				uint16(LibPixels.unpackFromAt(delayBytes, (i * 2) + 0)),
+				uint16(LibPixels.unpackFromAt(delayBytes, (i * 2) + 1))
+			);
+		}
 
 		uint256 dim = Math.sqrt(pixels.length);
 
 		string memory inner = "";
 
-		for (uint i = 0; i < pixels.length; i++) {
-			uint8[] memory pixel = pixels[i];
+		uint256 lenP = pixels.length / 2;
+		for (uint i = 0; i < lenP; i++) {
+			uint8 c1;
+			uint8 c2;
+			(c1, c2) = LibPixels.decode(LibPixels.unpackFromAt(pixels, i));
 
-			if (pixel.length == 1) {
+			if (c2 == 0) {
 				// singlecolor
 				inner = string.concat(
 					inner,
@@ -177,7 +183,7 @@ contract MagicPlates is
 						'" y="',
 						Strings.toString((((i + dim) / dim) - 1)),
 						'" fill="',
-						pixelColors[pixel[0]],
+						pixelColors[c1],
 						'"/>'
 					)
 				);
@@ -185,14 +191,14 @@ contract MagicPlates is
 				// multicolor
 				string memory delayStr;
 				if (delays.length > 0) {
-					uint32 delay = 0;
+					uint16 delay = 0;
 					for (uint j = 0; j < delays.length; j++) {
 						if (delays[j].idx == i) {
 							delay = delays[j].delay;
 							break;
 						}
 					}
-					uint32 secs = delay % 60;
+					uint16 secs = delay % 60;
 					delayStr = string.concat(
 						Strings.toString(delay / 60),
 						".",
@@ -203,13 +209,14 @@ contract MagicPlates is
 					delayStr = "0";
 				}
 
-				string memory colors;
-				for (uint j = 0; j <= pixel.length; j++) {
-					colors = string.concat(
-						colors,
-						string.concat(pixelColors[pixel[j % pixel.length]], ";")
-					);
-				}
+				string memory colors = string.concat(
+					pixelColors[c1],
+					";",
+					pixelColors[c2],
+					";",
+					pixelColors[c1],
+					";"
+				);
 
 				inner = string.concat(
 					inner,
@@ -219,11 +226,10 @@ contract MagicPlates is
 						'" y="',
 						Strings.toString((((i + dim) / dim) - 1)),
 						'" fill="',
-						pixelColors[pixel[0]],
+						pixelColors[c1],
 						'">',
-						'<animate attributeName="fill" dur="',
-						Strings.toString(pixel.length + 1),
-						's" repeatCount="indefinite" begin="',
+						'<animate attributeName="fill" dur="3s" ',
+						'repeatCount="indefinite" begin="',
 						delayStr,
 						's" ',
 						'values="',

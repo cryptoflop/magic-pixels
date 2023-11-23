@@ -7,14 +7,12 @@ library LibPixels {
 	struct Storage {
 		uint8 MIN_PIXEL;
 		uint8 MAX_PIXEL;
-		uint8 PIXEL_DEPTH;
 		address plts;
 		uint256 UF_PROB; // 0.01%
 		uint256 UF_PERC; // 10% percentage not the pill
 		uint256 UF_LAST_BLOCK; // last block a unexpected find was made
 		uint256 PRICE;
-		uint24[] DEPTH_PROBS;
-		mapping(address => mapping(bytes4 => uint32)) pixelMap;
+		mapping(address => mapping(bytes2 => uint32)) pixelMap;
 	}
 
 	function store() internal pure returns (Storage storage s) {
@@ -24,37 +22,20 @@ library LibPixels {
 		}
 	}
 
-	/// @notice encodes a pixel with up to 4 colors into bytes
-	function encode(uint8[] memory pxl) internal pure returns (bytes4 result) {
-		return
-			bytes4(
-				(uint32(pxl.length > 0 ? pxl[0] : 0) << 24) |
-					(uint32(pxl.length > 1 ? pxl[1] : 0) << 16) |
-					(uint32(pxl.length > 2 ? pxl[2] : 0) << 8) |
-					(uint32(pxl.length > 3 ? pxl[3] : 0))
-			);
+	/// @notice encodes a pixel with up to 2 colors into bytes
+	function encode(uint8 c1, uint8 c2) internal pure returns (bytes2 result) {
+		return bytes2((uint16(c1) << 8) | (uint16(c2) << 0));
 	}
 
-	/// @notice decodes bytes into a pixel with up to 4 colors
-	function decode(bytes4 pxl) internal pure returns (uint8[] memory result) {
-		uint count = 0;
-		for (uint i = 0; i < 4; i++) {
-			if (uint8(bytes1(pxl << (i * 8))) != 0) {
-				count++;
-			}
-		}
-
-		result = new uint8[](count);
-
-		for (uint i = 0; i < count; i++) {
-			result[i] = uint8(bytes1(pxl << (i * 8)));
-		}
+	/// @notice decodes bytes into a pixel with up to 2 colors
+	function decode(bytes2 pxl) internal pure returns (uint8 c1, uint8 c2) {
+		return (uint8(bytes1(pxl << (0 * 8))), uint8(bytes1(pxl << (1 * 8))));
 	}
 
 	/// @notice packs the bytes of a pixel into a byte array at the given positon
-	function packIntoAt(bytes memory data, bytes4 pxl, uint256 at) internal pure {
+	function packIntoAt(bytes memory data, bytes2 pxl, uint256 at) internal pure {
 		assembly {
-			mstore(add(add(data, 0x20), mul(at, 0x04)), pxl)
+			mstore(add(add(data, 0x20), mul(at, 0x02)), pxl)
 		}
 	}
 
@@ -62,9 +43,9 @@ library LibPixels {
 	function unpackFromAt(
 		bytes memory data,
 		uint256 at
-	) internal pure returns (bytes4 result) {
+	) internal pure returns (bytes2 result) {
 		assembly {
-			result := mload(add(add(data, 0x20), mul(at, 0x04)))
+			result := mload(add(add(data, 0x20), mul(at, 0x02)))
 		}
 	}
 }

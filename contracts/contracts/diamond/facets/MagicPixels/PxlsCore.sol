@@ -17,7 +17,7 @@ contract PxlsCore {
 	event Conjured(address conjurer, bytes pixels);
 	event Used(address user, bytes pixels);
 
-	/// @notice Conjures random pixels from the nether | 8,666,031 gas for 144 pxl
+	/// @notice Conjures random pixels from the nether
 	function conjure(uint256 numPixels) external payable {
 		LibPixels.Storage storage s = LibPixels.store();
 
@@ -29,47 +29,36 @@ contract PxlsCore {
 			PxlsRng(LibDiamond.diamondStorage().diamondAddress).rnd(msg.sender)
 		);
 
-		mapping(bytes4 => uint32) storage pixels = s.pixelMap[msg.sender];
+		mapping(bytes2 => uint32) storage pixels = s.pixelMap[msg.sender];
 
-		bytes memory conjured = new bytes(numPixels * 4);
+		bytes memory conjured = new bytes(numPixels * 2);
 
 		// conjure actual pixels
 		for (uint256 i = 0; i < numPixels; i++) {
-			uint8 depth;
-			uint256 pd = LibPRNG.next(rnd) % 100_000;
-			for (uint256 j = 0; j < s.DEPTH_PROBS.length; j++) {
-				if (pd <= s.DEPTH_PROBS[j]) {
-					depth = uint8(j + 1);
-					break;
-				}
-			}
+			uint8 c1 = uint8(LibPRNG.next(rnd) % s.MAX_PIXEL) + s.MIN_PIXEL;
+			uint8 c2;
 
-			uint8[] memory pixel = new uint8[](depth);
-			for (uint256 j = 0; j < depth; j++) {
+			if (LibPRNG.next(rnd) % 10 >= 2) {
+				// multicolor pixel
 				uint8 idx = 0;
 				while (idx == 0) {
-					uint8 candidate = uint8(LibPRNG.next(rnd) % s.MAX_PIXEL) +
-						s.MIN_PIXEL;
-					for (uint256 k = 0; k < pixel.length; k++) {
-						if (candidate == pixel[k]) break;
-						if (k == pixel.length - 1) idx = candidate;
-					}
+					uint8 c = uint8(LibPRNG.next(rnd) % s.MAX_PIXEL) + s.MIN_PIXEL;
+					if (c != c1) idx = c;
 				}
-				pixel[j] = idx;
-			}
-			if (depth > 1 && pixel[0] > pixel[1]) {
-				// for now just switch
-				uint8 tmp = pixel[0];
-				pixel[0] = pixel[1];
-				pixel[1] = tmp;
+				if (idx > c1) {
+					c2 = idx;
+				} else {
+					c2 = c1;
+					c1 = idx;
+				}
 			}
 
-			bytes4 pxlId = LibPixels.encode(pixel);
-			LibPixels.packIntoAt(conjured, pxlId, i);
+			bytes2 pxl = LibPixels.encode(c1, c2);
+			LibPixels.packIntoAt(conjured, pxl, i);
 
 			// Gas Notice: this will be zero to non-zero often and therefore
 			// use a lot of gas as well as making the gas estimation inaccurate
-			++pixels[pxlId];
+			++pixels[pxl];
 		}
 
 		PxlsNether(LibDiamond.diamondStorage().diamondAddress).examineNether(
@@ -84,21 +73,10 @@ contract PxlsCore {
 	/// @notice Uses pixels to mint a MagicPixels nft
 	function mint(
 		bytes16 name,
-		bytes calldata pixelBytes,
-		bytes calldata delayBytes
+		bytes calldata pixels,
+		bytes calldata delays
 	) external {
 		LibPixels.Storage storage s = LibPixels.store();
-
-		mapping(bytes4 => uint32) storage pixelsOfOwner = s.pixelMap[msg.sender];
-
-		uint8[][] memory pixels = new uint8[][](pixelBytes.length / 4);
-
-		// pixels
-		for (uint256 i = 0; i < pixels.length; i++) {
-			bytes4 pxlId = LibPixels.unpackFromAt(pixelBytes, i);
-			--pixelsOfOwner[pxlId];
-			pixels[i] = LibPixels.decode(pxlId);
-		}
 
 		// check name
 		for (uint256 i = 0; i < name.length; i++) {
@@ -112,54 +90,51 @@ contract PxlsCore {
 			}
 		}
 
-		// delays
-		uint16[][] memory delays = new uint16[][](delayBytes.length / 4);
-		for (uint256 i = 0; i < delays.length; i++) {
-			uint16[] memory delay = new uint16[](2);
-			bytes4 b = LibPixels.unpackFromAt(delayBytes, i);
-			delay[0] = uint16(bytes2(b));
-			delay[1] = uint16(bytes2(b << 16));
-			delays[i] = delay;
+		mapping(bytes2 => uint32) storage pixelsOfOwner = s.pixelMap[msg.sender];
+
+		// pixels
+		uint256 len = pixels.length / 2;
+		for (uint256 i = 0; i < len; i++) {
+			bytes2 pxl = LibPixels.unpackFromAt(pixels, i);
+			--pixelsOfOwner[pxl];
 		}
 
 		MagicPlates(s.plts).mint(msg.sender, name, pixels, delays);
 
-		emit Used(msg.sender, pixelBytes);
+		emit Used(msg.sender, pixels);
 	}
 
 	/// @dev restores pixels from a shattered plate
-	function restore(address to, uint8[][] calldata plate) external {
+	function restore(address to, bytes calldata platePixels) external {
 		LibPixels.Storage storage s = LibPixels.store();
 		if (msg.sender != s.plts) revert Unauthorized();
 
-		mapping(bytes4 => uint32) storage pixels = s.pixelMap[to];
+		mapping(bytes2 => uint32) storage pixels = s.pixelMap[to];
 
-		bytes memory restored = new bytes(plate.length * 4);
-
-		for (uint i = 0; i < plate.length; i++) {
-			bytes4 pxlId = LibPixels.encode(plate[i]);
-			LibPixels.packIntoAt(restored, pxlId, i);
-			++pixels[pxlId];
+		uint256 len = platePixels.length / 2;
+		for (uint i = 0; i < len; i++) {
+			bytes2 pxl = LibPixels.unpackFromAt(platePixels, i);
+			++pixels[pxl];
 		}
 
-		emit Conjured(to, restored);
+		emit Conjured(to, platePixels);
 	}
 
-	function move(address from, address to, bytes memory pixelBytes) public {
+	function move(address from, address to, bytes memory pixels) public {
 		LibDiamond.enforceDiamondItself();
 		LibPixels.Storage storage s = LibPixels.store();
 
-		mapping(bytes4 => uint32) storage fromPixels = s.pixelMap[from];
-		mapping(bytes4 => uint32) storage toPixels = s.pixelMap[to];
+		mapping(bytes2 => uint32) storage fromPixels = s.pixelMap[from];
+		mapping(bytes2 => uint32) storage toPixels = s.pixelMap[to];
 
-		uint256 len = (pixelBytes.length / 4);
-		for (uint i = 0; i < len; i++) {
-			bytes4 pxlId = LibPixels.unpackFromAt(pixelBytes, i);
-			--fromPixels[pxlId];
-			++toPixels[pxlId];
+		uint256 len = (pixels.length / 2);
+		for (uint256 i = 0; i < len; i++) {
+			bytes2 pxl = LibPixels.unpackFromAt(pixels, i);
+			--fromPixels[pxl];
+			++toPixels[pxl];
 		}
 
-		emit Used(from, pixelBytes);
-		emit Conjured(to, pixelBytes);
+		emit Used(from, pixels);
+		emit Conjured(to, pixels);
 	}
 }

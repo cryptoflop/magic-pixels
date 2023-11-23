@@ -1,6 +1,6 @@
 import { hexToBytes, numberToHex, type Hex } from "viem"
 
-const MAX_PIXEL_LENGTH = 4
+const MAX_PIXEL_LENGTH = 2
 
 /** Takes a bytes array and returns an array of bytes in the length of a pixel @see MAX_PIXEL_LENGTH */
 export function bytesToPixelIds(bytes: Hex) {

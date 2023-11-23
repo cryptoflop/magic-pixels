@@ -9,19 +9,19 @@ contract PxlsCommon is Ownable {
 
 	function pixelsOf(
 		address addr,
-		bytes calldata ids
+		bytes calldata pixels
 	) external view returns (uint32[] memory result) {
 		LibPixels.Storage storage store = LibPixels.store();
 
-		mapping(bytes4 => uint32) storage pixelBalances = store.pixelMap[addr];
+		mapping(bytes2 => uint32) storage pixelBalances = store.pixelMap[addr];
 
-		uint256 len = ids.length / 4;
+		uint256 len = pixels.length / 2;
 
 		result = new uint32[](len);
 
 		for (uint i = 0; i < len; i++) {
-			bytes4 pxlId = LibPixels.unpackFromAt(ids, i);
-			result[i] = pixelBalances[pxlId];
+			bytes2 pxl = LibPixels.unpackFromAt(pixels, i);
+			result[i] = pixelBalances[pxl];
 		}
 	}
 
