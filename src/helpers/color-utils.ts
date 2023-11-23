@@ -5,7 +5,7 @@ import colorPalletNames from '../assets/pixel-names.json'
 import { rndBtwn } from './utils'
 
 export const MIN_PIXEL = 1
-export const MAX_PIXEL = 189
+export const MAX_PIXEL = 191
 export const MAX_PALETTE = 9
 
 export function rndPixel() {
@@ -27,23 +27,30 @@ function getPalletIndices(idx: number) {
 }
 
 export function pixelName(idx: number) {
-	if (idx === 0) {
-		console.warn("Invalid pixel idx: ", idx)
-		return 'Invalid'
-	}
+	if (idx == 190) return "Black"
+	if (idx == 191) return "White"
 
 	const [groupIdx, palletIdx] = getPalletIndices(idx)
 	return colorPalletNames[groupIdx] + '-' + (palletIdx + 1)
 }
 
 export function pixelColor(idx: number) {
-	if (idx === 0) {
+	if (idx === 0 || idx > MAX_PIXEL) {
 		console.warn("Invalid pixel idx: ", idx)
 		return 'transparent'
 	}
 
 	const [groupIdx, palletIdx] = getPalletIndices(idx)
 	return colorPallet[groupIdx][palletIdx]
+}
+
+export function hexToRgb(hex: string) {
+	hex = hex.replace(/^#/, '');
+	const bigint = parseInt(hex, 16);
+	const r = (bigint >> 16) & 255;
+	const g = (bigint >> 8) & 255;
+	const b = bigint & 255;
+	return [r, g, b];
 }
 
 export function pixelizeElement(el: HTMLElement, pixel: Pixel, sync = true) {

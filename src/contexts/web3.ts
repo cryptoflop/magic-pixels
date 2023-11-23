@@ -1,9 +1,9 @@
 import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, getPublicClient, switchNetwork, getNetwork, watchAccount, fetchBalance } from "@wagmi/core";
-import { parseEther, type Hex, type Address, formatEther, stringToHex, hexToString, zeroAddress } from "viem";
+import { parseEther, type Hex, type Address, formatEther, stringToHex, hexToString, zeroAddress, numberToHex } from "viem";
 import { readable, writable } from "svelte/store";
 import { arbitrum } from "viem/chains";
 import { cachedStore, consistentStore, eagerStore } from "../helpers/reactivity-helpers";
-import { bytesToPixelIds, pixelIdsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
+import { bytesToDelays, bytesToPixelIds, bytesToPixels, pixelIdsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
 import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI, trdsCoreABI, pxlsCommonABI } from "../../contracts/generated";
 
 import { execute, AllPixelsByAccountDocument, AllTradesForAccountDocument } from "../../subgraph/.graphclient"
@@ -132,8 +132,8 @@ export function createWeb3Ctx() {
 				})).map(p => ({
 					id: p.id,
 					name: hexToString(p.name, { size: 16 }),
-					pixels: p.pixels.map(pxl => pxl.map(i => i)),
-					delays: p.delays.map(d => ({ idx: d.idx, delay: d.delay }))
+					pixels: bytesToPixels(p.pixels),
+					delays: bytesToDelays(p.delays).map(arr => ({ idx: arr[0], delay: arr[1] }))
 				}));
 
 				set(plates)
@@ -331,11 +331,15 @@ export function createWeb3Ctx() {
 		async mint(name: string, pixels: PixelId[], delays: Delay[]) {
 			await ctx.ensureConnected();
 
+			const nameBytes = stringToHex(name, { size: 16 })
+			const pixelBytes = pixelIdsToBytes(pixels)
+			const delayBytes = "0x" + delays.map(delay => [delay.idx, delay.delay] as const).map(d => d.map(n => numberToHex(n, { size: 2 }).substring(2)).join("")).join("") as Hex
+
 			const { hash } = await writeContract({
 				address: PXLS,
 				abi: pxlsCoreABI,
 				functionName: 'mint',
-				args: [stringToHex(name, { size: 16 }), pixelIdsToBytes(pixels), delays.map(delay => [delay.idx, delay.delay] as const)]
+				args: [nameBytes, pixelBytes, delayBytes]
 			})
 
 			const { status, blockNumber } = await waitForTransaction({ hash, confirmations: 2 })
@@ -372,9 +376,9 @@ export function createWeb3Ctx() {
 			const plate = {
 				id: rawPlate.id,
 				name: hexToString(rawPlate.name, { size: 16 }),
-				pixels: rawPlate.pixels.map(pxl => pxl.map(i => i)),
-				delays: rawPlate.delays.map(d => ({ idx: d.idx, delay: d.delay }))
-			}
+				pixels: bytesToPixels(rawPlate.pixels),
+				delays: bytesToDelays(rawPlate.delays).map(arr => ({ idx: arr[0], delay: arr[1] }))
+			} as Plate
 
 			ctx.plates.update(c => c.concat([plate]))
 
@@ -382,12 +386,19 @@ export function createWeb3Ctx() {
 		},
 
 		async getPlate(tokenId: bigint) {
-			return (await readContract({
+			const rawPlate = await readContract({
 				address: PLTS,
 				abi: magicPlatesABI,
 				functionName: "plateById",
 				args: [tokenId],
-			})) as Plate
+			})
+
+			return {
+				id: rawPlate.id,
+				name: rawPlate.name,
+				pixels: bytesToPixels(rawPlate.pixels),
+				delays: bytesToDelays(rawPlate.delays).map(arr => ({ idx: arr[0], delay: arr[1] }))
+			} as Plate
 		},
 
 		async shatter(tokenId: bigint) {

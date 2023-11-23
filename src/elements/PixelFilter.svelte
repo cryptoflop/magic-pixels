@@ -28,7 +28,7 @@
 		});
 	}
 
-	let indicies = Array(MAX_PIXEL)
+	let indicies = Array(MAX_PIXEL - 2)
 		.fill(1)
 		.map((_, i) => i + 1);
 </script>
@@ -44,6 +44,22 @@
 				style="background-color: {pixelColor(i)}"
 			/>
 		{/each}
+	</div>
+	<div class="grid grid-cols-2">
+		<button
+			on:mousedown={() => select(190)}
+			class="h-5 border-hover-blackandwhite {selected[190] &&
+				'border-blackandwhite'}"
+			use:tooltip={pixelName(190)}
+			style="background-color: {pixelColor(190)}"
+		/>
+		<button
+			on:mousedown={() => select(191)}
+			class="h-5 border-hover-blackandwhite {selected[191] &&
+				'border-blackandwhite'}"
+			use:tooltip={pixelName(191)}
+			style="background-color: {pixelColor(191)}"
+		/>
 	</div>
 
 	<div class="flex mx-2">

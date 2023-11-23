@@ -8,10 +8,8 @@
 	onMount(() => {
 		function spawnPixel() {
 			const pel = document.createElement("div");
-			pel.style.position = "absolute";
-			pel.style.height = "4px";
-			pel.style.width = "4px";
-			pel.style.pointerEvents = "none";
+			pel.className = "absolute pointer-events-none w-1 h-1";
+			pel.style.transform = "translate(0, 0)";
 			el.appendChild(pel);
 
 			function rndPoint() {
@@ -25,8 +23,7 @@
 
 			function move() {
 				const [x, y] = rndPoint();
-				pel.style.top = y + "px";
-				pel.style.left = x + "px";
+				pel.style.transform = `translate(${x}px, ${y}px)`;
 			}
 
 			function getColorStops() {
@@ -51,7 +48,9 @@
 		for (let i = 0; i < pixelDensity; i++) spawnPixel();
 
 		return () => {
-			for (const pel of el.children) pel.getAnimations().map((a) => a.cancel());
+			Array.from(el.children).forEach((pel) =>
+				pel.getAnimations().map((a) => a.cancel()),
+			);
 		};
 	});
 </script>

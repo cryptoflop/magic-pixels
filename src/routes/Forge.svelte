@@ -1,9 +1,13 @@
 <script lang="ts">
-	import { getContext, onDestroy } from "svelte";
+	import { getContext } from "svelte";
 	import type { createWeb3Ctx } from "../contexts/web3";
 	import PixelPalette from "../elements/PixelPalette.svelte";
 	import {
+		MAX_PIXEL,
 		formatDelay,
+		fullPixelName,
+		hexToRgb,
+		pixelColor,
 		pixelizeElement,
 		pixelsToSvg,
 	} from "../helpers/color-utils";
@@ -20,6 +24,8 @@
 	import forgeSrc from "../assets/sounds/forging.mp3";
 	import clickSrc from "../assets/sounds/click.mp3";
 	import clackSrc from "../assets/sounds/clack.mp3";
+	import PixelSelector from "../elements/PixelSelector.svelte";
+	import { tooltip } from "../directives/tooltip";
 
 	const click = createAudio(clickSrc, { volume: 0.1 });
 	const clack = createAudio(clackSrc, { volume: 0.05 });
@@ -35,13 +41,13 @@
 
 	const PLATE_DIMENSIONS = [8, 16, 24];
 
-	let dimension = PLATE_DIMENSIONS[1];
-
 	const PIXEL_SIZES = {
 		8: 48,
 		16: 24,
 		24: 16,
 	};
+
+	let dimension = PLATE_DIMENSIONS[1];
 
 	$: size = PIXEL_SIZES[dimension as keyof typeof PIXEL_SIZES];
 
@@ -50,7 +56,16 @@
 
 	let flash = false;
 
+	let pressedKeys: Record<string, boolean> = {};
+	const up = (e: KeyboardEvent) => (pressedKeys[e.key] = false);
+	const down = (e: KeyboardEvent) => (pressedKeys[e.key] = true);
+
 	let hovering = -1;
+	$: hoveringName = pressedKeys["Control"]
+		? hovering > 0
+			? fullPixelName(decodePixel(placedPixels[hovering]))
+			: "Empty"
+		: null;
 
 	let showDelayHint = !localStorage.getItem("delayHint");
 
@@ -69,6 +84,111 @@
 		}
 	}
 	clear();
+
+	let artisanMode = false;
+
+	// WORK IN PROGSS SECTION
+	(window as any).artisan = () => {
+		artisanMode = true;
+	};
+
+	(window as any).save = (name: string) => {
+		localStorage.setItem(
+			"PLATE_" + name,
+			JSON.stringify({ pixels: placedPixels, delays }),
+		);
+	};
+
+	(window as any).load = (name: string) => {
+		const { pixels, delays: dlys } = JSON.parse(
+			localStorage.getItem("PLATE_" + name)!,
+		);
+		dimension = Math.sqrt(pixels.length);
+		placedPixels = pixels;
+		delays = dlys;
+	};
+
+	(window as any).parseImg = () => {
+		const input = document.createElement("input");
+		input.type = "file";
+		input.style.position = "fixed";
+		input.style.top = "0";
+		document.body.append(input);
+		input.onchange = () => {
+			input.remove();
+			if (!input.files || input.files.length === 0) {
+				alert("No file selected");
+				return;
+			}
+
+			const file = input.files[0];
+
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				const img = new Image();
+				img.onload = function () {
+					const canvas = document.createElement("canvas");
+					const context = canvas.getContext("2d")!;
+
+					canvas.width = img.width;
+					canvas.height = img.height;
+
+					context.drawImage(img, 0, 0, img.width, img.height);
+
+					const imageData = context.getImageData(0, 0, img.width, img.height);
+					const pixelData = imageData.data;
+
+					const dim = Math.sqrt(pixelData.length / 4);
+					const allColors = Array(MAX_PIXEL)
+						.fill(1)
+						.map((_, i) => hexToRgb(pixelColor(i + 1)));
+					const p = [];
+					for (let i = 0; i < dim; i++) {
+						for (let j = 0; j < dim; j++) {
+							const index = (i * dim + j) * 4;
+							const pixel = [
+								pixelData[index],
+								pixelData[index + 1],
+								pixelData[index + 2],
+							];
+							p.push(pixel);
+						}
+					}
+
+					function rgbDist(c1: number[], c2: number[]) {
+						const r1 = c1[0],
+							g1 = c1[1],
+							b1 = c1[2];
+						const r2 = c2[0],
+							g2 = c2[1],
+							b2 = c2[2];
+						return Math.sqrt(
+							Math.pow(r1 - r2, 2) +
+								Math.pow(g1 - g2, 2) +
+								Math.pow(b1 - b2, 2),
+						);
+					}
+
+					const nearestPxls = p.map((ogPxl) => {
+						const distances = allColors.map((pxl) => rgbDist(ogPxl, pxl));
+						let idx = MAX_PIXEL;
+						let smallest = 1000;
+						for (let i = 0; i < distances.length; i++) {
+							if (distances[i] < smallest) {
+								idx = i + 1;
+								smallest = distances[i];
+							}
+						}
+						return idx;
+					});
+
+					placedPixels = nearestPxls.map((i) => encodePixel([i]));
+				};
+				img.src = e.target!.result! as string;
+			};
+			reader.readAsDataURL(file);
+		};
+	};
 
 	function rnd() {
 		placedPixels = Array(dimension ** 2)
@@ -90,7 +210,7 @@
 			}
 			return state;
 		},
-		{ toSub: placedPixels.filter((id) => id), res: [] as PixelId[] }
+		{ toSub: placedPixels.filter((id) => id), res: [] as PixelId[] },
 	).res;
 
 	let filteredPixels: Pixel[] = [];
@@ -140,7 +260,7 @@
 				return;
 			}
 			drop(
-				Math.floor(e.offsetY / size) * dimension + Math.floor(e.offsetX / size)
+				Math.floor(e.offsetY / size) * dimension + Math.floor(e.offsetX / size),
 			);
 		}
 		document.body.addEventListener("mousemove", onMove);
@@ -177,17 +297,6 @@
 		}
 	}
 
-	let shiftPressed = false;
-	const up = (e: KeyboardEvent) =>
-		(shiftPressed = e.key == "Shift" ? false : shiftPressed);
-	document.addEventListener("keyup", up);
-	const down = (e: KeyboardEvent) => (shiftPressed = e.shiftKey);
-	document.addEventListener("keydown", down);
-	onDestroy(() => {
-		document.removeEventListener("keyup", up);
-		document.removeEventListener("keydown", down);
-	});
-
 	function onHoverWheel(e: WheelEvent) {
 		if (hovering < 0) return;
 		const pxl = decodePixel(placedPixels[hovering]!);
@@ -199,7 +308,9 @@
 		const v = delays[hovering] || 0;
 		const dir =
 			(e.deltaY > 0 ? 1 : -1) *
-			(shiftPressed ? Math.abs((v % 10) + (e.deltaY > 0 ? -10 : 0)) || 10 : 1);
+			(pressedKeys["Shift"]
+				? Math.abs((v % 10) + (e.deltaY > 0 ? -10 : 0)) || 10
+				: 1);
 		const max = pxl.length * 60;
 		if (dir < 0 && v + dir < 0) {
 			delays[hovering] = max + dir;
@@ -234,15 +345,24 @@
 	}
 </script>
 
+<svelte:document on:keyup={up} on:keydown={down} />
+
 <div
 	class="grid grid-cols-[min-content,min-content] grid-rows-[1fr,min-content] gap-x-4 gap-y-2 m-auto"
 >
-	<PixelPalette
-		pixels={availablePixels.map((id) => decodePixel(id))}
-		cols={5}
-		on:mousedown={(e) => grab(e.detail.pxl, e.detail.ev)}
-		bind:filtered={filteredPixels}
-	/>
+	{#if artisanMode}
+		<PixelSelector
+			cols={5}
+			on:mousedown={(e) => grab(e.detail.pxl, e.detail.ev)}
+		/>
+	{:else}
+		<PixelPalette
+			pixels={availablePixels.map((id) => decodePixel(id))}
+			cols={5}
+			on:mousedown={(e) => grab(e.detail.pxl, e.detail.ev)}
+			bind:filtered={filteredPixels}
+		/>
+	{/if}
 
 	<div class="border-2 grid group relative">
 		{#if flash}
@@ -273,7 +393,7 @@
 			width="{dimension * size}px"
 			src={pixelsToSvg(
 				placedPixels.map((p) => (p ? decodePixel(p) : [])),
-				delaysPacked
+				delaysPacked,
 			)}
 		/>
 
@@ -284,6 +404,7 @@
 			on:mousemove={updateHover}
 			on:mouseleave={() => (hovering = -1)}
 			on:wheel={onHoverWheel}
+			use:tooltip={hoveringName}
 		/>
 	</div>
 

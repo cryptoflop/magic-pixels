@@ -37,10 +37,6 @@
 		</div>
 
 		<div class="grid ml-auto place-items-end">
-			<div>
-				Price: {formatEther(trade.price)}
-				{import.meta.env.VITE_VALUE_SYMBOL}
-			</div>
 			<button
 				class="button pointer-events-auto"
 				use:tooltip={"Copy the link to this trade."}
@@ -53,6 +49,11 @@
 			>
 				Share
 			</button>
+			<div>
+				Price: {formatEther(trade.price)}
+				{import.meta.env.VITE_VALUE_SYMBOL}
+				<div class="absolute text-xs ml-[34px] opacity-50">0.10% fee</div>
+			</div>
 		</div>
 	</div>
 

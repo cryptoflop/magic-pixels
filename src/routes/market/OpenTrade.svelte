@@ -131,6 +131,7 @@
 				class="border-2 bg-transparent outline-none text-base/5 px-1 mr-auto"
 				bind:value={price}
 			/>
+			<div class="text-sm absolute ml-24 mt-0.5 opacity-50">0.10% fee</div>
 		</div>
 		<div class="grid">
 			<div class="flex justify-between">
