@@ -15,6 +15,7 @@
 
 	import atmosphereSrc from "./assets/sounds/atmoshpere.mp3";
 	import DiscordLink from "./elements/DiscordLink.svelte";
+	import Network from "./elements/Network.svelte";
 
 	createAudio(atmosphereSrc, { autoPlay: true, loop: true, volume: 0.1 });
 
@@ -39,6 +40,7 @@
 
 	<Speaker />
 	<Navbar />
+	<Network />
 	<Wallet />
 
 	<outlet id="outlet" class="grid">

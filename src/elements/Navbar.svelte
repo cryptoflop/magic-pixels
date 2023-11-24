@@ -18,7 +18,7 @@
 	];
 </script>
 
-<div class="flex space-x-6 mx-auto select-none text-lg">
+<div class="flex space-x-6 mx-auto -mt-1.5 select-none text-lg">
 	{#each views as v}
 		<button
 			use:pixelemitter={{

@@ -1,7 +1,7 @@
 import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, getPublicClient, switchNetwork, getNetwork, watchAccount, fetchBalance } from "@wagmi/core";
 import { parseEther, type Hex, type Address, formatEther, stringToHex, hexToString, zeroAddress, numberToHex } from "viem";
 import { readable, writable } from "svelte/store";
-import { arbitrum } from "viem/chains";
+import { arbitrum, polygon } from "viem/chains";
 import { cachedStore, consistentStore, eagerStore } from "../helpers/reactivity-helpers";
 import { bytesToDelays, bytesToPixelIds, bytesToPixels, pixelIdsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
 import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI, trdsCoreABI, pxlsCommonABI } from "../../contracts/generated";
@@ -24,7 +24,7 @@ export function createWeb3Ctx() {
 	const PLTS = import.meta.env.VITE_PLTS
 
 	const { chains, publicClient: publicClientGetter } = configureChains(
-		[arbitrum],
+		[polygon],
 		[jsonRpcProvider({
 			rpc: (_) => ({
 				http: import.meta.env.VITE_RPC,
@@ -42,7 +42,7 @@ export function createWeb3Ctx() {
 		async connect() {
 			await disconnect()
 			const { account } = await connect({ connector: new InjectedConnector({ chains }) });
-			if (getNetwork()?.chain?.id !== arbitrum.id) {
+			if (getNetwork()?.chain?.id !== polygon.id) {
 				await switchNetwork({ chainId: chains[0].id })
 			}
 			const unwatch = watchAccount(a => {
