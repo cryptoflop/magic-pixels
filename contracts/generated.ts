@@ -465,6 +465,26 @@ export const pxlsCoreABI = [
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'pixels', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'decrease',
+    outputs: [],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'pixels', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'increase',
+    outputs: [],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
       { name: 'name', internalType: 'bytes16', type: 'bytes16' },
       { name: 'pixels', internalType: 'bytes', type: 'bytes' },
       { name: 'delays', internalType: 'bytes', type: 'bytes' },

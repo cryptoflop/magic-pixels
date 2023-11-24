@@ -38,7 +38,7 @@ contract PxlsCore {
 			uint8 c1 = uint8(LibPRNG.next(rnd) % s.MAX_PIXEL) + s.MIN_PIXEL;
 			uint8 c2;
 
-			if (LibPRNG.next(rnd) % 10 >= 2) {
+			if (LibPRNG.next(rnd) % 10 > 6) {
 				// multicolor pixel
 				uint8 idx = 0;
 				while (idx == 0) {
@@ -107,14 +107,12 @@ contract PxlsCore {
 	/// @dev restores pixels from a shattered plate
 	function restore(address to, bytes calldata platePixels) external {
 		LibPixels.Storage storage s = LibPixels.store();
-		if (msg.sender != s.plts) revert Unauthorized();
+		mapping(bytes2 => uint32) storage balances = s.pixelMap[to];
 
-		mapping(bytes2 => uint32) storage pixels = s.pixelMap[to];
-
-		uint256 len = platePixels.length / 2;
-		for (uint i = 0; i < len; i++) {
+		uint256 len = (platePixels.length / 2);
+		for (uint256 i = 0; i < len; i++) {
 			bytes2 pxl = LibPixels.unpackFromAt(platePixels, i);
-			++pixels[pxl];
+			++balances[pxl];
 		}
 
 		emit Conjured(to, platePixels);
@@ -136,5 +134,35 @@ contract PxlsCore {
 
 		emit Used(from, pixels);
 		emit Conjured(to, pixels);
+	}
+
+	function increase(address owner, bytes memory pixels) public {
+		LibDiamond.enforceDiamondItself();
+		LibPixels.Storage storage s = LibPixels.store();
+
+		mapping(bytes2 => uint32) storage balances = s.pixelMap[owner];
+
+		uint256 len = (pixels.length / 2);
+		for (uint256 i = 0; i < len; i++) {
+			bytes2 pxl = LibPixels.unpackFromAt(pixels, i);
+			++balances[pxl];
+		}
+
+		emit Conjured(owner, pixels);
+	}
+
+	function decrease(address owner, bytes memory pixels) public {
+		LibDiamond.enforceDiamondItself();
+		LibPixels.Storage storage s = LibPixels.store();
+
+		mapping(bytes2 => uint32) storage balances = s.pixelMap[owner];
+
+		uint256 len = (pixels.length / 2);
+		for (uint256 i = 0; i < len; i++) {
+			bytes2 pxl = LibPixels.unpackFromAt(pixels, i);
+			--balances[pxl];
+		}
+
+		emit Used(owner, pixels);
 	}
 }

@@ -41,7 +41,8 @@ const config: HardhatUserConfig = {
 
 	etherscan: {
     apiKey: {
-      arbitrumOne: process.env['ETHERSCAN_ARB']!
+      arbitrumOne: process.env['ETHERSCAN_ARB']!,
+			polygon: process.env['ETHERSCAN_POLY']!
     }
   },
 

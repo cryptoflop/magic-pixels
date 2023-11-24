@@ -44,8 +44,11 @@ contract TrdsCore {
 			SafeTransferLib.safeTransferETH(s.vault, msg.value);
 		} else {
 			// open as seller
-			// move pixels from seller to vault
-			movePixels(tx.origin, s.vault, pixels);
+			// decrease pixel balances from seller
+			PxlsCore(LibDiamond.diamondStorage().diamondAddress).decrease(
+				tx.origin,
+				pixels
+			);
 		}
 
 		s.trades[id] = LibTrades.Trade(
@@ -74,7 +77,11 @@ contract TrdsCore {
 			// close as seller
 
 			// move pixels from the seller to the buyer
-			movePixels(tx.origin, trade.creator, trade.pixels);
+			PxlsCore(LibDiamond.diamondStorage().diamondAddress).move(
+				tx.origin,
+				trade.creator,
+				trade.pixels
+			);
 			deleteTrade(id);
 
 			// send the trade price from the vault to the seller
@@ -85,8 +92,11 @@ contract TrdsCore {
 			// close as buyer
 			if (msg.value != trade.price) revert IncorrectValue();
 
-			// move pixels from vault to buyer
-			movePixels(s.vault, tx.origin, trade.pixels);
+			// increase pixel balances from buyer
+			PxlsCore(LibDiamond.diamondStorage().diamondAddress).increase(
+				tx.origin,
+				trade.pixels
+			);
 			deleteTrade(id);
 
 			// send the trade price - fee to the seller
@@ -107,8 +117,11 @@ contract TrdsCore {
 			// pay back price
 			TrdsVault(s.vault).withdrawTo(trade.creator, trade.price);
 		} else {
-			// move back pixels
-			movePixels(s.vault, trade.creator, trade.pixels);
+			// restore pixels
+			PxlsCore(LibDiamond.diamondStorage().diamondAddress).increase(
+				trade.creator,
+				trade.pixels
+			);
 		}
 
 		emit TradeCanceled(id, trade);
@@ -116,9 +129,5 @@ contract TrdsCore {
 
 	function deleteTrade(bytes32 id) internal {
 		delete LibTrades.store().trades[id];
-	}
-
-	function movePixels(address from, address to, bytes memory pixels) internal {
-		PxlsCore(LibDiamond.diamondStorage().diamondAddress).move(from, to, pixels);
 	}
 }

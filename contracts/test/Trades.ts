@@ -37,7 +37,7 @@ describe('Trades', function () {
 		const closeTx = await trds.write.closeTrade([id], { account: acc2.account, value: parseEther("1") })
 
 		const closeRcpt = await publicClient.waitForTransactionReceipt({ hash: closeTx })
-		const tradeClosed = decodeEventLog({ ...closeRcpt.logs[2], abi: trds.abi, eventName: "TradeClosed" })
+		const tradeClosed = decodeEventLog({ ...closeRcpt.logs[1], abi: trds.abi, eventName: "TradeClosed" })
 
 		expect(tradeClosed.args.trade.pixels.length, "Trade pixel not correct.").gt(0)
 		expect(tradeClosed.args.trade.creator.toLowerCase(), "Trade seller not correct.").eq(acc1.account.address)
@@ -61,7 +61,7 @@ describe('Trades', function () {
 
 		const closeTx = await trds.write.closeTrade([id], { account: acc2.account, value: parseEther("1") })
 		const closeRcpt = await publicClient.waitForTransactionReceipt({ hash: closeTx })
-		const tradeClosed = decodeEventLog({ ...closeRcpt.logs[2], abi: trds.abi, eventName: "TradeClosed" })
+		const tradeClosed = decodeEventLog({ ...closeRcpt.logs[1], abi: trds.abi, eventName: "TradeClosed" })
 
 		expect(tradeClosed.args.trade.pixels.length, "Trade pixel not correct.").gt(0)
 		expect(tradeClosed.args.trade.creator.toLowerCase(), "Trade seller not correct.").eq(acc1.account.address)
@@ -103,8 +103,6 @@ describe('Trades', function () {
 
 		expect(blncBuyerA < blncBuyer, "buyer has higher balance than expected.").to.be.true
 		expect(blncSellerA > blncSeller, "seller has lower balance than expected.").to.be.true
-
-		console.log(formatEther(blncSellerA - blncSeller + cliseTxRec.effectiveGasPrice))
 	})
 
 })

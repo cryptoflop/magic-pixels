@@ -13,7 +13,8 @@ export async function deploy () {
 	// const [acc1, acc2] = await viem.getWalletClients()
 	const publicClient = await viem.getPublicClient()
 
-	const pxlsAddress = await deployPxls() as `0x${string}`
+
+	const pxlsAddress = "0x29dfbc64f9b5b12c7be207e1a203e4d0dc87ec06" // await deployPxls() as `0x${string}`
 	console.log("Pixels: " + pxlsAddress)
 	const pltsAddress = await deployPlts() as `0x${string}`
 	const plts = await viem.getContractAt('MagicPlates', pltsAddress)
@@ -26,7 +27,7 @@ export async function deploy () {
   await plts.write.setMagicPixels([pxlsAddress])
   await plts.write.setColors([colors])
 	console.log("Colors set")
-
+return
 
 	const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
 
