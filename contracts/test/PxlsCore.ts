@@ -6,7 +6,7 @@ import { bytesToPixels, pixelsToBytes } from '../scripts/libraries/pixel-parser'
 
 import { deployPxls } from '../scripts/MagicPixels'
 
-describe('PxlsCore', function () {
+describe('PxlsMain', function () {
 	let publicClient: Awaited<ReturnType<typeof viem.getPublicClient>>
 
 	let pxlsAddress: `0x${string}`
@@ -17,7 +17,7 @@ describe('PxlsCore', function () {
 	})
 
   it('Should deploy', async function () {
-		const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
+		const pxls = await viem.getContractAt("PxlsMain", pxlsAddress)
     expect(pxls).not.false
   })
 
@@ -27,7 +27,7 @@ describe('PxlsCore', function () {
 	})
 
 	it('Should conjure 256 pixels', async function () {
-		const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
+		const pxls = await viem.getContractAt("PxlsMain", pxlsAddress)
 
 		const price = await (await viem.getContractAt("PxlsCommon", pxlsAddress)).read.price()
 		const conjureTx = await pxls.write.conjure([256n], { value: price * 256n })

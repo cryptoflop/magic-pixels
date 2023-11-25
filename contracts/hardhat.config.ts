@@ -36,6 +36,11 @@ const config: HardhatUserConfig = {
 			url: process.env['RPC_MANTLE_TEST'],
       accounts: [process.env['PK1']!, process.env['PK2']!],
 			chainId: 5001
+		},
+		mantle: {
+			url: process.env['RPC_MANTLE'],
+      accounts: [process.env['PK1']!, process.env['PK2']!],
+			chainId: 5000
 		}
   },
 

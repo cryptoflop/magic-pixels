@@ -9,7 +9,7 @@ export async function testPixels() {
 
 	const pxlsAddress = await deployPxls() as `0x${string}`
 
-	const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
+	const pxls = await viem.getContractAt("PxlsMain", pxlsAddress)
 	const nether = await viem.getContractAt("PxlsNether", pxlsAddress)
 
 	const price = await (await viem.getContractAt("PxlsCommon", pxlsAddress)).read.price() * 256n

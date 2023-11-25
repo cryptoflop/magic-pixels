@@ -5,7 +5,7 @@ import {LibDiamond} from "../../../libraries/LibDiamond.sol";
 import {LibTrades} from "../../../libraries/LibTrades.sol";
 import {SafeTransferLib} from "solady/src/utils/SafeTransferLib.sol";
 
-import "../../../facets/MagicPixels/PxlsCore.sol";
+import "../../../facets/MagicPixels/PxlsInternal.sol";
 
 import "./TrdsVault.sol";
 
@@ -45,7 +45,7 @@ contract TrdsCore {
 		} else {
 			// open as seller
 			// decrease pixel balances from seller
-			PxlsCore(LibDiamond.diamondStorage().diamondAddress).decrease(
+			PxlsInternal(LibDiamond.diamondStorage().diamondAddress).decrease(
 				tx.origin,
 				pixels
 			);
@@ -77,7 +77,7 @@ contract TrdsCore {
 			// close as seller
 
 			// move pixels from the seller to the buyer
-			PxlsCore(LibDiamond.diamondStorage().diamondAddress).move(
+			PxlsInternal(LibDiamond.diamondStorage().diamondAddress).move(
 				tx.origin,
 				trade.creator,
 				trade.pixels
@@ -93,7 +93,7 @@ contract TrdsCore {
 			if (msg.value != trade.price) revert IncorrectValue();
 
 			// increase pixel balances from buyer
-			PxlsCore(LibDiamond.diamondStorage().diamondAddress).increase(
+			PxlsInternal(LibDiamond.diamondStorage().diamondAddress).increase(
 				tx.origin,
 				trade.pixels
 			);
@@ -118,7 +118,7 @@ contract TrdsCore {
 			TrdsVault(s.vault).withdrawTo(trade.creator, trade.price);
 		} else {
 			// restore pixels
-			PxlsCore(LibDiamond.diamondStorage().diamondAddress).increase(
+			PxlsInternal(LibDiamond.diamondStorage().diamondAddress).increase(
 				trade.creator,
 				trade.pixels
 			);

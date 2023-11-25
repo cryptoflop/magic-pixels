@@ -5,8 +5,9 @@ export async function deployPlts () {
   // const [creatooor] = await ethers.getSigners();
 
 	const MagicPlates = await ethers.getContractFactory('MagicPlates');
+
 	const plts = await upgrades.deployProxy(MagicPlates, { verifySourceCode: true });
-	await plts.waitForDeployment()
+	await plts.deployed()
 
 	// await plts.setMagicPixels("0x2d40d461556A9F198CdA1377E61aD4d60A866E44")
 	
@@ -22,7 +23,7 @@ export async function deployPlts () {
 	// await p.write.setMagicPixels(["0x2d40d461556A9F198CdA1377E61aD4d60A866E44"])
 	// await p.write.setColors([colors])
 
-	return (await plts.getAddress()) as `0x${string}`
+	return plts.address as `0x${string}`
 }
 
 if (require.main === module) {

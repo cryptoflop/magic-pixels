@@ -5,7 +5,7 @@ import { deployPxls } from './MagicPixels'
 export async function openTrade(acc: Awaited<ReturnType<typeof viem.getWalletClients>>[0], pxlsAddress: `0x${string}`, receiver: `0x${string}`) {
 	const publicClient = await viem.getPublicClient()
 
-	const pxls = await viem.getContractAt('PxlsCore', pxlsAddress, { walletClient: acc })
+	const pxls = await viem.getContractAt('PxlsMain', pxlsAddress, { walletClient: acc })
 	const trds = await viem.getContractAt('TrdsCore', pxlsAddress, { walletClient: acc })
 
 	const price = await (await viem.getContractAt("PxlsCommon", pxlsAddress)).read.price()

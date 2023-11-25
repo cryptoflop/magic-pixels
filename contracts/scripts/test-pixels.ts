@@ -12,7 +12,7 @@ export async function testPixels() {
 
 	const pxlsAddress = await deployPxls() as `0x${string}`
 
-	const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
+	const pxls = await viem.getContractAt("PxlsMain", pxlsAddress)
 
 	const missing: { [key: number]: boolean } = {}
 	for (let i = 1; i < colors.length; i++) {

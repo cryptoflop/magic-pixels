@@ -8,7 +8,7 @@ import {LibDiamond} from "../../libraries/LibDiamond.sol";
 import {LibPixels} from "../../libraries/LibPixels.sol";
 import {LibPRNG} from "solady/src/utils/LibPRNG.sol";
 
-contract PxlsCore {
+contract PxlsMain {
 	error Unauthorized();
 	error InsufficientValue();
 
@@ -79,6 +79,7 @@ contract PxlsCore {
 		LibPixels.Storage storage s = LibPixels.store();
 
 		// check name
+		assert(name[0] != bytes1(0x0));
 		for (uint256 i = 0; i < name.length; i++) {
 			if (
 				!(name[i] >= bytes1("a") && name[i] <= bytes1("z")) &&
@@ -102,67 +103,5 @@ contract PxlsCore {
 		MagicPlates(s.plts).mint(msg.sender, name, pixels, delays);
 
 		emit Used(msg.sender, pixels);
-	}
-
-	/// @dev restores pixels from a shattered plate
-	function restore(address to, bytes calldata platePixels) external {
-		LibPixels.Storage storage s = LibPixels.store();
-		mapping(bytes2 => uint32) storage balances = s.pixelMap[to];
-
-		uint256 len = (platePixels.length / 2);
-		for (uint256 i = 0; i < len; i++) {
-			bytes2 pxl = LibPixels.unpackFromAt(platePixels, i);
-			++balances[pxl];
-		}
-
-		emit Conjured(to, platePixels);
-	}
-
-	function move(address from, address to, bytes memory pixels) public {
-		LibDiamond.enforceDiamondItself();
-		LibPixels.Storage storage s = LibPixels.store();
-
-		mapping(bytes2 => uint32) storage fromPixels = s.pixelMap[from];
-		mapping(bytes2 => uint32) storage toPixels = s.pixelMap[to];
-
-		uint256 len = (pixels.length / 2);
-		for (uint256 i = 0; i < len; i++) {
-			bytes2 pxl = LibPixels.unpackFromAt(pixels, i);
-			--fromPixels[pxl];
-			++toPixels[pxl];
-		}
-
-		emit Used(from, pixels);
-		emit Conjured(to, pixels);
-	}
-
-	function increase(address owner, bytes memory pixels) public {
-		LibDiamond.enforceDiamondItself();
-		LibPixels.Storage storage s = LibPixels.store();
-
-		mapping(bytes2 => uint32) storage balances = s.pixelMap[owner];
-
-		uint256 len = (pixels.length / 2);
-		for (uint256 i = 0; i < len; i++) {
-			bytes2 pxl = LibPixels.unpackFromAt(pixels, i);
-			++balances[pxl];
-		}
-
-		emit Conjured(owner, pixels);
-	}
-
-	function decrease(address owner, bytes memory pixels) public {
-		LibDiamond.enforceDiamondItself();
-		LibPixels.Storage storage s = LibPixels.store();
-
-		mapping(bytes2 => uint32) storage balances = s.pixelMap[owner];
-
-		uint256 len = (pixels.length / 2);
-		for (uint256 i = 0; i < len; i++) {
-			bytes2 pxl = LibPixels.unpackFromAt(pixels, i);
-			--balances[pxl];
-		}
-
-		emit Used(owner, pixels);
 	}
 }

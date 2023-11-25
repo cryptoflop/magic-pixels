@@ -32,7 +32,7 @@ describe('PixelsAndPlates', function () {
 
 	it('Should conjure, mint, and check the plate', async function () {
 		const [acc] = await viem.getWalletClients()
-		const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
+		const pxls = await viem.getContractAt("PxlsMain", pxlsAddress)
 		const plts = await viem.getContractAt("MagicPlates", pltsAddress)
 
 		const price = await (await viem.getContractAt("PxlsCommon", pxlsAddress)).read.price()
@@ -87,7 +87,7 @@ describe('PixelsAndPlates', function () {
 	})
 
 	it('Should mint 8x8 plate', async function () {
-		const pxls = await viem.getContractAt("PxlsCore", pxlsAddress)
+		const pxls = await viem.getContractAt("PxlsMain", pxlsAddress)
 
 		const price = await (await viem.getContractAt("PxlsCommon", pxlsAddress)).read.price()
 

@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-import "./diamond/facets/MagicPixels/PxlsCore.sol";
+import "./diamond/facets/MagicPixels/PxlsInternal.sol";
 import "./diamond/libraries/LibPixels.sol";
 
 contract MagicPlates is
@@ -64,6 +64,10 @@ contract MagicPlates is
 		fee = 70; // 0.70%
 	}
 
+	function getFee() external view returns (uint96) {
+		return fee;
+	}
+
 	/// Setters
 
 	function setMagicPixels(address addr) external onlyOwner {
@@ -108,7 +112,7 @@ contract MagicPlates is
 		bytes calldata pixels,
 		bytes calldata delays
 	) external {
-		require(msg.sender == pxls, "not allowed.");
+		assert(msg.sender == pxls);
 
 		uint256 tokenId = _tokenIdCounter.current();
 		_tokenIdCounter.increment();
@@ -130,7 +134,7 @@ contract MagicPlates is
 	{
 		address to = ownerOf(tokenId);
 		super._burn(tokenId);
-		PxlsCore(pxls).restore(to, plates[tokenId].pixels);
+		PxlsInternal(pxls).restore(to, plates[tokenId].pixels);
 		delete plates[tokenId];
 	}
 

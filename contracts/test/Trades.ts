@@ -72,7 +72,7 @@ describe('Trades', function () {
 		const publicClient = await viem.getPublicClient()
 		const [acc1, acc2] = await viem.getWalletClients()
 
-		const pxls = await viem.getContractAt('PxlsCore', pxlsAddress, { walletClient: acc1 })
+		const pxls = await viem.getContractAt('PxlsMain', pxlsAddress, { walletClient: acc1 })
 		const trds = await viem.getContractAt('TrdsCore', pxlsAddress, { walletClient: acc1 })
 
 		const price = await (await viem.getContractAt("PxlsCommon", pxlsAddress)).read.price()
