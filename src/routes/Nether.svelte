@@ -140,7 +140,7 @@
 						duration: rndBtwn(2000, 4000),
 						iterations: 1,
 						easing: "ease-in-out",
-					}
+					},
 				).onfinish = anim;
 				currDeg = deg;
 				currPos = pos;
@@ -156,7 +156,7 @@
 			class="grid gap-2 mx-auto"
 			bind:this={container}
 			style="grid-template-columns: repeat({Math.floor(
-				Math.sqrt(numPixels)
+				Math.sqrt(numPixels),
 			)},1fr);"
 		>
 			{#each pixels as pxl, i (i)}
@@ -194,15 +194,19 @@
 		}`}
 	>
 		<div class="flex mx-auto">
+			<span
+				use:tooltip={`1 pixel = ${fPrice($pixelPrice)} ${
+					import.meta.env.VITE_VALUE_SYMBOL
+				}`}>{numPixels} pixels</span
+			>
+			<span>&ensp;=&ensp;</span>
 			<div>{fPrice(price)} {import.meta.env.VITE_VALUE_SYMBOL}</div>
 			<span>&ensp;=&ensp;</span>
 			<span
 				use:tooltip={`1 ${import.meta.env.VITE_VALUE_SYMBOL} = $${$usd.toFixed(
-					2
+					2,
 				)}`}>${fPrice(price * $usd)}</span
 			>
-			<span>&ensp;=&ensp;</span>
-			<span>{numPixels} pixels</span>
 		</div>
 	</div>
 
