@@ -133,12 +133,16 @@ export class MintCall__Inputs {
     this._call = call;
   }
 
-  get pixelBytes(): Bytes {
+  get name(): Bytes {
     return this._call.inputValues[0].value.toBytes();
   }
 
-  get delays(): Array<Array<BigInt>> {
-    return this._call.inputValues[1].value.toBigIntMatrix();
+  get pixels(): Bytes {
+    return this._call.inputValues[1].value.toBytes();
+  }
+
+  get delays(): Bytes {
+    return this._call.inputValues[2].value.toBytes();
   }
 }
 
@@ -146,78 +150,6 @@ export class MintCall__Outputs {
   _call: MintCall;
 
   constructor(call: MintCall) {
-    this._call = call;
-  }
-}
-
-export class MovePixelsCall extends ethereum.Call {
-  get inputs(): MovePixelsCall__Inputs {
-    return new MovePixelsCall__Inputs(this);
-  }
-
-  get outputs(): MovePixelsCall__Outputs {
-    return new MovePixelsCall__Outputs(this);
-  }
-}
-
-export class MovePixelsCall__Inputs {
-  _call: MovePixelsCall;
-
-  constructor(call: MovePixelsCall) {
-    this._call = call;
-  }
-
-  get from(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get to(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get pixelBytes(): Bytes {
-    return this._call.inputValues[2].value.toBytes();
-  }
-}
-
-export class MovePixelsCall__Outputs {
-  _call: MovePixelsCall;
-
-  constructor(call: MovePixelsCall) {
-    this._call = call;
-  }
-}
-
-export class RestoreCall extends ethereum.Call {
-  get inputs(): RestoreCall__Inputs {
-    return new RestoreCall__Inputs(this);
-  }
-
-  get outputs(): RestoreCall__Outputs {
-    return new RestoreCall__Outputs(this);
-  }
-}
-
-export class RestoreCall__Inputs {
-  _call: RestoreCall;
-
-  constructor(call: RestoreCall) {
-    this._call = call;
-  }
-
-  get to(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get plate(): Array<Array<i32>> {
-    return this._call.inputValues[1].value.toI32Matrix();
-  }
-}
-
-export class RestoreCall__Outputs {
-  _call: RestoreCall;
-
-  constructor(call: RestoreCall) {
     this._call = call;
   }
 }

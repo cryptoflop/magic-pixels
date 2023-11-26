@@ -6,17 +6,7 @@
   },
   {
     "inputs": [],
-    "name": "InsufficientPixels",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "InsufficientValue",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidIndicies",
     "type": "error"
   },
   {
@@ -78,58 +68,22 @@
   {
     "inputs": [
       {
+        "internalType": "bytes16",
+        "name": "name",
+        "type": "bytes16"
+      },
+      {
         "internalType": "bytes",
-        "name": "pixelBytes",
+        "name": "pixels",
         "type": "bytes"
       },
       {
-        "internalType": "uint32[][]",
+        "internalType": "bytes",
         "name": "delays",
-        "type": "uint32[][]"
+        "type": "bytes"
       }
     ],
     "name": "mint",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes",
-        "name": "pixelBytes",
-        "type": "bytes"
-      }
-    ],
-    "name": "movePixels",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "internalType": "uint8[][]",
-        "name": "plate",
-        "type": "uint8[][]"
-      }
-    ],
-    "name": "restore",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

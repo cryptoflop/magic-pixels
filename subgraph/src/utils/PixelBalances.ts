@@ -1,7 +1,7 @@
 import { StringSink } from "./StringSink";
 
 function padId(id: string): string {
-	return (id + "00000000").substring(0, 8);
+	return (id + "0000").substring(0, 4);
 }
 
 function unpadId(id: string): string {

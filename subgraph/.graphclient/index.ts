@@ -13,7 +13,6 @@ import { fetch as fetchFn } from '@whatwg-node/fetch';
 import { MeshResolvedSource } from '@graphql-mesh/runtime';
 import { MeshTransform, MeshPlugin } from '@graphql-mesh/types';
 import GraphqlHandler from "@graphql-mesh/graphql"
-import AutoPaginationTransform from "@graphprotocol/client-auto-pagination";
 import BareMerger from "@graphql-mesh/merger-bare";
 import { printWithCache } from '@graphql-mesh/utils';
 import { createMeshHTTPHandler, MeshHTTPHandler } from '@graphql-mesh/http';
@@ -600,7 +599,7 @@ const magicPixelsTransforms = [];
 const additionalTypeDefs = [] as any[];
 const magicPixelsHandler = new GraphqlHandler({
               name: "magic-pixels",
-              config: {"endpoint":"https://gateway-arbitrum.network.thegraph.com/api/66f60fa965ddfb22b14e78b847a0770e/subgraphs/id/6VhWxDsd9jXrCKoCzszP9FFUUGcGhrvEYKQXfV6Ha1Fp"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/58444/magic-pixels-polygon/version/latest"},
               baseDir,
               cache,
               pubsub,
@@ -608,15 +607,6 @@ const magicPixelsHandler = new GraphqlHandler({
               logger: logger.child("magic-pixels"),
               importFn,
             });
-magicPixelsTransforms[0] = new AutoPaginationTransform({
-                  apiName: "magic-pixels",
-                  config: {"validateSchema":true,"limitOfRecords":100},
-                  baseDir,
-                  cache,
-                  pubsub,
-                  importFn,
-                  logger,
-                });
 sources[0] = {
           name: 'magic-pixels',
           handler: magicPixelsHandler,

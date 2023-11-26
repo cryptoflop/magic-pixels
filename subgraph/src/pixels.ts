@@ -3,7 +3,7 @@ import { Conjured as ConjuredEvent, Used as UsedEvent } from "../generated/Pixel
 import { PixelBalance } from "../generated/schema"
 import { PixelBalances } from "./utils/PixelBalances"
 
-const MAX_PIXEL_LENGTH = 4
+const MAX_PIXEL_LENGTH = 2
 const P_LEN = MAX_PIXEL_LENGTH * 2
 
 function chopPixelBytes(bytes: Bytes): string[] {
