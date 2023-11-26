@@ -95,6 +95,7 @@ contract PxlsMain {
 
 		// pixels
 		uint256 len = pixels.length / 2;
+		assert(len % 4 == 0);
 		for (uint256 i = 0; i < len; i++) {
 			bytes2 pxl = LibPixels.unpackFromAt(pixels, i);
 			--pixelsOfOwner[pxl];

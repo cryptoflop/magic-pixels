@@ -13,9 +13,9 @@ export async function deployPlts () {
 	
 	// upgrade
 	// const MagicPlatesV2 = await ethers.getContractFactory("MagicPlatesV2");
-  // const plts = await upgrades.upgradeProxy("0x192E81ab95900dcEb05Efd646a8f224af34BDF9B", MagicPlates);
+  // const plts = await upgrades.upgradeProxy("0x35e525F151054E85a199713811BA42D8d723D0D4", MagicPlates);
   // console.log("MagicPlates upgraded");
-	// await plts.waitForDeployment()
+	// await plts.deployed()
 
 	// console.log(await plts.getAddress())
 

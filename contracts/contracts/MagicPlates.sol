@@ -156,6 +156,7 @@ contract MagicPlates is
 	{
 		Plate storage plate = plates[tokenId];
 		bytes storage pixels = plate.pixels;
+		uint256 lenP = pixels.length / 2;
 
 		bytes storage delayBytes = plate.delays;
 		uint256 lenD = delayBytes.length / 4;
@@ -167,11 +168,10 @@ contract MagicPlates is
 			);
 		}
 
-		uint256 dim = Math.sqrt(pixels.length);
+		uint256 dim = Math.sqrt(lenP);
 
 		string memory inner = "";
 
-		uint256 lenP = pixels.length / 2;
 		for (uint i = 0; i < lenP; i++) {
 			uint8 c1;
 			uint8 c2;
