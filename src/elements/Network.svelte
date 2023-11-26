@@ -5,6 +5,7 @@
 	import polygon from "../assets/images/polygon.svg";
 	import arbitrum from "../assets/images/arbitrum.svg";
 	import mantle from "../assets/images/mantle.svg";
+	import { tooltip } from "../directives/tooltip";
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const account = web3.account;
@@ -34,9 +35,10 @@
 				{#each filteredNetworks as network, i}
 					<button
 						class="py-0.5 hover:bg-white/20 mr-auto"
-						on:click={() => select(i)}
+						use:tooltip={"Coming Soon!"}
+						on:click={() => (open = false)}
 					>
-						<img src={network} class="h-4 w-4 pointer-events-none" />
+						<img src={network} class="h-4 w-4 pointer-events-none opacity-50" />
 					</button>
 				{/each}
 			</div>
