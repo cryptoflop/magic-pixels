@@ -52,7 +52,7 @@
 			<div>
 				Price: {formatEther(trade.price)}
 				{import.meta.env.VITE_VALUE_SYMBOL}
-				<div class="absolute text-xs ml-[34px] opacity-50">0.10% fee</div>
+				<div class="absolute text-xs ml-[46px] opacity-50">0.10% fee</div>
 			</div>
 		</div>
 	</div>

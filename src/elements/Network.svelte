@@ -2,9 +2,9 @@
 	import { getContext } from "svelte";
 	import type { createWeb3Ctx } from "../contexts/web3";
 
-	import polygon from "../assets/images/polygon.svg";
-	import arbitrum from "../assets/images/arbitrum.svg";
-	import mantle from "../assets/images/mantle.svg";
+	import polygon from "../assets/images/polygon.png";
+	import arbitrum from "../assets/images/arbitrum.png";
+	import mantle from "../assets/images/mantle.png";
 	import { tooltip } from "../directives/tooltip";
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");

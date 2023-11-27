@@ -2,7 +2,7 @@ sources:
   - name: magic-pixels
     handler:
       graphql: 
-        endpoint: https://api.studio.thegraph.com/query/58444/magic-pixels-polygon/version/latest
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/66f60fa965ddfb22b14e78b847a0770e/subgraphs/id/BYGr9wEMdefE2SAPHqUXwYsLxzBCPxJjCwqpnocMxdhY
 documents:
   - ./queries/pixels.graphql
   - ./queries/trades.graphql

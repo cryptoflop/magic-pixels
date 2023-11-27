@@ -280,7 +280,7 @@ contract MagicPlates is
 					string(nameBytes),
 					'",',
 					'"background_color": "000000",',
-					'"description": "Plates forged in the nether.",',
+					'"description": "Plate forged in the nether.",',
 					'"image_data": "data:image/svg+xml;base64,',
 					svg,
 					'",',

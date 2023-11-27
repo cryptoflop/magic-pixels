@@ -599,7 +599,7 @@ const magicPixelsTransforms = [];
 const additionalTypeDefs = [] as any[];
 const magicPixelsHandler = new GraphqlHandler({
               name: "magic-pixels",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/58444/magic-pixels-polygon/version/latest"},
+              config: {"endpoint":"https://gateway-arbitrum.network.thegraph.com/api/66f60fa965ddfb22b14e78b847a0770e/subgraphs/id/BYGr9wEMdefE2SAPHqUXwYsLxzBCPxJjCwqpnocMxdhY"},
               baseDir,
               cache,
               pubsub,

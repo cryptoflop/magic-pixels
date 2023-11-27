@@ -107,7 +107,10 @@
 		return (
 			s[0] +
 			"." +
-			s[1].substring(0, Array.from(s[1]).findIndex((c) => c !== "0") + 1)
+			s[1].substring(
+				0,
+				Math.max(2, Array.from(s[1]).findIndex((c) => c !== "0") + 1),
+			)
 		);
 	};
 
