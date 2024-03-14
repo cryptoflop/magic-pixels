@@ -22,8 +22,8 @@
 		"vite-plugin-singlefile": "^0.13.5"
 	},
 	"dependencies": {
-		"@wagmi/core": "^1.4.5",
+		"@wagmi/core": "^2.6.5",
 		"graphql": "^16.7.1",
-		"viem": "^1.16.6"
+		"viem": "^2.8.6"
 	}
 }

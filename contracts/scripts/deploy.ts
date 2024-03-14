@@ -13,9 +13,9 @@ export async function deploy () {
 	// const [acc1, acc2] = await viem.getWalletClients()
 	const publicClient = await viem.getPublicClient()
 
-	const pxlsAddress = await deployPxls() as `0x${string}`
+	const pxlsAddress = await deployPxls()
 	console.log("Pixels: " + pxlsAddress)
-	const pltsAddress = await deployPlts() as `0x${string}`
+	const pltsAddress = await deployPlts()
 	const plts = await viem.getContractAt('MagicPlates', pltsAddress)
 	console.log("Plates: " + pltsAddress)
 

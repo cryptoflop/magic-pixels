@@ -63,7 +63,7 @@ export function createRoutingCtx() {
 			ctx.route.subscribe(update);
 		})),
 
-		goto(root: string, route?: string, params?: Params) {
+		goto(root: string, route?: string, params?: Record<string, string>) {
 			window.history.pushState(params, root + route, formatParam({
 				...params,
 				root,

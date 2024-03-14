@@ -1,14 +1,13 @@
-import { configureChains, createConfig, connect, disconnect, InjectedConnector, readContract, writeContract, waitForTransaction, getPublicClient, switchNetwork, getNetwork, watchAccount, fetchBalance } from "@wagmi/core";
+import { createConfig, connect, disconnect, readContract, writeContract, getPublicClient, watchAccount, http, injected, getAccount, switchChain, reconnect } from "@wagmi/core";
 import { parseEther, type Hex, type Address, formatEther, stringToHex, hexToString, zeroAddress, numberToHex } from "viem";
 import { readable, writable } from "svelte/store";
-import { polygon } from "viem/chains";
+import { arbitrum, polygon } from "viem/chains";
 import { cachedStore, consistentStore, eagerStore } from "../helpers/reactivity-helpers";
 import { bytesToDelays, bytesToPixelIds, bytesToPixels, pixelIdsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
 import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI, trdsCoreABI, pxlsCommonABI } from "../../contracts/generated";
 
 import { execute, AllPixelsByAccountDocument, AllTradesForAccountDocument } from "../../subgraph/.graphclient"
 import PixelBalances from "../helpers/pixel-balances";
-import { jsonRpcProvider } from "@wagmi/core/providers/jsonRpc";
 
 function savePixels(balances: PixelBalances, blockNumber: bigint, addr: Address) {
 	localStorage.setItem("pixels_" + addr, balances.toString())
@@ -19,49 +18,72 @@ function getPixels(addr: Address) {
 	return PixelBalances.fromString(localStorage.getItem("pixels_" + addr) ?? "")
 }
 
+const CONTRACT_ADDRESSES = {
+	[arbitrum.id]: [import.meta.env.VITE_PXLS_ARBITRUM, import.meta.env.VITE_PLTS_ARBITRUM],
+	[polygon.id]: [import.meta.env.VITE_PXLS_MATIC, import.meta.env.VITE_PLTS_MATIC],
+}
+
+const CHAIN_METADATA = {
+	[arbitrum.id]: { id: arbitrum.id, tag: import.meta.env.VITE_TAG_ARBITRUM, symbol: import.meta.env.VITE_SYMBOL_ARBITRUM },
+	[polygon.id]: { id: polygon.id, tag: import.meta.env.VITE_TAG_MATIC, symbol: import.meta.env.VITE_SYMBOL_MATIC },
+}
+
+type ChainId = typeof arbitrum.id | typeof polygon.id
+
 export function createWeb3Ctx() {
-	const PXLS = import.meta.env.VITE_PXLS
-	const PLTS = import.meta.env.VITE_PLTS
+	let PXLS = CONTRACT_ADDRESSES[arbitrum.id][0]
+	let PLTS = CONTRACT_ADDRESSES[arbitrum.id][1]
 
-	const { chains, publicClient: publicClientGetter } = configureChains(
-		[polygon],
-		[jsonRpcProvider({
-			rpc: (_) => ({
-				http: import.meta.env.VITE_RPC,
-			}),
-		}),],
-	)
-
-	createConfig({
-		publicClient: publicClientGetter
+	const config = createConfig({
+		chains: [arbitrum, polygon],
+		transports: {
+			[arbitrum.id]: http(import.meta.env.VITE_RPC_ARBITRUM),
+			[polygon.id]: http(import.meta.env.VITE_RPC_MATIC),
+		},
 	})
 
 	const ctx = {
+		chain: cachedStore(writable<{ id: ChainId, tag: string, symbol: string }>(CHAIN_METADATA[arbitrum.id])),
+
 		account: cachedStore(writable<`0x${string}` | null>()),
 
 		async connect() {
-			await disconnect()
-			const { account } = await connect({ connector: new InjectedConnector({ chains }) });
-			if (getNetwork()?.chain?.id !== polygon.id) {
-				await switchNetwork({ chainId: chains[0].id })
+			await disconnect(config)
+
+			let chainId: ChainId
+			let account: Address
+
+			const [connection] = await reconnect(config, { connectors: [injected()] })
+			if (connection) {
+				chainId = connection.chainId as ChainId
+				account = connection.accounts[0]
+			} else {
+				const connection = await connect(config, { connector: injected() });
+				chainId = connection.chainId as ChainId
+				account = connection.accounts[0]
 			}
-			const unwatch = watchAccount(a => {
-				if (a.address !== account) {
-					unwatch()
-					ctx.disconnect()
-				}
+
+			if (CHAIN_METADATA[chainId] === undefined) {
+				await switchChain(config, { chainId: ctx.chain.current.id })
+			}
+
+			const unwatch = watchAccount(config, {
+				onChange(a) {
+					console.log(a.address, a.chainId)
+					// if (a.address !== account) {
+					// 	unwatch()
+					// 	ctx.disconnect()
+					// }
+				},
 			})
+
 			console.log(account)
 			ctx.account.set(account)
 		},
 
 		async disconnect() {
-			await disconnect()
+			await disconnect(config)
 			ctx.account.set(null)
-		},
-
-		async getBalance() {
-			return await fetchBalance({ address: ctx.account.current! })
 		},
 
 		async ensureConnected() {
@@ -72,18 +94,25 @@ export function createWeb3Ctx() {
 		},
 
 		price: eagerStore(cachedStore(consistentStore(readable<number>(0.0, (set) => {
-			readContract({
-				address: PXLS,
-				abi: pxlsCommonABI,
-				functionName: "price"
-			}).then(r => {
-				set(Number(formatEther(r)))
+			ctx.chain.subscribe(chain => {
+				readContract(config, {
+					address: PXLS,
+					abi: pxlsCommonABI,
+					functionName: "price",
+					chainId: chain.id
+				}).then(r => {
+					set(Number(formatEther(r)))
+				}).catch(() => {
+					set(0.00002)
+				})
 			})
 		})))),
 
 		usdPrice: eagerStore(cachedStore(consistentStore(readable<number>(0.0, (set) => {
-			fetch(`https://api.redstone.finance/prices/?symbol=${(import.meta.env.VITE_VALUE_SYMBOL as string).toUpperCase()}&provider=redstone&limit=1`).then(r => {
-				r.json().then(v => set(v?.[0]?.value))
+			ctx.chain.subscribe(chain => {
+				fetch(`https://api.redstone.finance/prices/?symbol=${chain.symbol.toUpperCase()}&provider=redstone&limit=1`)
+				.then(r => r.json())
+				.then(r => set(r?.[0]?.value))
 			})
 		})))),
 

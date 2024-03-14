@@ -22,6 +22,7 @@
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const usd = web3.usdPrice;
 	const pixelPrice = web3.price;
+	const chain = web3.chain;
 
 	let numPixelBase = 4;
 	$: numPixels = numPixelBase ** 2;
@@ -197,19 +198,15 @@
 		}`}
 	>
 		<div class="flex mx-auto">
-			<span
-				use:tooltip={`1 pixel = ${fPrice($pixelPrice)} ${
-					import.meta.env.VITE_VALUE_SYMBOL
-				}`}>{numPixels} pixels</span
-			>
+			<span use:tooltip={`1 pixel = ${fPrice($pixelPrice)} ${$chain.symbol}`}>
+				{numPixels} pixels
+			</span>
 			<span>&ensp;=&ensp;</span>
-			<div>{fPrice(price)} {import.meta.env.VITE_VALUE_SYMBOL}</div>
+			<div>{fPrice(price)} {$chain.symbol}</div>
 			<span>&ensp;=&ensp;</span>
-			<span
-				use:tooltip={`1 ${import.meta.env.VITE_VALUE_SYMBOL} = $${$usd.toFixed(
-					2,
-				)}`}>${fPrice(price * $usd)}</span
-			>
+			<span use:tooltip={`1 ${$chain.symbol} = $${$usd.toFixed(2)}`}>
+				${fPrice(price * $usd)}
+			</span>
 		</div>
 	</div>
 

@@ -9,7 +9,7 @@ require('dotenv').config()
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
-      chainId: 8453,
+      chainId: 42161,
 			blockGasLimit: 120000000
     },
 		poly: {
@@ -22,20 +22,10 @@ const config: HardhatUserConfig = {
 			accounts: [process.env['PK1']!, process.env['PK2']!],
 			chainId: 42161
     },
-		basetest: {
-      url: process.env['RPC_BASETEST'],
-			accounts: [process.env['PK1']!, process.env['PK2']!],
-			chainId: 84531
-    },
 		base: {
 			url: process.env['RPC_BASE'],
 			accounts: [process.env['PK1']!, process.env['PK2']!],
 			chainId: 8453
-		},
-		mantest: {
-			url: process.env['RPC_MANTLE_TEST'],
-      accounts: [process.env['PK1']!, process.env['PK2']!],
-			chainId: 5001
 		},
 		mantle: {
 			url: process.env['RPC_MANTLE'],

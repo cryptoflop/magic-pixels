@@ -7,15 +7,15 @@
 	import { createRoutingCtx } from "./contexts/routing";
 	import { createToastCtx } from "./contexts/toast";
 	import { createAudio } from "./helpers/audio";
-	import hookButtonAudioQues from "./directives/buttonaudioque";
 	import Wallet from "./elements/Wallet.svelte";
 	import Intro from "./elements/Intro.svelte";
 	import RpcState from "./elements/RPCState.svelte";
 	import ToastOutlet from "./elements/ToastOutlet.svelte";
-
-	import atmosphereSrc from "./assets/sounds/atmoshpere.mp3";
 	import DiscordLink from "./elements/DiscordLink.svelte";
-	import Network from "./elements/Network.svelte";
+	import ChainSelector from "./elements/ChainSelector.svelte";
+	import hookButtonAudioQues from "./directives/buttonaudioque";
+	
+	import atmosphereSrc from "./assets/sounds/atmoshpere.mp3";
 
 	createAudio(atmosphereSrc, { autoPlay: true, loop: true, volume: 0.1 });
 
@@ -40,7 +40,7 @@
 
 	<Speaker />
 	<Navbar />
-	<Network />
+	<ChainSelector />
 	<Wallet />
 
 	<outlet id="outlet" class="grid">
