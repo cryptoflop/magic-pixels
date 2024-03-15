@@ -182,7 +182,7 @@
 
 		<div class="mt-4 mx-auto grid">
 			<PixelizedButton
-				class="text-lg"
+				class="text-xl"
 				action={conjure}
 				options={{ active: true, colored: true }}
 			>

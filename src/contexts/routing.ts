@@ -30,24 +30,6 @@ export function createRoutingCtx() {
 
 	type Params = { [key: string]: string }
 
-	function formatParam(params: { [key: string]: string | undefined }) {
-		const sp = new URLSearchParams()
-		for (const k in params) {
-			if (params[k] !== undefined) {
-				sp.set(k, params[k]!)
-			}
-		}
-		return '?' + sp.toString()
-	}
-
-	function parseParams(sp: URLSearchParams) {
-		const params: Params = {}
-		for (const e of sp) {
-			params[e[0]] = e[1]
-		}
-		return params
-	}
-
 	const ctx = {
 		root: cachedStore(writable<string>()),
 		route: cachedStore(writable<string | undefined>()),
@@ -64,11 +46,12 @@ export function createRoutingCtx() {
 		})),
 
 		goto(root: string, route?: string, params?: Record<string, string>) {
-			window.history.pushState(params, root + route, formatParam({
-				...params,
-				root,
-				route: root === route ? undefined : route
-			}))
+			const sp = new URLSearchParams(window.location.search)
+			if (params) Object.keys(params).forEach(key => sp.set(key, params[key]))
+			if (route !== undefined && root !== route) sp.set("route", route!)
+			sp.set("root", root)
+
+			window.history.pushState(params, root + route, '?' + sp.toString())
 			ctx.params.set(params)
 			ctx.root.set(root)
 			ctx.route.set(route)
@@ -79,23 +62,24 @@ export function createRoutingCtx() {
 			if (navigations > 0) {
 				window.history.back()
 			} else {
-				const sp = parseParams(new URLSearchParams(window.location.search))
-				if (sp.route) {
+				const sp = new URLSearchParams(window.location.search)
+				if (sp.has("route")) {
 					// we can "move back" to root since we are under root/route
-					ctx.goto(sp.root)
+					ctx.goto(sp.get("root")!)
 				}
 			}
 		}
 	}
 
 	function stateFromUrl() {
-		const sp = parseParams(new URLSearchParams(window.location.search))
-		ctx.params.set(sp)
-		ctx.root.set(sp.root ?? index)
-		ctx.route.set(sp.route || sp.root || index)
+		const sp = new URLSearchParams(window.location.search)
+		ctx.params.set(Object.fromEntries(sp.entries()))
+		ctx.root.set(sp.get("root") ?? index)
+		ctx.route.set(sp.get("route") || sp.get("root") || index)
 
-		if (!sp.root) {
-			window.history.replaceState(sp, index, formatParam({ root: index }))
+		if (!sp.has("root")) {
+			sp.set("root", index)
+			window.history.replaceState({}, index, '?' + sp.toString())
 		}
 	}
 

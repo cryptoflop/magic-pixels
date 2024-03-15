@@ -1,42 +1,51 @@
 <script lang="ts">
 	import { getContext } from "svelte";
 	import type { createWeb3Ctx } from "../contexts/web3";
+	import { arbitrum, base, mantle, polygon } from "viem/chains";
 	import { tooltip } from "../directives/tooltip";
-
-	import polygon from "../assets/images/polygon.png";
-	import arbitrum from "../assets/images/arbitrum.png";
-	import mantle from "../assets/images/mantle.png";
 	import { capitalize } from "../helpers/utils";
 
+	import baseImg from "../assets/images/base.png";
+	import polygonImg from "../assets/images/polygon.png";
+	import arbitrumImg from "../assets/images/arbitrum.png";
+	import mantleImg from "../assets/images/mantle.png";
+
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
+	const currentChain = web3.chain;
 
 	let chains = [
 		{
-			id: 1,
-			tag: "arbitrum",
-			img: arbitrum
+			id: base.id,
+			tag: "base",
+			img: baseImg
 		},
 		{
-			id: 2,
+			id: polygon.id,
 			tag: "matic",
-			img: polygon
+			img: polygonImg
 		},
 		{
-			id: 3,
+			id: arbitrum.id,
+			tag: "arbitrum",
+			img: arbitrumImg,
+			upcoming: true
+		},
+		{
+			id: mantle.id,
 			tag: "mantle",
-			img: mantle,
+			img: mantleImg,
 			upcoming: true
 		}
 	];
 
-	let selected = chains[0];
-
 	$: filteredChains = chains.filter((n) => n !== selected);
+
+	$: selected = chains.find(c => c.id === $currentChain.id)!
 
 	let open = false;
 
-	function select(i: number) {
-		selected = filteredChains[i];
+	function select(id: number) {
+		web3.switchChain(id as Parameters<typeof web3.switchChain>[0], true)
 		open = false;
 	}
 </script>
@@ -48,11 +57,11 @@
 
 	{#if open}
 		<div class="grid gap-0.5">
-			{#each filteredChains as chain, i}
+			{#each filteredChains as chain}
 				<button
 					class="p-0.5 border border-transparent hover:border-b-white mr-auto"
 					use:tooltip={(chain.upcoming ? "Coming Soon: " : "") + capitalize(chain.tag)}
-					on:click={chain.upcoming ? undefined : () => select(i)}
+					on:click={chain.upcoming ? undefined : () => select(chain.id)}
 				>
 					<img src={chain.img} class="h-4 w-4 pointer-events-none {chain.upcoming && "opacity-50"}" />
 				</button>

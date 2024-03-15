@@ -21,7 +21,7 @@
 	];
 </script>
 
-<div class="flex space-x-6 mx-auto -mt-1.5 select-none text-lg">
+<div class="flex space-x-6 mx-auto select-none text-xl">
 	{#each views as v}
 		<button
 			use:pixelemitter={{
@@ -36,7 +36,7 @@
 			on:click={v.upcoming ? undefined : () =>
 				v.route.toLowerCase() != $root && routing.goto(v.route.toLowerCase())}
 		>
-			<img src={v.icon} class="pointer-events-none h-4 w-4 self-center mr-2" />
+			<img src={v.icon} class="pointer-events-none h-5 w-5 self-center mr-2" />
 			{v.route}
 		</button>
 	{/each}
