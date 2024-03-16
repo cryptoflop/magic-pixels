@@ -338,6 +338,6 @@ export type _SubgraphErrorPolicy_ =
 
   export type Context = {
       ["magic-pixels"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
-      
+      ["subgraph"]: Scalars['ID']
     };
 }

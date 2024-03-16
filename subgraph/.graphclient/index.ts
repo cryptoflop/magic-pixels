@@ -607,7 +607,7 @@ const magicPixelsTransforms = [];
 const additionalTypeDefs = [] as any[];
 const magicPixelsHandler = new GraphqlHandler({
               name: "magic-pixels",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/58444/magic-pixels-base/version/latest"},
+              config: {"endpoint":"https://gateway-arbitrum.network.thegraph.com/api/66f60fa965ddfb22b14e78b847a0770e/subgraphs/id/{context.subgraph:BYGr9wEMdefE2SAPHqUXwYsLxzBCPxJjCwqpnocMxdhY}"},
               baseDir,
               cache,
               pubsub,
@@ -743,7 +743,7 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
 export type Sdk = ReturnType<typeof getSdk>;
 
 const subgraphMap: Record<string, string> = {
-	"base": "BASE_ID",
+	"base": "8fB9Vs6YWx4vQuBQauQkJWcQGKbs93JNortNCydABhYr",
 	"matic": "BYGr9wEMdefE2SAPHqUXwYsLxzBCPxJjCwqpnocMxdhY"
 };
 	
