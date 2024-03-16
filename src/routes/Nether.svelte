@@ -198,13 +198,13 @@
 		}`}
 	>
 		<div class="flex mx-auto">
-			<span use:tooltip={`1 pixel = ${fPrice($pixelPrice)} ${$chain.symbol}`}>
+			<span use:tooltip={`1 pixel = ${fPrice($pixelPrice)} ${$chain?.symbol}`}>
 				{numPixels} pixels
 			</span>
 			<span>&ensp;=&ensp;</span>
-			<div>{fPrice(price)} {$chain.symbol}</div>
+			<div>{fPrice(price)} {$chain?.symbol}</div>
 			<span>&ensp;=&ensp;</span>
-			<span use:tooltip={`1 ${$chain.symbol} = $${$usd.toFixed(2)}`}>
+			<span use:tooltip={`1 ${$chain?.symbol} = $${$usd.toFixed(2)}`}>
 				${fPrice(price * $usd)}
 			</span>
 		</div>

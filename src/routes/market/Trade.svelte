@@ -8,6 +8,7 @@
 	import { decodePixel } from "../../../contracts/scripts/libraries/pixel-parser";
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
+	const chain = web3.chain;
 	const acc = web3.account;
 
 	export let trade: P2PTrade;
@@ -36,23 +37,11 @@
 			</div>
 		</div>
 
-		<div class="grid ml-auto place-items-end">
-			<button
-				class="button pointer-events-auto"
-				use:tooltip={"Copy the link to this trade."}
-				on:click|stopPropagation={() =>
-					navigator.clipboard.writeText(
-						window.location.origin +
-							"?root=market&route=trade&id=" +
-							trade.id.substring(2)
-					)}
-			>
-				Share
-			</button>
-			<div>
+		<div class="grid ml-auto">
+			<div class="relative">
 				Price: {formatEther(trade.price)}
-				{import.meta.env.VITE_VALUE_SYMBOL}
-				<div class="absolute text-xs ml-[46px] opacity-50">0.10% fee</div>
+				{$chain?.symbol}
+				<div class="absolute text-xs right-0 top-5 opacity-50">0.10% fee</div>
 			</div>
 		</div>
 	</div>

@@ -14,8 +14,9 @@
 	const toast = getContext<ReturnType<typeof createToastCtx>>("toast");
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
-	const pixels = web3.pixels;
+	const chain = web3.chain;
 	const acc = web3.account;
+	const pixels = web3.pixels;
 	const trades = web3.trades;
 
 	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
@@ -28,24 +29,26 @@
 	let cannotCloseReason: string | null = null;
 
 	$: {
-		if (!trade || isOwnTrade) {
-			cannotCloseReason = null;
-		} else {
-			if (
-				trade.receiver !== zeroAddress &&
-				trade.receiver.toLowerCase() !== $acc?.toLowerCase()
-			) {
-				cannotCloseReason = "You are not the trade receiver.";
+		if ($chain) {
+			if (!trade || isOwnTrade) {
+				cannotCloseReason = null;
 			} else {
-				if (trade.tradeType == 0) {
-					web3.getBalance().then((r) => {
-						cannotCloseReason =
-							r.value > trade!.price ? null : "Insufficient funds.";
-					});
+				if (
+					trade.receiver !== zeroAddress &&
+					trade.receiver.toLowerCase() !== $acc?.toLowerCase()
+				) {
+					cannotCloseReason = "You are not the trade receiver.";
 				} else {
-					cannotCloseReason = $pixels.has(trade.pixels)
-						? null
-						: "Insufficient pixels.";
+					if (trade.tradeType == 0) {
+						web3.getBalance().then((balance) => {
+							cannotCloseReason =
+								balance > trade!.price ? null : "Insufficient funds.";
+						});
+					} else {
+						cannotCloseReason = $pixels.has(trade.pixels)
+							? null
+							: "Insufficient pixels.";
+					}
 				}
 			}
 		}
@@ -58,7 +61,9 @@
 			if (t) {
 				trade = t;
 			} else {
-				web3.getTrade(id).then((t) => (trade = t));
+				web3.getTrade(id)
+				.then((t) => (trade = t))
+				.catch(() => trade = null);
 			}
 		} else {
 			trade = null;
@@ -79,7 +84,7 @@
 					trade!.tradeType === 0 ? "sell" : "buy"
 				} trade for ${formatEther(trade!.price)} ${
 					import.meta.env.VITE_VALUE_SYMBOL
-				}.`
+				}.`,
 			);
 		} catch (err) {
 			console.log(err);
@@ -94,15 +99,30 @@
 				trade!.tradeType == 0 ? trade!.pixels.length : formatEther(trade!.price)
 			} ${
 				trade!.tradeType == 0 ? "pixels" : import.meta.env.VITE_VALUE_SYMBOL
-			}.`
+			}.`,
 		);
 	}
 </script>
 
 <div class="m-auto grid gap-2">
-	<button class="button mr-auto" on:click={() => routing.goback()}
-		>go back</button
-	>
+	<div class="flex justify-between">
+		<button class="button mr-auto" on:click={() => routing.goback()}>
+			go back
+		</button>
+
+		{#if trade}
+			<button
+				class="button pointer-events-auto"
+				use:tooltip={"Copy the link to this trade."}
+				on:click|stopPropagation={() =>
+					navigator.clipboard.writeText(
+						`${window.location.origin}?root=market&route=trade&chain=${$chain?.tag}&id=${trade?.id.substring(2)}`,
+					)}
+			>
+				Share
+			</button>
+		{/if}
+	</div>
 
 	{#if trade === undefined}
 		<div class="border-2 p-4">Fetching trade...</div>
@@ -115,21 +135,23 @@
 	{#if trade}
 		<Trade {trade} />
 
-		<div class="{isOwnTrade ? 'mr-auto' : 'ml-auto'} relative">
-			<PixelizedButton
-				action={isOwnTrade ? cancelTrade : closeTrade}
-				options={{ colored: !isOwnTrade }}
-				disabled={!!cannotCloseReason}
-			>
-				<span slot="default">{isOwnTrade ? "Cancel" : "Close"} Trade</span>
-				<span slot="executing"
-					>{isOwnTrade ? "Canceling" : "Closing"} Trade...</span
+		{#if $acc}
+			<div class="{isOwnTrade ? 'mr-auto' : 'ml-auto'} relative">
+				<PixelizedButton
+					action={isOwnTrade ? cancelTrade : closeTrade}
+					options={{ colored: !isOwnTrade }}
+					disabled={!!cannotCloseReason}
 				>
-			</PixelizedButton>
+					<span slot="default">{isOwnTrade ? "Cancel" : "Close"} Trade</span>
+					<span slot="executing"
+						>{isOwnTrade ? "Canceling" : "Closing"} Trade...</span
+					>
+				</PixelizedButton>
 
-			{#if cannotCloseReason}
-				<div class="absolute inset-0" use:tooltip={cannotCloseReason} />
-			{/if}
-		</div>
+				{#if cannotCloseReason}
+					<div class="absolute inset-0" use:tooltip={cannotCloseReason} />
+				{/if}
+			</div>
+		{/if}
 	{/if}
 </div>

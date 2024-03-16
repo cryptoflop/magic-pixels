@@ -1,18 +1,20 @@
 <script lang="ts">
 	import { getContext } from "svelte";
+	import { tooltip } from "../../directives/tooltip";
 	import type { createRoutingCtx } from "../../contexts/routing";
 	import PixelizedButton from "../../elements/PixelizedButton.svelte";
 	import type { createWeb3Ctx } from "../../contexts/web3";
 	import Plt from "../../elements/Plate.svelte";
 	import type { createToastCtx } from "../../contexts/toast";
+	import { hexToString, type Hex } from "viem";
 	import { createAudio } from "../../helpers/audio";
 	import shatterSrc from "../../assets/sounds/shatter.mp3";
-	import { hexToString, type Hex } from "viem";
 
 	const toast = getContext<ReturnType<typeof createToastCtx>>("toast");
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const plates = web3.plates;
+	const chain = web3.chain;
 
 	const routing = getContext<ReturnType<typeof createRoutingCtx>>("routing");
 	const params = routing.params;
@@ -21,28 +23,33 @@
 	let plate: undefined | null | Plate = undefined;
 
 	$: {
-		if ($params?.id) {
-			const tokenId = BigInt($params!.id);
-			const ownPlate = $plates.find((p) => p.id == tokenId);
-			if (ownPlate) {
-				isOwnPlate = true;
-				plate = ownPlate;
+		if ($chain) {
+			if ($params?.id) {
+				const tokenId = BigInt($params!.id);
+				const ownPlate = $plates.find((p) => p.id == tokenId);
+				if (ownPlate) {
+					isOwnPlate = true;
+					plate = ownPlate;
+				} else {
+					web3
+						.getPlate(tokenId)
+						.then(
+							(p) =>
+								(plate =
+									p?.pixels.length > 0
+										? { ...p, name: hexToString(p.name as Hex, { size: 16 }) }
+										: null),
+						)
+						.catch(() => plate = null);
+					isOwnPlate = false;
+				}
 			} else {
-				web3
-					.getPlate(tokenId)
-					.then(
-						(p) =>
-							(plate =
-								p?.pixels.length > 0
-									? { ...p, name: hexToString(p.name as Hex, { size: 16 }) }
-									: null)
-					);
-				isOwnPlate = false;
+				plate = null;
 			}
-		} else {
-			plate = null;
 		}
 	}
+
+	$: marketplaceLink = `https://opensea.io/assets/${$chain?.tag}/${web3.getContracts().PLTS}/${plate?.id}`;
 
 	const plateSize = (plate: Plate) => {
 		const s = Math.sqrt(plate.pixels.length);
@@ -62,7 +69,21 @@
 </script>
 
 <div class="m-auto grid gap-2">
-	<button class="button mr-auto" on:click={routing.goback}>go back</button>
+	<div class="flex justify-between">
+		<button class="button" on:click={routing.goback}>go back</button>
+		{#if plate}
+			<button
+				class="button"
+				use:tooltip={"Copy the link to this plate."}
+				on:click={() =>
+					navigator.clipboard.writeText(
+						`${window.location.origin}?root=market&route=plate&chain=${$chain?.tag}&id=${plate?.id}`,
+					)}
+			>
+				Share
+			</button>
+		{/if}
+	</div>
 
 	<div class="border-2">
 		{#if plate === undefined}
@@ -92,8 +113,7 @@
 			{/if}
 
 			<a
-				href="https://opensea.io/assets/{import.meta.env
-					.VITE_CHAIN}/{import.meta.env.VITE_PLTS}/{plate.id}"
+				href={marketplaceLink}
 				target="”_blank”"
 				class="button ml-auto flex items-center gap-1"
 			>

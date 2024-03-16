@@ -1,6 +1,6 @@
 import { type ComponentType } from "svelte";
 import { readable, writable } from "svelte/store";
-import { cachedStore } from "../helpers/reactivity-helpers";
+import { cachedStore } from "../helpers/store-helpers";
 
 import Nether from "../routes/Nether.svelte";
 import Forge from "../routes/Forge.svelte";
@@ -48,8 +48,12 @@ export function createRoutingCtx() {
 		goto(root: string, route?: string, params?: Record<string, string>) {
 			const sp = new URLSearchParams(window.location.search)
 			if (params) Object.keys(params).forEach(key => sp.set(key, params[key]))
-			if (route !== undefined && root !== route) sp.set("route", route!)
 			sp.set("root", root)
+			if (route !== undefined && root !== route) {
+				sp.set("route", route!)
+			} else {
+				sp.delete("route")
+			}
 
 			window.history.pushState(params, root + route, '?' + sp.toString())
 			ctx.params.set(params)

@@ -40,7 +40,7 @@
 
 	$: filteredChains = chains.filter((n) => n !== selected);
 
-	$: selected = chains.find(c => c.id === $currentChain.id)!
+	$: selected = chains.find(c => c.tag === ($currentChain?.tag ?? chains[0].tag))!
 
 	let open = false;
 
