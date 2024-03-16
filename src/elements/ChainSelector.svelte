@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { getContext } from "svelte";
 	import type { createWeb3Ctx } from "../contexts/web3";
-	import { arbitrum, base, mantle, polygon } from "viem/chains";
+	import { arbitrum, base, mainnet, polygon } from "viem/chains";
 	import { tooltip } from "../directives/tooltip";
 	import { capitalize } from "../helpers/utils";
 
 	import baseImg from "../assets/images/base.png";
 	import polygonImg from "../assets/images/polygon.png";
 	import arbitrumImg from "../assets/images/arbitrum.png";
-	import mantleImg from "../assets/images/mantle.png";
+	import ethImg from "../assets/images/eth.png";
 
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const currentChain = web3.chain;
@@ -31,9 +31,9 @@
 			upcoming: true
 		},
 		{
-			id: mantle.id,
-			tag: "mantle",
-			img: mantleImg,
+			id: mainnet.id,
+			tag: "ethereum",
+			img: ethImg,
 			upcoming: true
 		}
 	];
@@ -56,9 +56,10 @@
 	</button>
 
 	{#if open}
-		<div class="grid gap-0.5">
+		<div class="grid">
 			{#each filteredChains as chain}
 				<button
+					disabled={chain.upcoming}
 					class="p-0.5 border border-transparent hover:border-b-white mr-auto"
 					use:tooltip={(chain.upcoming ? "Coming Soon: " : "") + capitalize(chain.tag)}
 					on:click={chain.upcoming ? undefined : () => select(chain.id)}

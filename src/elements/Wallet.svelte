@@ -10,7 +10,7 @@
 <div class="absolute right-4 top-2">
 	<button
 		class="button"
-		on:click={$account ? web3.disconnect : web3.connect}
+		on:click={() => $account ? web3.disconnect() : web3.connect(true)}
 		use:tooltip={$account ? "Disconnect" : "Connect wallet"}
 	>
 		{$account ? $account.substring(0, 5) + ".." : "Connect"}

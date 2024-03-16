@@ -1,6 +1,6 @@
 import { polygon, base } from "viem/chains";
 import { parseEther, type Hex, type Address, formatEther, stringToHex, hexToString, zeroAddress, numberToHex } from "viem";
-import { createConfig, connect, disconnect, readContract, writeContract, watchAccount, http, injected, getAccount, switchChain, reconnect, waitForTransactionReceipt, getClient, getBalance } from "@wagmi/core";
+import { createConfig, connect, disconnect, readContract, writeContract, watchAccount, http, injected, getAccount, switchChain, reconnect, waitForTransactionReceipt, getClient, getBalance, readContracts } from "@wagmi/core";
 import { readable, writable } from "svelte/store";
 import { cachedStore, consistentStore, eagerStore } from "../helpers/store-helpers";
 import { bytesToDelays, bytesToPixelIds, bytesToPixels, pixelIdsToBytes } from "../../contracts/scripts/libraries/pixel-parser"
@@ -20,17 +20,19 @@ function getPixels(addr: Address, chain: string) {
 }
 
 const CHAINS = {
-	[base.id]: { 
-		id: base.id, tag: import.meta.env.VITE_TAG_BASE as string, symbol: import.meta.env.VITE_SYMBOL_BASE as string, 
+	[base.id]: {
+		id: base.id, tag: import.meta.env.VITE_TAG_BASE as string, symbol: import.meta.env.VITE_SYMBOL_BASE as string,
 		contracts: { pxls: import.meta.env.VITE_PXLS_BASE as Address, plts: import.meta.env.VITE_PLTS_BASE as Address }
 	},
-	[polygon.id]: { 
+	[polygon.id]: {
 		id: polygon.id, tag: import.meta.env.VITE_TAG_MATIC as string, symbol: import.meta.env.VITE_SYMBOL_MATIC as string,
 		contracts: { pxls: import.meta.env.VITE_PXLS_MATIC as Address, plts: import.meta.env.VITE_PLTS_MATIC as Address }
 	},
 }
 
 type ChainId = keyof typeof CHAINS
+
+const DEFAULT_CHAIN = base.id
 
 export function createWeb3Ctx() {
 	const config = createConfig({
@@ -41,15 +43,7 @@ export function createWeb3Ctx() {
 		},
 	})
 
-	const isChainSupported = (id: ChainId) => CHAINS[id] !== undefined
-
-	const getPassedChain = () => {
-		const params = new URLSearchParams(window.location.search)
-		if (params.has("chain")) {
-			const chain = params.get("chain")
-			return Object.values(CHAINS).find(c => c.tag === chain)?.id
-		}
-	}
+	const isChainSupported = (id: ChainId | undefined) => CHAINS[id as keyof typeof CHAINS] !== undefined
 
 	const ctx = {
 		chain: cachedStore(writable<typeof CHAINS[keyof typeof CHAINS] | null>(null)),
@@ -57,41 +51,53 @@ export function createWeb3Ctx() {
 		account: cachedStore(writable<`0x${string}` | null>()),
 
 
-		async connect() {
+		async connect(force = false) {
 			await disconnect(config)
 
-			let providerChain: ChainId
-			let account: Address
+			let account: Address | undefined
+			let providerChain: ChainId | undefined
 
-			const [connection] = await reconnect(config, { connectors: [injected()] })
-			if (connection) {
-				providerChain = connection.chainId as ChainId
-				account = connection.accounts[0]
+			const [reconnection] = await reconnect(config, { connectors: [injected()] })
+			if (reconnection) {
+				providerChain = reconnection.chainId as ChainId
+				account = reconnection.accounts[0]
 			} else {
-				const connection = await connect(config, { connector: injected() });
-				providerChain = connection.chainId as ChainId
-				account = connection.accounts[0]
+				if (force) {
+					try {
+						const connection = await connect(config, { connector: injected() });
+						providerChain = connection.chainId as ChainId
+						account = connection.accounts[0]
+					} catch (e) {
+						console.warn(e)
+					}
+				}
 			}
-			
-			const passedChain = getPassedChain()
+
+			if (account) ctx.account.set(account)
+
+			let passedChain: ChainId | undefined
+			const params = new URLSearchParams(window.location.search)
+			if (params.has("chain")) {
+				const chain = params.get("chain")
+				passedChain = Object.values(CHAINS).find(c => c.tag === chain)?.id
+			}
+
 			if (passedChain) {
 				// chain was passed with url, force switch
+				if (passedChain !== ctx.chain.current?.id) await ctx.switchChain(passedChain)
 				if (passedChain !== providerChain) await switchChain(config, { chainId: passedChain })
-				if (passedChain !== ctx.chain.current?.id) ctx.switchChain(passedChain)
 				// remove calleeChain from search params if chain was switched
 				const searchParams = new URLSearchParams(window.location.search)
 				searchParams.delete("chain")
 				window.history.replaceState({}, "chain", '?' + searchParams.toString())
 			} else {
 				if (isChainSupported(providerChain)) {
-					if (providerChain !== ctx.chain.current?.id) ctx.switchChain(providerChain)
+					if (providerChain !== ctx.chain.current?.id) await ctx.switchChain(providerChain!, true)
 				} else {
-					// unsupported chain, switch to default chain
-					await ctx.switchChain(base.id, true)
+					// unsupported chain, use default chain
+					if (ctx.chain.current === null) await ctx.switchChain(DEFAULT_CHAIN, true)
 				}
 			}
-
-			ctx.account.set(account)
 		},
 
 		async disconnect() {
@@ -121,14 +127,14 @@ export function createWeb3Ctx() {
 
 			const { chainId } = getAccount(config)
 			if (!isChainSupported(chainId as ChainId)) {
-				await switchChain(config, { chainId: ctx.chain.current?.id ?? base.id })
+				await switchChain(config, { chainId: ctx.chain.current?.id ?? DEFAULT_CHAIN })
 			}
 
 			return true;
 		},
 
 		async switchChain(id: ChainId, forceProviderSwitch = false) {
-			if (forceProviderSwitch) {
+			if (forceProviderSwitch && ctx.account.current) {
 				const { chainId } = getAccount(config)
 				if (chainId !== id) await switchChain(config, { chainId: id })
 			}
@@ -144,7 +150,7 @@ export function createWeb3Ctx() {
 				address: '0x4557B18E779944BFE9d78A672452331C186a9f48',
 				chainId: ctx.chain.current!.id
 			})
-			
+
 			return balance.value
 		},
 
@@ -229,7 +235,8 @@ export function createWeb3Ctx() {
 						id: p.id,
 						name: hexToString(p.name, { size: 16 }),
 						pixels: bytesToPixels(p.pixels),
-						delays: bytesToDelays(p.delays).map(arr => ({ idx: arr[0], delay: arr[1] }))
+						delays: bytesToDelays(p.delays).map(arr => ({ idx: arr[0], delay: arr[1] })),
+						owner: acc
 					}));
 
 					set(plates)
@@ -386,7 +393,7 @@ export function createWeb3Ctx() {
 			});
 
 			const pixelIds = bytesToPixelIds(trade.pixels)
-			
+
 			return pixelIds.length ? {
 				...trade,
 				id,
@@ -550,19 +557,34 @@ export function createWeb3Ctx() {
 		async getPlate(tokenId: bigint) {
 			const chain = await ctx.ensureChain()
 
-			const rawPlate = await readContract(config, {
-				address: chain.contracts.plts,
-				abi: magicPlatesABI,
-				functionName: "plateById",
-				args: [tokenId],
-				chainId: chain.id
+			const [plateRes, ownerRes] = await readContracts(config, {
+				contracts: [
+					{
+						address: chain.contracts.plts,
+						abi: magicPlatesABI,
+						functionName: "plateById",
+						args: [tokenId],
+						chainId: chain.id
+					},
+					{
+						address: chain.contracts.plts,
+						abi: magicPlatesABI,
+						functionName: "ownerOf",
+						args: [tokenId],
+						chainId: chain.id
+					}
+				]
 			})
+
+			if (plateRes.error) throw "Failed"
+			const rawPlate = plateRes.result
 
 			return {
 				id: rawPlate.id,
-				name: rawPlate.name,
+				name: hexToString(rawPlate.name, { size: 16 }),
 				pixels: bytesToPixels(rawPlate.pixels),
-				delays: bytesToDelays(rawPlate.delays).map(arr => ({ idx: arr[0], delay: arr[1] }))
+				delays: bytesToDelays(rawPlate.delays).map(arr => ({ idx: arr[0], delay: arr[1] })),
+				owner: ownerRes.result!
 			} as Plate
 		}
 	}
@@ -590,8 +612,8 @@ export function createWeb3Ctx() {
 
 	ctx.chain.subscribe(c => console.log(c))
 
-	const passedChain = getPassedChain()
-	if (passedChain) ctx.switchChain(passedChain)
+	// const passedChain = getPassedChain()
+	// if (passedChain) ctx.switchChain(passedChain)
 
 	ctx.connect()
 
