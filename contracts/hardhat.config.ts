@@ -1,8 +1,8 @@
 import type { HardhatUserConfig } from 'hardhat/config'
 import '@nomicfoundation/hardhat-toolbox'
-import "@nomicfoundation/hardhat-viem";
+import "@nomicfoundation/hardhat-viem"
 
-import '@openzeppelin/hardhat-upgrades';
+import '@openzeppelin/hardhat-upgrades'
 
 require('dotenv').config()
 
@@ -36,6 +36,7 @@ const config: HardhatUserConfig = {
 
 	etherscan: {
     apiKey: {
+			base: process.env['ETHERSCAN_BASE']!,
       arbitrumOne: process.env['ETHERSCAN_ARB']!,
 			polygon: process.env['ETHERSCAN_POLY']!
     }
