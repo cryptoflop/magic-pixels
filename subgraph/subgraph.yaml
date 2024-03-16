@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: Pixels
-    network: matic
+    network: base
     source:
-      address: "0xD21aC4aDDE5d4D7a2A351a97B39B8096F9cE9d35"
       abi: PxlsCore
-      startBlock: 50392110
+      address: "0xDB2C5884deb0338a40308391177872B0e1fC87a9"
+      startBlock: 11857800
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -27,11 +27,11 @@ dataSources:
       file: ./src/pixels.ts
   - kind: ethereum
     name: Trades
-    network: matic
+    network: base
     source:
-      address: "0xD21aC4aDDE5d4D7a2A351a97B39B8096F9cE9d35"
       abi: TrdsCore
-      startBlock: 50392110
+      address: "0xDB2C5884deb0338a40308391177872B0e1fC87a9"
+      startBlock: 11857800
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

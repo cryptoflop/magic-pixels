@@ -1,0 +1,22 @@
+{
+  "base": {
+    "Pixels": {
+      "address": "0xDB2C5884deb0338a40308391177872B0e1fC87a9",
+			"startBlock": 11857800
+    },
+		"Trades": {
+			"address": "0xDB2C5884deb0338a40308391177872B0e1fC87a9",
+			"startBlock": 11857800
+		}
+  },
+  "matic": {
+    "Pixels": {
+      "address": "0xD21aC4aDDE5d4D7a2A351a97B39B8096F9cE9d35",
+			"startBlock": 50392110
+    },
+		"Trades": {
+			"address": "0xD21aC4aDDE5d4D7a2A351a97B39B8096F9cE9d35",
+			"startBlock": 50392110
+		}
+  }
+}
