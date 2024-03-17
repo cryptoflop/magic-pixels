@@ -8,7 +8,7 @@ import { pxlsCoreABI, pxlsNetherABI, magicPlatesABI, trdsCoreABI, pxlsCommonABI 
 
 import { subgraphExecute, AllPixelsByAccountDocument, AllTradesForAccountDocument } from "../../subgraph/.graphclient"
 import PixelBalances from "../helpers/pixel-balances";
-import { getContractEvents } from "viem/actions";
+import { estimateContractGas, getContractEvents } from "viem/actions";
 
 function savePixels(balances: PixelBalances, blockNumber: bigint, addr: Address, chain: string) {
 	localStorage.setItem("pixels_" + chain + "_" + addr, balances.toString())
@@ -92,7 +92,12 @@ export function createWeb3Ctx() {
 				window.history.replaceState({}, "chain", '?' + searchParams.toString())
 			} else {
 				if (isChainSupported(providerChain)) {
-					if (providerChain !== ctx.chain.current?.id) await ctx.switchChain(providerChain!, true)
+					if (ctx.chain.current === null) {
+						await ctx.switchChain(providerChain!)
+					} else {
+						await switchChain(config, { chainId: ctx.chain.current.id })
+					}
+					// if (providerChain !== ctx.chain.current?.id) await ctx.switchChain(providerChain!, true)
 				} else {
 					// unsupported chain, use default chain
 					if (ctx.chain.current === null) await ctx.switchChain(DEFAULT_CHAIN, true)
@@ -405,13 +410,23 @@ export function createWeb3Ctx() {
 			await ctx.ensureConnected()
 			const chain = ctx.chain.current!
 
+			// since conjurment is random, we need to make sure the tx is topped up with enough gas
+			const gas = await estimateContractGas(getClient(config, { chainId: chain.id as 137 }), {
+				address: chain.contracts.pxls,
+				abi: pxlsCoreABI,
+				functionName: 'conjure',
+				args: [BigInt(numPixels)],
+				value: parseEther(ctx.price.current!.toString()) * BigInt(numPixels)
+			})
+
 			const hash = await writeContract(config, {
 				address: chain.contracts.pxls,
 				abi: pxlsCoreABI,
 				functionName: 'conjure',
 				args: [BigInt(numPixels)],
 				value: parseEther(ctx.price.current!.toString()) * BigInt(numPixels),
-				chainId: chain.id
+				chainId: chain.id,
+				gas: gas + (gas / 5n)
 			})
 
 			const { status, blockNumber } = await waitForTransactionReceipt(config, { hash, confirmations: 2, chainId: chain.id })
@@ -611,9 +626,6 @@ export function createWeb3Ctx() {
 	})
 
 	ctx.chain.subscribe(c => console.log(c))
-
-	// const passedChain = getPassedChain()
-	// if (passedChain) ctx.switchChain(passedChain)
 
 	ctx.connect()
 
