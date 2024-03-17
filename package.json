@@ -24,6 +24,6 @@
 	"dependencies": {
 		"@wagmi/core": "^2.6.5",
 		"graphql": "^16.7.1",
-		"viem": "^2.8.6"
+		"viem": "^2.8.10"
 	}
 }
