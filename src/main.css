@@ -18,6 +18,10 @@
   cursor: var(--cursor-default);
 }
 
+body {
+	overflow: hidden;
+}
+
 .cursor-default {
   cursor: var(--cursor-default);
 }
@@ -66,8 +70,13 @@ input[type=range]::-webkit-slider-thumb {
   width: 8px;
   background: #f5f5f7;
   -webkit-appearance: none;
-	@apply cursor-pointer;
+	@apply cursor-grab;
 }
+
+input[type=range]::-webkit-slider-thumb:active {
+	@apply cursor-grabbing;
+}
+
 
 input::placeholder {
   color: rgba(255, 255, 255, 0.3);

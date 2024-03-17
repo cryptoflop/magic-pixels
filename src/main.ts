@@ -2,7 +2,7 @@ import './main.css'
 import App from './App.svelte'
 
 import cursor from './assets/images/cursor.png';
-import pointCursor from './assets/images/cursor-point.png';
+import pointCursor from './assets/images/cursor-pointer.png';
 import grabCursor from './assets/images/cursor-grab.png';
 import grabbingCursor from './assets/images/cursor-grabbing.png';
 
