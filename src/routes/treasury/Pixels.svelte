@@ -7,7 +7,7 @@
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const pixels = web3.pixels;
 
-	const pixelArr = $pixels.toArray().map((id) => decodePixel(id));
+	$: pixelArr = $pixels.toArray().map((id) => decodePixel(id));
 
 	let filteredPixels: Pixel[] = [];
 </script>

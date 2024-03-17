@@ -357,6 +357,7 @@
 		/>
 	{:else}
 		<PixelPalette
+			classPixel="cursor-grab"
 			pixels={availablePixels.map((id) => decodePixel(id))}
 			cols={5}
 			on:mousedown={(e) => grab(e.detail.pxl, e.detail.ev)}
@@ -399,7 +400,7 @@
 
 		<div
 			id="drop-overlay"
-			class="absolute inset-0 z-[1]"
+			class="absolute cursor-pointer inset-0 z-[1]"
 			on:click={releasePixel}
 			on:mousemove={updateHover}
 			on:mouseleave={() => (hovering = -1)}
@@ -428,7 +429,7 @@
 							<div
 								class="absolute border-2 px-1 py-0.5 text-center w-[120px] mt-2 -ml-12"
 							>
-								Hover over any multicolor pixel and scroll to adjust the time
+								When hovering over any multicolor pixel, scroll to adjust the time
 								offset! Press shift to use decimal steps.
 							</div>
 						</div>

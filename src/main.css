@@ -91,6 +91,7 @@ input::placeholder {
 
 ::-webkit-scrollbar-thumb {
   @apply bg-white;
+	@apply cursor-pointer;
 }
 
 ::-moz-selection {
