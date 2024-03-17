@@ -42,18 +42,19 @@ export function createRoutingCtx() {
 				set(route ? routes[route] : routes[root])
 			}
 			ctx.root.subscribe(update)
-			ctx.route.subscribe(update);
+			ctx.route.subscribe(update)
 		})),
 
 		goto(root: string, route?: string, params?: Record<string, string>) {
-			const sp = new URLSearchParams(window.location.search)
-			if (params) Object.keys(params).forEach(key => sp.set(key, params[key]))
+			const sp = new URLSearchParams()
+
 			sp.set("root", root)
 			if (route !== undefined && root !== route) {
 				sp.set("route", route!)
 			} else {
 				sp.delete("route")
 			}
+			if (params) Object.keys(params).forEach(key => sp.set(key, params[key]))
 
 			window.history.pushState(params, root + route, '?' + sp.toString())
 			ctx.params.set(params)
