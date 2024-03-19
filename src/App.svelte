@@ -17,7 +17,7 @@
 	
 	import atmosphereSrc from "./assets/sounds/atmoshpere.mp3";
 
-	createAudio(atmosphereSrc, { autoPlay: true, loop: true, volume: 0.1 });
+	createAudio(atmosphereSrc, { autoPlay: true, loop: true, volume: 0.08 });
 
 	hookButtonAudioQues();
 
