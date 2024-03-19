@@ -200,21 +200,14 @@ export function createWeb3Ctx() {
 
 					set(getPixels(acc, chain.tag)) // optimistically load pixels from storage 
 
-					const storedLastBlock = BigInt(localStorage.getItem("pixels_last_block_" + chain + "_" + acc) ?? "0")
+					const storedLastBlock = BigInt(localStorage.getItem("pixels_last_block_" + chain.tag + "_" + acc) ?? "0")
 
 					// if out of sync fetch pixel balances from subgraph // TODO use correct endpoint
 					const result = await subgraphExecute(AllPixelsByAccountDocument, { account: acc.toLowerCase(), block: storedLastBlock.toString() }, chain.tag)
 					const data: { balances: string, last_block: string } = (result.data?.pixelBalances ?? [])[0]
 
 					if (data) {
-						const pixelBalances = data.balances.split(";").reduce((prev, curr) => {
-							const raw = curr.split("=")
-							if (raw.length > 1) {
-								prev.set('0x' + raw[0].padEnd(8, "0") as Hex, Number(raw[1]))
-							}
-							return prev
-						}, new PixelBalances())
-
+						const pixelBalances = PixelBalances.fromString(data.balances)
 						set(pixelBalances)
 						savePixels(pixelBalances, BigInt(data.last_block), acc, chain.tag)
 					}
