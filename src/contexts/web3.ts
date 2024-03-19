@@ -625,8 +625,6 @@ export function createWeb3Ctx() {
 		}
 	})
 
-	ctx.chain.subscribe(c => console.log(c))
-
 	ctx.connect()
 
 	return ctx

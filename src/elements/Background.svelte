@@ -23,7 +23,7 @@
 						{ transform: `translate(${posX}px, ${posY}px)` },
 					],
 					{
-						duration: rndBtwn(4000, 6000),
+						duration: rndBtwn(6000, 8000),
 						iterations: 1,
 						easing: "ease-in-out",
 					},
@@ -61,7 +61,7 @@
 			}
 
 			function getColorStops() {
-				return ["black", pixelColor(rndColorIdx(true)), "black"].map((s) => ({
+				return ["transparent", pixelColor(rndColorIdx(true)), "transparent"].map((s) => ({
 					backgroundColor: s,
 				}));
 			}

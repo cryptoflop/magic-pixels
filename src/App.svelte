@@ -9,7 +9,7 @@
 	import { createAudio } from "./helpers/audio";
 	import Wallet from "./elements/Wallet.svelte";
 	import Intro from "./elements/Intro.svelte";
-	import RpcState from "./elements/RPCState.svelte";
+	import Web3State from "./elements/Web3State.svelte";
 	import ToastOutlet from "./elements/ToastOutlet.svelte";
 	import DiscordLink from "./elements/DiscordLink.svelte";
 	import ChainSelector from "./elements/ChainSelector.svelte";
@@ -50,5 +50,5 @@
 	<ToastOutlet />
 
 	<DiscordLink />
-	<RpcState />
+	<Web3State />
 </main>

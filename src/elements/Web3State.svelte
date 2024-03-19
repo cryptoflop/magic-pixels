@@ -5,10 +5,14 @@
 
   const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
   const acc = web3.account;
+
+	function reset() {
+
+	}
 </script>
 
 {#if $acc}
-  <div class="absolute w-2 h-2 bottom-4 right-4 overflow-visible" use:tooltip={"Connected to mainnet"}>
+  <div class="absolute w-2 h-2 bottom-4 right-4 overflow-visible" use:tooltip={"Connected to mainnet\nClick to reset"} on:click={e => e.button == 3 && reset()}>
     <div class="bg-green-500 h-1.5 w-1.5 absolute ml-px mt-px pointer-events-none" />
     <div class="bg-green-500 h-2 w-2 animate-ping pointer-events-none opacity-70" />
   </div>
