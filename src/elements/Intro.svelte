@@ -54,5 +54,5 @@
 			>Market</span
 		> if you want to trade pixels.
 	</span>
-	<button class="button mt-4 mx-auto" on:click={ok}>Ok</button>
+	<button class="button mt-6 mx-auto text-xl underline" on:click={ok}>Ok</button>
 </div>
