@@ -83,7 +83,7 @@
 				`You successfully closed a ${
 					trade!.tradeType === 0 ? "sell" : "buy"
 				} trade for ${formatEther(trade!.price)} ${
-					import.meta.env.VITE_VALUE_SYMBOL
+					$chain?.symbol
 				}.`,
 			);
 		} catch (err) {
@@ -98,7 +98,7 @@
 			`You successfully canceled your trade\n restoring ${
 				trade!.tradeType == 0 ? trade!.pixels.length : formatEther(trade!.price)
 			} ${
-				trade!.tradeType == 0 ? "pixels" : import.meta.env.VITE_VALUE_SYMBOL
+				trade!.tradeType == 0 ? "pixels" : $chain?.symbol
 			}.`,
 		);
 	}

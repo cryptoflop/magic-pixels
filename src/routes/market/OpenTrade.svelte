@@ -17,6 +17,7 @@
 	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
 	const acc = web3.account;
 	const pixels = web3.pixels;
+	const chain = web3.chain;
 
 	let selectedPixels: PixelId[] = [];
 
@@ -125,7 +126,7 @@
 		{/if}
 
 		<div class="grid">
-			<div>Price ({import.meta.env.VITE_VALUE_SYMBOL})</div>
+			<div>Price ({$chain?.symbol})</div>
 			<input
 				placeholder="0.00"
 				class="border-2 bg-transparent outline-none text-base/5 px-1 mr-auto"

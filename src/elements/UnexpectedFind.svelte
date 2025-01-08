@@ -4,10 +4,13 @@
 	import { pixelemitter } from "../directives/pixelemitter";
 	import { createAudio } from "../helpers/audio";
 	import sparkleSrc from "../assets/sounds/sparkle.mp3";
+	import type { createWeb3Ctx } from "../contexts/web3";
 
 	export let amount: string;
 
 	const toast = getContext<ReturnType<typeof createToastCtx>>("toast");
+	const web3 = getContext<ReturnType<typeof createWeb3Ctx>>("web3");
+	const chain = web3.chain;
 
 	onMount(() =>
 		createAudio(sparkleSrc, {
@@ -28,7 +31,7 @@
 		use:pixelemitter={{ active: true, colored: true }}
 	>
 		You found {amount}
-		{import.meta.env.VITE_VALUE_SYMBOL}
+		{$chain?.symbol}
 	</div>
 	<button class="button mt-4 mx-auto" on:click={toast.close}>Ok</button>
 </div>
