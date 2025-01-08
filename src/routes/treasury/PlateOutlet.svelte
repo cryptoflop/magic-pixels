@@ -8,7 +8,7 @@
 	import type { createToastCtx } from "../../contexts/toast";
 	import { createAudio } from "../../helpers/audio";
 	import shatterSrc from "../../assets/sounds/shatter.mp3";
-	import openseaImg from "../../assets/images/sea.png";
+	import mpImg from "../../assets/images/me.png";
 
 	const toast = getContext<ReturnType<typeof createToastCtx>>("toast");
 
@@ -44,7 +44,7 @@
 		}
 	}
 
-	$: marketplaceLink = `https://opensea.io/assets/${$chain?.tag}/${$chain?.contracts.plts}/${plate?.id}`;
+	$: marketplaceLink = `https://magiceden.io/item-details/${$chain?.tag}/${$chain?.contracts.plts}/${plate?.id}`;
 
 	const plateSize = (plate: Plate) => {
 		const s = Math.sqrt(plate.pixels.length);
@@ -123,7 +123,7 @@
 				class="button ml-auto flex items-center gap-1"
 			>
 				Marketplace
-				<img src={openseaImg} class="w-4 h-4" />
+				<img src={mpImg} class="w-4 h-4" />
 			</a>
 		{/if}
 	</div>
