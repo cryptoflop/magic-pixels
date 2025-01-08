@@ -38,8 +38,8 @@ export function createWeb3Ctx() {
 	const config = createConfig({
 		chains: [base, polygon],
 		transports: {
-			[base.id]: http(import.meta.env.VITE_RPC_BASE),
-			[polygon.id]: http(import.meta.env.VITE_RPC_MATIC)
+			[base.id]: http(),
+			[polygon.id]: http()
 		},
 	})
 
@@ -150,9 +150,10 @@ export function createWeb3Ctx() {
 
 		async getBalance() {
 			await ctx.ensureConnected()
+			const { address } = getAccount(config)
 
 			const balance = await getBalance(config, {
-				address: '0x4557B18E779944BFE9d78A672452331C186a9f48',
+				address: address!,
 				chainId: ctx.chain.current!.id
 			})
 
